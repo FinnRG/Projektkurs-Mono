@@ -28,7 +28,7 @@ fn get_storage() -> Storage {
     Storage {
         region: Region::Custom {
             region: "minio".into(),
-            endpoint: "http://localhost:9000".into(),
+            endpoint: "http://minio:9000".into(),
         },
         credentials: Credentials {
             access_key: Some("minio-admin".to_owned()),
