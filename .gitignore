@@ -1,0 +1,4 @@
+backend/target
+backend/postgres/target
+backend/media
+frontend/node_modules
