@@ -9,6 +9,8 @@ use s3::{creds::Credentials, Bucket, BucketConfiguration, Region};
 use std::{error::Error, process::Command};
 use tokio::fs;
 use uuid::Uuid;
+use dotenv::dotenv;
+use std::env;
 
 // Import routes separated into different files
 mod upload;
@@ -25,10 +27,11 @@ struct Storage {
 }
 
 fn get_storage() -> Storage {
+    let endpoint = env::var("MINIO_URL").expect("MINIO_URL must be set.");
     Storage {
         region: Region::Custom {
             region: "minio".into(),
-            endpoint: "http://minio:9000".into(),
+            endpoint: endpoint,
         },
         credentials: Credentials {
             access_key: Some("minio-admin".to_owned()),
@@ -72,6 +75,9 @@ async fn get_file(mut name: String) -> ByteStream![Vec<u8>] {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
+
+    dotenv().ok();
+
     let bucket = get_bucket();
     Bucket::create_with_path_style(
         &bucket.name,

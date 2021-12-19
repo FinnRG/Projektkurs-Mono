@@ -30,7 +30,7 @@ FROM debian:buster-slim
 RUN apt-get update
 RUN apt-get install -y ffmpeg libpq-dev libssl-dev
 COPY --from=build /backend/target/release/backend /usr/src/backend
-COPY .env .env
+COPY .env.docker .env
 # COPY --from=build /holodeck/target/release/holodeck/target/x86_64-unknown-linux-musl/release/holodeck .
 
 # Run the binary

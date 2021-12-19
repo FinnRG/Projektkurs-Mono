@@ -18,3 +18,4 @@ uuid = { version = "1.0.0-alpha.1", features = [
 ] }
 postgres = { path = "./postgres/" }
 bcrypt = "0.10"
+dotenv = "0.15.0"
