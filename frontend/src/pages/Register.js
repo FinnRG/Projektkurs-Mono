@@ -46,6 +46,7 @@ const Register = () => {
             method: 'post',
             url: 'http://localhost:8000/user/register',
             data: BodyFormData,
+            withCredentials: true,
             headers: { 'Content-Type': 'multipart/form-data' }
         })
             .then((resp) => {
