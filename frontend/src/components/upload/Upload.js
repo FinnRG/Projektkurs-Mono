@@ -1,6 +1,6 @@
-import { Form } from 'react-bulma-components';
-import { useState } from 'react';
 import axios from 'axios';
+import { useState } from 'react';
+import { Form } from 'react-bulma-components';
 const { InputFile } = Form;
 
 const Upload = () => {
@@ -17,12 +17,12 @@ const Upload = () => {
         })
     }
 
-    return <>
+    return <main>
         <InputFile value={file} onChange={(e) => {
             setFile(e.target.files);
             upload(e.target.files.item(0));
         }} />
-    </>
+    </main>
 }
 
 export default Upload;

@@ -1,9 +1,6 @@
 pub mod schema;
 pub mod models;
-pub mod create_user;
-
-// Reexports
-pub use create_user::create_user;
+pub mod user;
 
 #[macro_use]
 extern crate diesel;

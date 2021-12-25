@@ -1,7 +1,7 @@
 import { useState } from 'react';
+import { Form } from 'react-bulma-components';
 import ReactHlsPlayer from 'react-hls-player';
 
-import { Form } from 'react-bulma-components';
 const { Input } = Form;
 
 
@@ -10,7 +10,7 @@ const Player = () => {
         'http://localhost:8000/get/'
     );
 
-    return (<>
+    return (<main>
         <Input type='text'
             placeholder='HLS Url...'
             value={hlsUrl}
@@ -21,7 +21,7 @@ const Player = () => {
             controls={true}
             width='60%'
             height='auto' />
-    </>
+    </main>
     )
 }
 export default Player;
