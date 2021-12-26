@@ -1,5 +1,5 @@
 [global.databases]
-postgres_logs = { url = "postgres://postgres:strongPassword@localhost/projekt" }
+postgres_logs = { url = "postgres://postgres:strongPassword@postgres-postgresql/projekt" }
 
 [release]
 ## Generate your own key using openssl with: "openssl rand -base64 32"
