@@ -17,7 +17,7 @@ RUN cargo build --release
 RUN rm src/*.rs
 
 # Copy the source code
-COPY ./Rocket.toml ./Rocket.toml
+COPY ./Rocket.toml.docker ./Rocket.toml
 COPY ./src ./src
 
 # Build for release.

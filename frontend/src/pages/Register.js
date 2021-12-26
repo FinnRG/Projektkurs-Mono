@@ -45,7 +45,11 @@ const Register = () => {
         client({
             method: 'post',
             url: 'http://localhost:8000/user/register',
-            data: BodyFormData,
+            params: {
+                username,
+                email,
+                password
+            },
             withCredentials: true,
             headers: { 'Content-Type': 'multipart/form-data' }
         })

@@ -12,15 +12,15 @@ const Login = () => {
     const [password, setPassword] = useState('');
 
     return <form onSubmit={(e) => {
-        let BodyFormData = new FormData();
-        BodyFormData.append('email', email);
-        BodyFormData.append('password', password);
         client({
             method: 'post',
             url: 'http://localhost:8000/user/login',
-            data: BodyFormData,
+            params: {
+                email,
+                password
+            },
             withCredentials: true,
-            headers: { 'Content-Type': 'multipart/form-data' }
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
         })
             .then((resp) => {
                 setSuccess(true);
