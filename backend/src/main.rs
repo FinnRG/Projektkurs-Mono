@@ -10,6 +10,7 @@ use std::{error::Error, process::Command};
 use tokio::fs;
 use uuid::Uuid;
 use dotenv::dotenv;
+use rocket_sync_db_pools::{diesel, database};
 use std::env;
 
 // Import routes separated into different files
@@ -47,6 +48,10 @@ fn get_bucket() -> Bucket {
     let minio = get_storage();
     Bucket::new_with_path_style(&minio.bucket, minio.region, minio.credentials).unwrap()
 }
+
+
+#[database("postgres_logs")]
+struct PostgresConn(diesel::PgConnection);
 
 #[get("/get/<name>")]
 async fn get_file(mut name: String) -> ByteStream![Vec<u8>] {
@@ -106,6 +111,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .mount("/upload", upload::routes())
         .mount("/user", user::routes())
         .attach(cors)
+        .attach(PostgresConn::fairing())
         .launch()
         .await?;
 
