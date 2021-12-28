@@ -1,5 +1,3 @@
-extern crate bcrypt;
-
 use postgres::user::*;
 use crate::PostgresConn;
 use rocket::Route;
@@ -10,7 +8,7 @@ use uuid::Uuid;
 #[post("/register?<username>&<email>&<password>")]
 async fn register(conn: PostgresConn, cookies: &CookieJar<'_>, username: String, email: String, password: String) -> Flash<Redirect> {
     let id = Uuid::new_v4().to_string();
-    let new_user = conn.run(move |c| create_user(&c, &id, &username, &email, &password)).await;
+    let new_user = conn.run(move |c| create_user(c, &id, &username, &email, &password)).await;
     cookies.add_private(Cookie::new("user_id", new_user.id));
 
     Flash::success(Redirect::to("/player"), "Successfully created a new user.")
@@ -19,7 +17,7 @@ async fn register(conn: PostgresConn, cookies: &CookieJar<'_>, username: String,
 #[post("/login?<email>&<password>")]
 async fn login(conn: PostgresConn, cookies: &CookieJar<'_>, email: String, password: String) -> Status {
 
-    match conn.run(move |c| check_password(&c, &email, &password)).await {
+    match conn.run(move |c| check_password(c, &email, &password)).await {
         Some(x) => {
             cookies.add_private(Cookie::new("user_id", x));
             Status::from_code(200).unwrap()

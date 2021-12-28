@@ -10,10 +10,9 @@ table! {
 table! {
     videos (id) {
         id -> Bpchar,
+        user_id -> Bpchar,
         title -> Text,
-        description -> Nullable<Text>,
-        creation_date -> Date,
-        user_id -> Nullable<Bpchar>,
+        description -> Text,
     }
 }
 

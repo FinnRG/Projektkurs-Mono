@@ -1,8 +1,6 @@
-use crate::schema::users;
-use crate::schema::videos;
-use std::time::SystemTime;
+use crate::schema::{users, videos};
 
-#[derive(Queryable, Identifiable, Debug)]
+#[derive(Queryable, Identifiable, Debug, PartialEq)]
 pub struct User {
     pub name: String,
     pub email: String,
@@ -19,20 +17,20 @@ pub struct NewUser<'a> {
     pub id: &'a str,
 }
 
-pub struct Video<'a> {
-    pub id: &'a str,
-    pub user_id: &'a str,
-    pub title: &'a str,
-    pub description: &'a str,
-    pub creation_date: SystemTime,
+#[derive(Queryable, Identifiable, Associations, Debug, PartialEq)]
+#[belongs_to(User)]
+pub struct Video {
+    pub id: String,
+    pub user_id: String,
+    pub title: String,
+    pub description: String,
 }
 
-#[derive(Insertable, Identifiable, Associations)]
-#[belongs_to(User)]
+#[derive(Insertable)]
 #[table_name="videos"]
 pub struct NewVideo<'a> {
     pub id: &'a str,
-    pub user_id: &'a str,
+    pub user_id:  &'a str,
     pub title: &'a str,
     pub description: &'a str,
 }
