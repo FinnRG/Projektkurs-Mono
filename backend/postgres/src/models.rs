@@ -9,7 +9,7 @@ pub struct User {
 }
 
 #[derive(Insertable)]
-#[table_name="users"]
+#[table_name = "users"]
 pub struct NewUser<'a> {
     pub name: &'a str,
     pub email: &'a str,
@@ -27,10 +27,10 @@ pub struct Video {
 }
 
 #[derive(Insertable)]
-#[table_name="videos"]
+#[table_name = "videos"]
 pub struct NewVideo<'a> {
     pub id: &'a str,
-    pub user_id:  &'a str,
+    pub user_id: &'a str,
     pub title: &'a str,
     pub description: &'a str,
 }

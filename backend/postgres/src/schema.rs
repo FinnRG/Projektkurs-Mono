@@ -18,7 +18,4 @@ table! {
 
 joinable!(videos -> users (user_id));
 
-allow_tables_to_appear_in_same_query!(
-    users,
-    videos,
-);
+allow_tables_to_appear_in_same_query!(users, videos,);
