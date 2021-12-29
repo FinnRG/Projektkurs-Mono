@@ -1,17 +1,17 @@
 #[macro_use]
 extern crate rocket;
 
+use dotenv::dotenv;
 use regex::Regex;
 use rocket::http::Method;
 use rocket::response::stream::ByteStream;
 use rocket_cors::{AllowedHeaders, AllowedOrigins};
+use rocket_sync_db_pools::{database, diesel};
 use s3::{creds::Credentials, Bucket, BucketConfiguration, Region};
+use std::env;
 use std::{error::Error, process::Command};
 use tokio::fs;
 use uuid::Uuid;
-use dotenv::dotenv;
-use rocket_sync_db_pools::{diesel, database};
-use std::env;
 
 // Import routes separated into different files
 mod upload;
@@ -49,7 +49,6 @@ fn get_bucket() -> Bucket {
     Bucket::new_with_path_style(&minio.bucket, minio.region, minio.credentials).unwrap()
 }
 
-
 #[database("postgres_logs")]
 struct PostgresConn(diesel::PgConnection);
 
@@ -80,7 +79,6 @@ async fn get_file(mut name: String) -> ByteStream![Vec<u8>] {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
-
     dotenv().ok();
 
     let bucket = get_bucket();

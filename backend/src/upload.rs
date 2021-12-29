@@ -1,8 +1,8 @@
-use rocket::Route;
-use rocket::Data;
-use rocket::response::Debug;
-use rocket::data::ToByteUnit;
 use crate::*;
+use rocket::data::ToByteUnit;
+use rocket::response::Debug;
+use rocket::Data;
+use rocket::Route;
 
 #[post("/<name>", data = "<paste>")]
 async fn upload(name: String, paste: Data<'_>) -> Result<String, Debug<std::io::Error>> {

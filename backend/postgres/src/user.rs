@@ -1,11 +1,17 @@
 use crate::*;
-use models::{User, NewUser};
-use bcrypt::{verify, hash, DEFAULT_COST};
+use bcrypt::{hash, verify, DEFAULT_COST};
+use models::{NewUser, User};
 
-pub fn create_user<'a>(conn: &PgConnection, id: &'a str, name: &'a str, email: &'a str, password: &'a str) -> User {
+pub fn create_user<'a>(
+    conn: &PgConnection,
+    id: &'a str,
+    name: &'a str,
+    email: &'a str,
+    password: &'a str,
+) -> User {
     use schema::users;
     let hash = hash(&password, DEFAULT_COST).expect("Unable to hash");
-    
+
     let new_user = NewUser {
         name,
         email,
@@ -20,17 +26,21 @@ pub fn create_user<'a>(conn: &PgConnection, id: &'a str, name: &'a str, email: &
     result
 }
 
-pub fn check_password<'a>(conn: &PgConnection, email: &'a str, password: &'a str) -> Option<String> {
+pub fn check_password<'a>(
+    conn: &PgConnection,
+    email: &'a str,
+    password: &'a str,
+) -> Option<String> {
     use schema::users;
-    
-    match users::table.filter(users::email.eq(email)).get_result::<User>(conn) {
-        Ok(user) => {
-            match verify(password, &user.password) {
-                Ok(_) => Some(user.id),
-                Err(_) => None
-            }
+
+    match users::table
+        .filter(users::email.eq(email))
+        .get_result::<User>(conn)
+    {
+        Ok(user) => match verify(password, &user.password) {
+            Ok(_) => Some(user.id),
+            Err(_) => None,
         },
         Err(_) => None,
     }
-
 }

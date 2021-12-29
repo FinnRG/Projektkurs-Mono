@@ -10,16 +10,12 @@ table! {
 table! {
     videos (id) {
         id -> Bpchar,
+        user_id -> Bpchar,
         title -> Text,
-        description -> Nullable<Text>,
-        creation_date -> Date,
-        user_id -> Nullable<Bpchar>,
+        description -> Text,
     }
 }
 
 joinable!(videos -> users (user_id));
 
-allow_tables_to_appear_in_same_query!(
-    users,
-    videos,
-);
+allow_tables_to_appear_in_same_query!(users, videos,);
