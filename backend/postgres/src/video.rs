@@ -24,7 +24,7 @@ pub fn create_video<'a>(
     result
 }
 
-pub fn list_videos(conn: &mut PgConnection) -> Vec<Video> {
+pub fn list_videos(conn: &PgConnection) -> Vec<Video> {
     schema::videos::table
         .load::<Video>(conn)
         .expect("Could not load videos")

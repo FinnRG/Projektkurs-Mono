@@ -1,4 +1,5 @@
 use crate::schema::{users, videos};
+use serde::Serialize;
 
 #[derive(Queryable, Identifiable, Debug, PartialEq)]
 pub struct User {
@@ -17,7 +18,7 @@ pub struct NewUser<'a> {
     pub id: &'a str,
 }
 
-#[derive(Queryable, Identifiable, Associations, Debug, PartialEq)]
+#[derive(Queryable, Identifiable, Associations, Debug, PartialEq, Serialize)]
 #[belongs_to(User)]
 pub struct Video {
     pub id: String,

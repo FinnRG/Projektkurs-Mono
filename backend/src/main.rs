@@ -16,6 +16,7 @@ use uuid::Uuid;
 // Import routes separated into different files
 mod upload;
 mod user;
+mod video;
 
 extern crate s3;
 
@@ -50,7 +51,7 @@ fn get_bucket() -> Bucket {
 }
 
 #[database("postgres_logs")]
-struct PostgresConn(diesel::PgConnection);
+pub struct PostgresConn(diesel::PgConnection);
 
 #[get("/get/<name>")]
 async fn get_file(mut name: String) -> ByteStream![Vec<u8>] {
@@ -108,6 +109,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .mount("/", routes![get_file])
         .mount("/upload", upload::routes())
         .mount("/user", user::routes())
+        .mount("/video", video::routes())
         .attach(cors)
         .attach(PostgresConn::fairing())
         .launch()

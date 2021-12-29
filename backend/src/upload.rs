@@ -1,22 +1,44 @@
+use crate::video::create;
 use crate::*;
 use rocket::data::ToByteUnit;
+use rocket::http::CookieJar;
+use rocket::http::Status;
 use rocket::response::Debug;
 use rocket::Data;
 use rocket::Route;
 
-#[post("/<name>", data = "<paste>")]
-async fn upload(name: String, paste: Data<'_>) -> Result<String, Debug<std::io::Error>> {
+#[post("/<name>?<description>", data = "<paste>")]
+async fn upload(
+    conn: PostgresConn,
+    cookies: &CookieJar<'_>,
+    name: String,
+    description: String,
+    paste: Data<'_>,
+) -> Status {
+    let user_id = match cookies.get_private("user_id") {
+        Some(user_id) => user_id.value().to_owned(),
+        None => return Status::from_code(401).unwrap(),
+    };
+
     // Ensures that the id always ends with a letter so it doesn't break the regex in /get
     let id = Uuid::new_v4().to_string() + "a";
-    fs::create_dir_all(format!("media/{}/output", id)).await?;
-    let output_path = format!("media/{id}/{id}", id = id);
+    let main_folder = format!("media/{}", id);
+    let paste_path = format!("{}/{}", main_folder, id);
 
-    paste.open(1u32.gibibytes()).into_file(&output_path).await?;
+    fs::create_dir_all(format!("media/{}/output/", id))
+        .await
+        .expect("Unable to create dir");
+
+    paste
+        .open(1u32.gibibytes())
+        .into_file(&paste_path)
+        .await
+        .expect("Unable to paste file");
 
     let _output = Command::new("/usr/bin/ffmpeg")
         .args(&[
             "-i",
-            &output_path,
+            &paste_path,
             "-codec:",
             "copy",
             "-start_number",
@@ -44,8 +66,13 @@ async fn upload(name: String, paste: Data<'_>) -> Result<String, Debug<std::io::
             .unwrap();
     }
 
-    fs::remove_dir_all(format!("media/{}", id)).await?;
-    Ok(String::from("Successfull"))
+    create(conn, id, user_id, name, description).await;
+
+    /*fs::remove_dir_all(main_folder)
+    .await
+    .expect("Unable to remove dir");*/
+
+    Status::from_code(200).unwrap()
 }
 
 pub fn routes() -> Vec<Route> {
