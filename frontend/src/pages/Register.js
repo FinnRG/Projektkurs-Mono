@@ -5,6 +5,7 @@ import { Button, Form, Icon, Progress } from 'react-bulma-components';
 import { Navigate } from 'react-router-dom';
 import zxcvbn from 'zxcvbn';
 import { client } from '../App';
+import InputFormField from '../components/shared/InputFormField';
 
 const { Field, Label, Control, Input, Help } = Form;
 
@@ -61,55 +62,15 @@ const Register = () => {
     }}>
 
         <Field>
-            <Label>Username</Label>
-            <Control>
-                <Input
-                    value={username}
-                    onChange={(e) => {
-                        return setUsername(e.target.value);
-                    }}
-                />
-                <Icon align='left' size='small'>
-                    <FontAwesomeIcon icon={faUser} />
-                </Icon>
-            </Control>
+            <InputFormField label={"Username"} value={username} setValue={setUsername} icon={faUser} />
+            <InputFormField label={"Email"} type={"email"} value={email} setValue={setEmail} icon={faEnvelope} />
+            <InputFormField label={"Password"} type={"password"} value={password} setValue={setPassword} icon={faLock} >
+                <Progress className='mb-0' max={4} value={passwordStrength} size='small' color={passwordColor} />
+                <Help color={passwordColor}>
+                    {password.length > 0 && (passwordStrength <= 2 ? 'Password ist nicht stark genug!' : 'Password ist stark!')}
+                </Help>
+            </InputFormField>
         </Field>
-
-        <Field>
-            <Label>Email</Label>
-            <Control>
-                <Input
-                    value={email}
-                    type='email'
-                    onChange={(e) => {
-                        return setEmail(e.target.value);
-                    }} />
-                <Icon align='left' size='small'>
-                    <FontAwesomeIcon icon={faEnvelope} />
-                </Icon>
-            </Control>
-        </Field>
-
-        <Field>
-            <Label>Password</Label>
-            <Control>
-                <Input
-                    value={password}
-                    type='password'
-                    onChange={(e) => {
-                        return setPassword(e.target.value);
-                    }} />
-                <Icon align='left' size='small'>
-                    <FontAwesomeIcon icon={faLock} />
-                </Icon>
-                <Progress max={4} value={passwordStrength} size='small' color={passwordColor}
-                />
-            </Control>
-            <Help color={passwordColor}>
-                {password.length > 0 && (passwordStrength <= 2 ? 'Password ist nicht stark genug!' : 'Password ist stark!')}
-            </Help>
-        </Field>
-
 
         <Field kind='group'>
             <Control>
