@@ -1,13 +1,13 @@
 import { faEnvelope, faLock, faUser } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useState } from 'react';
-import { Button, Form, Icon, Progress } from 'react-bulma-components';
+import { Form, Progress } from 'react-bulma-components';
 import { Navigate } from 'react-router-dom';
 import zxcvbn from 'zxcvbn';
 import { client } from '../App';
-import InputFormField from '../components/shared/InputFormField';
+import FormInputField from '../components/shared/FormInputField';
+import FormSubmitButton from '../components/shared/FormSubmitButton';
 
-const { Field, Label, Control, Input, Help } = Form;
+const { Field, Help } = Form;
 
 const calculatePasswordColor = (passwordStrength) => {
     switch (passwordStrength) {
@@ -38,11 +38,7 @@ const Register = () => {
 
     const passwordColor = calculatePasswordColor(passwordStrength);
 
-    return <form onSubmit={(e) => {
-        let BodyFormData = new FormData();
-        BodyFormData.append('name', username);
-        BodyFormData.append('email', email);
-        BodyFormData.append('password', password);
+    const handleSubmit = (e) => {
         client({
             method: 'post',
             url: 'http://localhost:8000/user/register',
@@ -59,29 +55,23 @@ const Register = () => {
             })
             .catch((err) => console.log(err))
         e.preventDefault();
-    }}>
+
+    }
+
+    return <form>
 
         <Field>
-            <InputFormField label={"Username"} value={username} setValue={setUsername} icon={faUser} />
-            <InputFormField label={"Email"} type={"email"} value={email} setValue={setEmail} icon={faEnvelope} />
-            <InputFormField label={"Password"} type={"password"} value={password} setValue={setPassword} icon={faLock} >
+            <FormInputField label={"Username"} value={username} setValue={setUsername} icon={faUser} />
+            <FormInputField label={"Email"} type={"email"} value={email} setValue={setEmail} icon={faEnvelope} />
+            <FormInputField label={"Password"} type={"password"} value={password} setValue={setPassword} icon={faLock} >
                 <Progress className='mb-0' max={4} value={passwordStrength} size='small' color={passwordColor} />
                 <Help color={passwordColor}>
                     {password.length > 0 && (passwordStrength <= 2 ? 'Password ist nicht stark genug!' : 'Password ist stark!')}
                 </Help>
-            </InputFormField>
+            </FormInputField>
         </Field>
 
-        <Field kind='group'>
-            <Control>
-                <Button color='link'>Submit</Button>
-            </Control>
-            <Control>
-                <Button color='link' colorVariant='light'>
-                    Cancel
-                </Button>
-            </Control>
-        </Field>
+        <FormSubmitButton setters={[setUsername, setEmail, setPassword]} submit={handleSubmit} />
 
         {success && (
             <Navigate to='/player' replace />

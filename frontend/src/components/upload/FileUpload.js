@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Form } from 'react-bulma-components';
 const { InputFile } = Form;
 
-const Upload = () => {
+const FileUpload = () => {
 
     let [file, setFile] = useState(null);
 
@@ -25,4 +25,4 @@ const Upload = () => {
     </main>
 }
 
-export default Upload;
+export default FileUpload;

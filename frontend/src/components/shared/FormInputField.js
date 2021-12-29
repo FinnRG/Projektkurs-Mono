@@ -2,7 +2,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Form, Icon } from 'react-bulma-components';
 const { Input, Label, Control } = Form;
 
-const InputFormField = (props) => {
+const FormInputField = (props) => {
     return <>
         <Label>{props.label}</Label>
         <Control>
@@ -20,4 +20,4 @@ const InputFormField = (props) => {
     </>
 }
 
-export default InputFormField;
+export default FormInputField;

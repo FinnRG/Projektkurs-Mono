@@ -3,7 +3,7 @@ import { wrapper } from 'axios-cookiejar-support';
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { CookieJar } from 'tough-cookie';
 import Player from './components/player/Player';
-import Upload from './components/upload/Upload';
+import Upload from './pages/Upload';
 import { Layout } from './Layout';
 import Id from './pages/Id';
 import Login from './pages/Login';

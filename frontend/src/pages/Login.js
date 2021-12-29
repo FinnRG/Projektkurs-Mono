@@ -1,9 +1,9 @@
 import { faEnvelope, faLock } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useState } from 'react';
-import { Button, Form, Icon } from 'react-bulma-components';
+import { Button, Form } from 'react-bulma-components';
 import { client } from '../App';
-import InputFormField from '../components/shared/InputFormField';
+import FormInputField from '../components/shared/FormInputField';
+import FormSubmitButton from '../components/shared/FormSubmitButton';
 
 const { Field, Control } = Form;
 
@@ -12,7 +12,7 @@ const Login = () => {
     const [success, setSuccess] = useState(false);
     const [password, setPassword] = useState('');
 
-    return <form onSubmit={(e) => {
+    const handleSubmit = (e) => {
         client({
             method: 'post',
             url: 'http://localhost:8000/user/login',
@@ -28,23 +28,17 @@ const Login = () => {
             })
             .catch((err) => console.log(err))
         e.preventDefault();
-    }}>
+    }
+
+    return <form>
         <Field>
-            <InputFormField label={"Email"} type={"email"} value={email} setValue={setEmail} icon={faEnvelope} />
-            <InputFormField label={"Password"} type={"password"} value={password} setValue={setPassword} icon={faLock} />
+            <FormInputField label={"Email"} type={"email"} value={email} setValue={setEmail} icon={faEnvelope} />
+            <FormInputField label={"Password"} type={"password"} value={password} setValue={setPassword} icon={faLock} />
         </Field>
 
-        <Field kind='group'>
-            <Control>
-                <Button color='link'>Submit</Button>
-            </Control>
-            <Control>
-                <Button color='link' colorVariant='light'>
-                    Cancel
-                </Button>
-            </Control>
-        </Field>
-    </form>
+        <FormSubmitButton setters={[setEmail, setPassword]} submit={handleSubmit} />
+
+    </form >
 }
 
 export default Login;
