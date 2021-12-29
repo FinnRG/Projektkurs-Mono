@@ -68,9 +68,9 @@ async fn upload(
 
     create(conn, id, user_id, name, description).await;
 
-    /*fs::remove_dir_all(main_folder)
-    .await
-    .expect("Unable to remove dir");*/
+    fs::remove_dir_all(main_folder)
+        .await
+        .expect("Unable to remove dir");
 
     Status::from_code(200).unwrap()
 }
