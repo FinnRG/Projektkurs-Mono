@@ -1,7 +1,7 @@
-use crate::schema::{users, videos};
+use crate::schema::{comments, users, videos};
 use serde::Serialize;
 
-#[derive(Queryable, Identifiable, Debug, PartialEq)]
+#[derive(Queryable, Identifiable, Debug)]
 pub struct User {
     pub id: String,
     pub name: String,
@@ -18,7 +18,7 @@ pub struct NewUser<'a> {
     pub password: &'a str,
 }
 
-#[derive(Queryable, Identifiable, Associations, Debug, PartialEq, Serialize)]
+#[derive(Queryable, Identifiable, Associations, Debug, Serialize)]
 #[belongs_to(User)]
 pub struct Video {
     pub id: String,
@@ -34,4 +34,22 @@ pub struct NewVideo<'a> {
     pub user_id: &'a str,
     pub title: &'a str,
     pub description: &'a str,
+}
+
+#[derive(Queryable, Identifiable, Associations, Debug, Serialize)]
+#[belongs_to(User)]
+#[belongs_to(Video)]
+pub struct Comment {
+    pub id: i32,
+    pub user_id: String,
+    pub video_id: String,
+    pub content: String,
+}
+
+#[derive(Insertable)]
+#[table_name = "comments"]
+pub struct NewComment<'a> {
+    pub user_id: &'a str,
+    pub video_id: &'a str,
+    pub content: &'a str,
 }

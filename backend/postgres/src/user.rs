@@ -19,11 +19,10 @@ pub fn create_user<'a>(
         password: &hash,
     };
 
-    let result = diesel::insert_into(users::table)
+    diesel::insert_into(users::table)
         .values(&new_user)
         .get_result(conn)
-        .expect("Error saving new user");
-    result
+        .expect("Error saving new user")
 }
 
 pub fn check_password<'a>(
