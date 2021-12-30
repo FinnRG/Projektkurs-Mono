@@ -46,7 +46,7 @@ async fn logout(cookies: &CookieJar<'_>) {
     cookies
         .get_private("user_id")
         .map(|crumb| cookies.remove_private(crumb));
-} 
+}
 
 #[get("/id", format = "text/html")]
 fn id(cookies: &CookieJar<'_>) -> Option<String> {

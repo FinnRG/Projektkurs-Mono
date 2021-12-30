@@ -7,7 +7,7 @@ pub fn create_video<'a>(
     user_id: &'a str,
     title: &'a str,
     description: &'a str,
-) -> usize {
+) {
     use schema::videos;
 
     let new_video = NewVideo {
@@ -17,11 +17,10 @@ pub fn create_video<'a>(
         description,
     };
 
-    let result = diesel::insert_into(videos::table)
+    diesel::insert_into(videos::table)
         .values(&new_video)
         .execute(conn)
         .expect("Error saving new video");
-    result
 }
 
 pub fn list_videos(conn: &PgConnection) -> Vec<Video> {
