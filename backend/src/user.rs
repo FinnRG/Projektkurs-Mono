@@ -41,6 +41,13 @@ async fn login(
     }
 }
 
+#[post("/logout")]
+async fn logout(cookies: &CookieJar<'_>) {
+    cookies
+        .get_private("user_id")
+        .map(|crumb| cookies.remove_private(crumb));
+} 
+
 #[get("/id", format = "text/html")]
 fn id(cookies: &CookieJar<'_>) -> Option<String> {
     cookies
@@ -49,5 +56,5 @@ fn id(cookies: &CookieJar<'_>) -> Option<String> {
 }
 
 pub fn routes() -> Vec<Route> {
-    routes![register, login, id]
+    routes![register, login, logout, id]
 }
