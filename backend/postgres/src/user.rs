@@ -13,10 +13,10 @@ pub fn create_user<'a>(
     let hash = hash(&password, DEFAULT_COST).expect("Unable to hash");
 
     let new_user = NewUser {
+        id,
         name,
         email,
         password: &hash,
-        id,
     };
 
     let result = diesel::insert_into(users::table)

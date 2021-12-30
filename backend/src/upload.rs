@@ -12,7 +12,7 @@ async fn upload(
     conn: PostgresConn,
     cookies: &CookieJar<'_>,
     name: String,
-    description: String,
+    description: Option<String>,
     paste: Data<'_>,
 ) -> Status {
     let user_id = match cookies.get_private("user_id") {
@@ -35,12 +35,14 @@ async fn upload(
         .await
         .expect("Unable to paste file");
 
-    let _output = Command::new("/usr/bin/ffmpeg")
+    Command::new("/usr/bin/ffmpeg")
         .args(&[
             "-i",
             &paste_path,
             "-codec:",
             "copy",
+            "-c:a",
+            "aac",
             "-start_number",
             "0",
             "-hls_time",
@@ -66,7 +68,7 @@ async fn upload(
             .unwrap();
     }
 
-    create(conn, id, user_id, name, description).await;
+    create(conn, id, user_id, name, description.unwrap_or("".to_string())).await;
 
     fs::remove_dir_all(main_folder)
         .await

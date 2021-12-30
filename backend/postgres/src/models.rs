@@ -3,19 +3,19 @@ use serde::Serialize;
 
 #[derive(Queryable, Identifiable, Debug, PartialEq)]
 pub struct User {
+    pub id: String,
     pub name: String,
     pub email: String,
     pub password: String,
-    pub id: String,
 }
 
 #[derive(Insertable)]
 #[table_name = "users"]
 pub struct NewUser<'a> {
+    pub id: &'a str,
     pub name: &'a str,
     pub email: &'a str,
     pub password: &'a str,
-    pub id: &'a str,
 }
 
 #[derive(Queryable, Identifiable, Associations, Debug, PartialEq, Serialize)]
