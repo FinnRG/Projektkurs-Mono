@@ -3,8 +3,9 @@ const { InputFile } = Form;
 
 const FileUpload = (props) => {
 
-    return <InputFile value={props.value} onChange={(e) => {
-        props.setValue(e.target.files);
+    return <InputFile onChange={(e) => {
+        console.log(e.target.files);
+        props.setValue(e.target.files[0]);
     }} />
 }
 

@@ -9,6 +9,9 @@ const Header = () => {
                     <Link to='player'>
                         Player
                     </Link>
+                    <Link to='videos'>
+                        Videos
+                    </Link>
                     <Link to='upload'>
                         Upload
                     </Link>

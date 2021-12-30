@@ -1,27 +1,17 @@
-import { useState } from 'react';
-import { Form } from 'react-bulma-components';
 import ReactHlsPlayer from 'react-hls-player';
-
-const { Input } = Form;
-
+import { useParams } from 'react-router';
 
 const Player = () => {
-    const [hlsUrl, setHlsUrl] = useState(
-        'http://localhost:8000/get/'
-    );
 
-    return (<main>
-        <Input type='text'
-            placeholder='HLS Url...'
-            value={hlsUrl}
-            onChange={(e) => setHlsUrl(e.target.value)} />
-        <ReactHlsPlayer
-            src={hlsUrl}
-            autoPlay={false}
-            controls={true}
-            width='60%'
-            height='auto' />
-    </main>
-    )
+    const params = useParams();
+
+    return <ReactHlsPlayer
+        src={'http://localhost:8000/get/' + params.video_id}
+        autoPlay={false}
+        controls={true}
+        className='is-flex is-justify-content-center'
+        style={{ display: 'block', width: '60%', margin: '0 auto' }}
+        height='auto' />
 }
+
 export default Player;

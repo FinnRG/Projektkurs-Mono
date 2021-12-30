@@ -10,24 +10,23 @@ const { Field } = Form;
 
 const Upload = () => {
 
-    const [file, setFile] = useState(null);
+    const [file, setFile] = useState('');
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [success, setSuccess] = useState(false);
 
     const handleSubmit = (e) => {
 
-        client({
-            method: 'post',
-            url: 'http://localhost:8000/upload/' + title,
-            data: file[0],
+        client.post(`http://localhost:8000/upload/${title}`, file, {
+            withCredentials: true,
             params: {
                 description,
             },
-            withCredentials: true,
-            headers: { 'Content-Type': file.type }
+            headers: {
+                'Content-Type': file.type,
+            }
         })
-            .then((resp) => setSuccess(true))
+            .then((_) => setSuccess(true))
             .catch((err) => console.log(err))
         e.preventDefault();
     }
@@ -38,7 +37,7 @@ const Upload = () => {
             <FormInputField label={"Description"} value={description} setValue={setDescription} icon={faAlignLeft} />
         </Field>
         <Field className="mb-1">
-            <FileUpload value={file} setValue={setFile} />
+            <FileUpload setValue={setFile} />
         </Field>
         <FormSubmitButton submit={handleSubmit} setters={[setFile, setTitle, setDescription]} />
     </form>
