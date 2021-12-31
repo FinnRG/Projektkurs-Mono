@@ -8,6 +8,14 @@ table! {
 }
 
 table! {
+    likes (user_id, video_id) {
+        value -> Bool,
+        user_id -> Bpchar,
+        video_id -> Bpchar,
+    }
+}
+
+table! {
     users (id) {
         id -> Bpchar,
         name -> Text,
@@ -26,6 +34,5 @@ table! {
 }
 
 joinable!(comments -> users (user_id));
-joinable!(comments -> videos (video_id));
 
-allow_tables_to_appear_in_same_query!(comments, users, videos,);
+allow_tables_to_appear_in_same_query!(comments, likes, users, videos,);
