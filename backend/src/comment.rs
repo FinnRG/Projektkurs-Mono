@@ -1,18 +1,10 @@
+use crate::util::get_user_id;
 use crate::PostgresConn;
 use postgres::comment::UserComment;
 use postgres::comment::*;
 use rocket::http::{CookieJar, Status};
 use rocket::serde::json::Json;
 use rocket::Route;
-
-macro_rules! get_user_id {
-    ($cookies: ident) => {
-        match $cookies.get_private("user_id") {
-            Some(id) => id.value().to_owned(),
-            None => return Status::from_code(401).unwrap(),
-        }
-    };
-}
 
 #[post("/create?<video_id>&<content>")]
 async fn create(

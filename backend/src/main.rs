@@ -15,6 +15,7 @@ use uuid::Uuid;
 
 // Import routes separated into different files
 mod comment;
+mod like;
 mod upload;
 mod user;
 mod video;
@@ -53,6 +54,19 @@ fn get_bucket() -> Bucket {
 
 #[database("postgres_logs")]
 pub struct PostgresConn(diesel::PgConnection);
+
+mod util {
+    #[macro_export]
+    macro_rules! get_user_id {
+        ($cookies: ident) => {
+            match $cookies.get_private("user_id") {
+                Some(id) => id.value().to_owned(),
+                None => return Status::from_code(401).unwrap(),
+            }
+        };
+    }
+    pub(crate) use get_user_id;
+}
 
 #[get("/get/<name>")]
 async fn get_file(mut name: String) -> ByteStream![Vec<u8>] {
@@ -112,6 +126,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .mount("/user", user::routes())
         .mount("/video", video::routes())
         .mount("/comment", comment::routes())
+        .mount("/like", like::routes())
         .attach(cors)
         .attach(PostgresConn::fairing())
         .launch()
