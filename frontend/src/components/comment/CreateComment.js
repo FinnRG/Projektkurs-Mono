@@ -19,7 +19,6 @@ const CreateComment = (props) => {
                 video_id: params.video_id,
                 content: content
             },
-            withCredentials: true
         })
             .then(() => {
                 setLoading(false);
