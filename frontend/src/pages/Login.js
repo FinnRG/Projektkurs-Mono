@@ -20,7 +20,6 @@ const Login = () => {
                 email,
                 password
             },
-            withCredentials: true,
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
         })
             .then((resp) => {
