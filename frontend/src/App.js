@@ -13,7 +13,7 @@ import Player from './components/player/Player';
 import CommentView from './components/player/CommentView';
 
 const jar = new CookieJar();
-export const client = wrapper(axios.create({ jar }));
+export const client = wrapper(axios.create({ jar, withCredentials: true }));
 
 export const App = () => {
 
