@@ -10,6 +10,7 @@ import Register from './pages/Register';
 import VideoList from './pages/VideoList';
 import PlayerPage from './pages/PlayerPage';
 import Player from './components/player/Player';
+import CommentView from './components/player/CommentView';
 
 const jar = new CookieJar();
 export const client = wrapper(axios.create({ jar }));
@@ -21,7 +22,7 @@ export const App = () => {
             <Route path='/' element={<Layout />}>
                 <Route path='player' element={<PlayerPage />} >
                     <Route index element={<main><p>Select a video</p></main>} />
-                    <Route path=':video_id' element={<Player />} />
+                    <Route path=':video_id' element={<><Player /><CommentView /></>} />
                 </Route>
                 <Route path='videos' element={<VideoList />} />
                 <Route path='upload' element={<Upload />} />
