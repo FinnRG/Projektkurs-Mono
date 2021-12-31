@@ -1,7 +1,7 @@
 use crate::PostgresConn;
+use postgres::comment::UserComment;
 use postgres::comment::{create_comment, get_comment_by_video};
-use postgres::models::Comment;
-use rocket::http::{Cookie, CookieJar, Status};
+use rocket::http::{CookieJar, Status};
 use rocket::serde::json::Json;
 use rocket::Route;
 
@@ -24,7 +24,7 @@ async fn create(
 }
 
 #[get("/get?<video_id>")]
-async fn get(conn: PostgresConn, video_id: String) -> Json<Vec<Comment>> {
+async fn get(conn: PostgresConn, video_id: String) -> Json<Vec<UserComment>> {
     Json(conn.run(move |c| get_comment_by_video(c, &video_id)).await)
 }
 

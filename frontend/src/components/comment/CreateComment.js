@@ -5,7 +5,7 @@ import { client } from '../../App';
 
 const { Control, Field, Textarea } = Form;
 
-const CreateComment = () => {
+const CreateComment = (props) => {
 
     const params = useParams();
 
@@ -21,15 +21,18 @@ const CreateComment = () => {
             },
             withCredentials: true
         })
-            .then((_) => setLoading(false))
+            .then((_) => {
+                setLoading(false);
+                props.onCommentCreation();
+            })
             .catch((err) => console.log(err));
     };
 
     return <Media>
         <Media.Item align='center'>
             <Field>
-                <Control>
-                    <Textarea onChange={(e) => setContent(e.target.value)} className={loading && ('is-loading')} size='medium' placeholder='Enter your comment' />
+                <Control loading={loading}>
+                    <Textarea onChange={(e) => setContent(e.target.value)} size='medium' placeholder='Enter your comment' />
                 </Control>
             </Field>
             <Field>

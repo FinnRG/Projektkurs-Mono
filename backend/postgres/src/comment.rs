@@ -1,5 +1,6 @@
 use crate::*;
 use models::{Comment, NewComment};
+use serde::Serialize;
 
 pub fn create_comment<'a>(
     conn: &PgConnection,
@@ -35,16 +36,31 @@ pub fn get_comment_by_user(conn: &PgConnection, user_id: &str) -> Vec<Comment> {
         .expect("Unable to fetch comments for user")
 }
 
-pub fn get_comment_by_video(conn: &PgConnection, video_id: &str) -> Vec<Comment> {
-    use crate::schema::videos::dsl::videos;
-    use models::Video;
+#[derive(Queryable, Serialize)]
+pub struct UserComment {
+    content: String,
+    name: String,
+}
 
-    let video = videos
-        .find(video_id)
-        .first::<Video>(conn)
-        .expect("Video ID is not correct");
+pub fn get_comment_by_video(conn: &PgConnection, video_id: &str) -> Vec<UserComment> {
+    // use crate::schema::videos::dsl::videos;
+    // use models::Video;
+    use schema::comments;
+    use schema::users;
 
-    Comment::belonging_to(&video)
-        .load::<Comment>(conn)
-        .expect("Unable to fetch comment for video")
+    /*let video = videos
+    .find(video_id)
+    .first::<Video>(conn)
+    .expect("Video ID is not correct");*/
+
+    comments::table
+        .inner_join(users::table)
+        .filter(comments::video_id.eq(video_id))
+        .select((comments::content, users::name))
+        .load::<UserComment>(conn)
+        .expect("Unable to fetch comments for video")
+
+    /*Comment::belonging_to(&video)
+    .load::<Comment>(conn)
+    .expect("Unable to fetch comment for video")*/
 }
