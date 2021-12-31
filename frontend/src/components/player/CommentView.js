@@ -21,20 +21,19 @@ const CommentView = () => {
             .catch((err) => console.log(err));
     };
 
-    const onCommentCreation = () => {
-        console.log(comments);
-        getComments();
-        console.log(comments);
-    }
-
     useEffect(() => {
         getComments();
     }, []);
 
     return <Section>
         <Box>
-            {comments.map((comment) => <Comment username={comment.name} content={comment.content} />)}
-            <CreateComment onCommentCreation={onCommentCreation} />
+            {comments.map((comment, index) => <Comment
+                key={index}
+                username={comment.name}
+                content={comment.content}
+                comment_id={comment.id}
+                onUpdate={getComments} />)}
+            <CreateComment onUpdate={getComments} />
         </Box>
     </Section>
 }

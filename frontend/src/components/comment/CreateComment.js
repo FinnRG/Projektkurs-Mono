@@ -21,9 +21,9 @@ const CreateComment = (props) => {
             },
             withCredentials: true
         })
-            .then((_) => {
+            .then(() => {
                 setLoading(false);
-                props.onCommentCreation();
+                props.onUpdate();
             })
             .catch((err) => console.log(err));
     };
