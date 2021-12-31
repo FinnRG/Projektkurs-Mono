@@ -1,5 +1,7 @@
 pub mod models;
 pub mod schema;
+
+pub mod comment;
 pub mod user;
 pub mod video;
 

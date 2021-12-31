@@ -14,6 +14,7 @@ use tokio::fs;
 use uuid::Uuid;
 
 // Import routes separated into different files
+mod comment;
 mod upload;
 mod user;
 mod video;
@@ -110,6 +111,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .mount("/upload", upload::routes())
         .mount("/user", user::routes())
         .mount("/video", video::routes())
+        .mount("/comment", comment::routes())
         .attach(cors)
         .attach(PostgresConn::fairing())
         .launch()
