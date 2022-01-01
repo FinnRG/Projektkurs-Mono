@@ -4,7 +4,6 @@ import { client } from '../App';
 const Id = () => {
     const [id, setId] = useState('');
     client.get('http://localhost:8000/user/id', {
-        withCredentials: true,
         headers: {
             'Accept': 'text/html',
             'Content-Type': 'text/plain',

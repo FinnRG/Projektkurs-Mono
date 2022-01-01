@@ -14,7 +14,6 @@ const Comment = (props) => {
 
     const deleteComment = () => {
         client.post('http://localhost:8000/comment/delete', {}, {
-            withCredentials: true,
             params: {
                 comment_id: props.comment_id
             }

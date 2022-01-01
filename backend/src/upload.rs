@@ -1,3 +1,4 @@
+use crate::util::get_user_id;
 use crate::video::create;
 use crate::*;
 use rocket::data::ToByteUnit;
@@ -5,7 +6,6 @@ use rocket::http::CookieJar;
 use rocket::http::Status;
 use rocket::Data;
 use rocket::Route;
-use tokio;
 
 #[post("/<name>?<description>", data = "<paste>")]
 async fn upload(
@@ -15,10 +15,7 @@ async fn upload(
     description: Option<String>,
     paste: Data<'_>,
 ) -> Status {
-    let user_id = match cookies.get_private("user_id") {
-        Some(user_id) => user_id.value().to_owned(),
-        None => return Status::from_code(401).unwrap(),
-    };
+    let user_id = get_user_id!(cookies);
 
     // Ensures that the id always ends with a letter so it doesn't break the regex in /get
     let id = Uuid::new_v4().to_string() + "a";
