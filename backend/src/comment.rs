@@ -1,6 +1,5 @@
 use crate::util::get_user_id;
 use crate::PostgresConn;
-use postgres::comment::UserComment;
 use postgres::comment::*;
 use rocket::http::{CookieJar, Status};
 use rocket::serde::json::Json;
