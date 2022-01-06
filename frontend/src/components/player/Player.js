@@ -1,6 +1,6 @@
 import { faBars } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Box, Button, Columns, Container, Level } from 'react-bulma-components';
 import { useParams } from 'react-router';
 import ExtendedView from './ExtendedView';
@@ -15,6 +15,10 @@ const Player = () => {
     const handleExtendedView = () => {
         setExtendedView(!extendedView);
     }
+
+    useEffect(() => {
+        localStorage.setItem("last_video_id", params.video_id);
+    }, []);
 
     return <Box>
         <Container>
