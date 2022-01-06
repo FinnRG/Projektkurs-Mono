@@ -1,9 +1,9 @@
-import { Block, Level, Panel } from 'react-bulma-components';
+import { Block, Level, Panel, Tag } from 'react-bulma-components';
 import { useParams } from 'react-router';
 import { client } from '../../App';
 import Trash from '../shared/Trash';
 
-const Tag = (props) => {
+const TagViewElement = (props) => {
 
     const params = useParams();
 
@@ -21,14 +21,13 @@ const Tag = (props) => {
             .catch((err) => console.log(err));
     }
 
-    return <Block >
-        <Level justifyContent='space-between'>
+
+    return <Tag.Group hasAddons>
+        <Tag color='danger'>
             {props.name}
-            <Panel.Icon>
-                <Trash onClick={() => onDelete()} />
-            </Panel.Icon>
-        </Level>
-    </Block>
+        </Tag>
+        <Tag remove onClick={() => onDelete()} />
+    </Tag.Group>
 }
 
-export default Tag;
+export default TagViewElement;
