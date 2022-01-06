@@ -1,7 +1,7 @@
-import { faThumbsUp, faThumbsDown } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faThumbsDown, faThumbsUp } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useEffect, useState } from 'react';
-import { Box, Button, Container, Icon } from 'react-bulma-components';
+import { Button, Icon } from 'react-bulma-components';
 import { useParams } from 'react-router';
 import { client } from '../../App';
 
@@ -50,19 +50,18 @@ const Rating = () => {
             })
     };
 
-    return <Button.Group>
-        <Button onClick={() => {
-            if (ratingData.user_like == true) {
-                handleLikeRemove();
-            } else {
-                handleLike(true);
-            }
-        }}>
-            <Icon color={ratingData.user_like ? 'primary' : ''}>
-                <FontAwesomeIcon icon={faThumbsUp} />
-            </Icon>
-            {ratingData.likes != null && <p>{ratingData.likes}</p>}
-        </Button>
+    return <><Button onClick={() => {
+        if (ratingData.user_like == true) {
+            handleLikeRemove();
+        } else {
+            handleLike(true);
+        }
+    }}>
+        <Icon color={ratingData.user_like ? 'primary' : ''}>
+            <FontAwesomeIcon icon={faThumbsUp} />
+        </Icon>
+        {ratingData.likes != null && <p>{ratingData.likes}</p>}
+    </Button>
         <Button onClick={() => {
             if (ratingData.user_like == false) {
                 handleLikeRemove();
@@ -75,7 +74,7 @@ const Rating = () => {
             </Icon>
             {ratingData.dislikes != null && <p>{ratingData.dislikes}</p>}
         </Button>
-    </Button.Group>
+    </>
 }
 
 export default Rating;

@@ -1,6 +1,6 @@
 import { faEnvelope, faLock } from '@fortawesome/free-solid-svg-icons';
 import { useState } from 'react';
-import { Button, Form } from 'react-bulma-components';
+import { Form } from 'react-bulma-components';
 import { client } from '../App';
 import FormInputField from '../components/shared/FormInputField';
 import FormSubmitButton from '../components/shared/FormSubmitButton';

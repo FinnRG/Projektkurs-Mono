@@ -1,4 +1,4 @@
-use crate::schema::{comments, likes, users, videos};
+use crate::schema::{comments, likes, tags, users, videos};
 use serde::Serialize;
 
 #[derive(Queryable, Identifiable, Debug)]
@@ -70,4 +70,22 @@ pub struct NewLike<'a> {
     pub value: bool,
     pub user_id: &'a str,
     pub video_id: &'a str,
+}
+
+#[derive(Queryable, Identifiable, Associations, Debug)]
+#[belongs_to(User, foreign_key = "author")]
+pub struct Tag {
+    pub id: i32,
+    pub name: String,
+    pub description: String,
+    pub author: String,
+    pub deleted: bool,
+}
+
+#[derive(Insertable)]
+#[table_name = "tags"]
+pub struct NewTag<'a> {
+    pub name: &'a str,
+    pub description: &'a str,
+    pub author: &'a str,
 }

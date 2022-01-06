@@ -16,6 +16,7 @@ use uuid::Uuid;
 // Import routes separated into different files
 mod comment;
 mod like;
+mod tag;
 mod upload;
 mod user;
 mod video;
@@ -127,6 +128,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .mount("/video", video::routes())
         .mount("/comment", comment::routes())
         .mount("/like", like::routes())
+        .mount("/tag", tag::routes())
         .attach(cors)
         .attach(PostgresConn::fairing())
         .launch()

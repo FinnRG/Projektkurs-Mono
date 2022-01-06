@@ -1,4 +1,4 @@
-import { Form, Button } from 'react-bulma-components';
+import { Button, Form } from 'react-bulma-components';
 
 const { Field, Control } = Form;
 
