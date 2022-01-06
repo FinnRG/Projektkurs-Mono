@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Panel, Form, Button } from 'react-bulma-components';
+import { Button, Form, Panel } from 'react-bulma-components';
 import { useParams } from 'react-router';
 import { client } from '../../App';
 

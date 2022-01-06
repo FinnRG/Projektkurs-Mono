@@ -1,6 +1,3 @@
-import { useParams } from 'react-router';
-import { useEffect } from 'react/cjs/react.development';
-import { client } from '../../App';
 import TagViewElement from '../tag/Tag';
 
 const TagView = (props) => {

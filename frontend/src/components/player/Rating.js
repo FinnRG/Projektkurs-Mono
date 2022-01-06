@@ -1,7 +1,7 @@
-import { faThumbsUp, faThumbsDown } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faThumbsDown, faThumbsUp } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useEffect, useState } from 'react';
-import { Box, Button, Container, Icon } from 'react-bulma-components';
+import { Button, Icon } from 'react-bulma-components';
 import { useParams } from 'react-router';
 import { client } from '../../App';
 

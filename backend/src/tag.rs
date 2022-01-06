@@ -37,7 +37,12 @@ async fn add_to_video(
 }
 
 #[post("/remove?<tag_id>&<video_id>")]
-async fn remove_from_video(conn: PostgresConn, cookies: &CookieJar<'_>, tag_id: i32, video_id: String) -> Status {
+async fn remove_from_video(
+    conn: PostgresConn,
+    cookies: &CookieJar<'_>,
+    tag_id: i32,
+    video_id: String,
+) -> Status {
     // Checks that the user is logged in, serves no real purpose
     let _user_id = get_user_id!(cookies);
 

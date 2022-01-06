@@ -3,9 +3,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useState } from 'react';
 import { Box, Button, Columns, Container, Level } from 'react-bulma-components';
 import { useParams } from 'react-router';
+import ExtendedView from './ExtendedView';
 import Rating from './Rating';
 import StaticPlayer from './StaticPlayer';
-import ExtendedView from './ExtendedView';
 
 const Player = () => {
 

@@ -1,5 +1,5 @@
-import ReactHlsPlayer from 'react-hls-player';
 import React from 'react';
+import ReactHlsPlayer from 'react-hls-player';
 
 const StaticPlayer = (props) => {
     return <ReactHlsPlayer

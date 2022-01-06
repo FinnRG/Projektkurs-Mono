@@ -1,8 +1,7 @@
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Media, Content } from 'react-bulma-components';
-import Trash from '../shared/Trash';
-import { client } from '../../App';
+import { Content, Media } from 'react-bulma-components';
 import { useParams } from 'react-router';
+import { client } from '../../App';
+import Trash from '../shared/Trash';
 
 const { Item } = Media;
 
