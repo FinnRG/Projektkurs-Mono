@@ -73,7 +73,7 @@ const Register = () => {
         <FormSubmitButton setters={[setUsername, setEmail, setPassword]} submit={handleSubmit} />
 
         {success && (
-            <Navigate to='/player' replace />
+            <Navigate to='/videos' replace />
         )}
     </form>
 }

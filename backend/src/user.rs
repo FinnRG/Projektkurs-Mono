@@ -12,14 +12,14 @@ async fn register(
     username: String,
     email: String,
     password: String,
-) -> Flash<Redirect> {
+) -> Status {
     let id = Uuid::new_v4().to_string();
     let new_user = conn
         .run(move |c| create_user(c, &id, &username, &email, &password))
         .await;
     cookies.add_private(Cookie::new("user_id", new_user.id));
 
-    Flash::success(Redirect::to("/player"), "Successfully created a new user.")
+    Status::from_code(200).unwrap()
 }
 
 #[post("/login?<email>&<password>")]
