@@ -1,7 +1,6 @@
 use crate::PostgresConn;
 use postgres::user::*;
 use rocket::http::{Cookie, CookieJar, Status};
-use rocket::response::{Flash, Redirect};
 use rocket::Route;
 use uuid::Uuid;
 
@@ -43,9 +42,9 @@ async fn login(
 
 #[post("/logout")]
 async fn logout(cookies: &CookieJar<'_>) {
-    cookies
-        .get_private("user_id")
-        .map(|crumb| cookies.remove_private(crumb));
+    if let Some(crumb) = cookies.get_private("user_id") {
+        cookies.remove_private(crumb)
+    }
 }
 
 #[get("/id", format = "text/html")]

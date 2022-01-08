@@ -1,6 +1,6 @@
 use crate::*;
 use diesel::pg::upsert::*;
-use models::{NewTag, Tag};
+use models::{NewTag, Tag, TagUpdate};
 use serde::Serialize;
 
 pub fn create_tag<'a>(
@@ -8,7 +8,7 @@ pub fn create_tag<'a>(
     name: &'a str,
     description: Option<&'a str>,
     author: &'a str,
-) {
+) -> Tag {
     use schema::tags;
 
     let new_tag = NewTag {
@@ -19,8 +19,8 @@ pub fn create_tag<'a>(
 
     diesel::insert_into(tags::table)
         .values(&new_tag)
-        .execute(conn)
-        .expect("Error creating new tag");
+        .get_result(conn)
+        .expect("Error creating new tag")
 }
 
 pub fn add_tag_to_video(conn: &PgConnection, tag_id: i32, video_id: &str) {
@@ -76,6 +76,11 @@ pub fn restore_tag(conn: &PgConnection, tag_id: i32) {
         .expect("Unable to restore tag");
 }
 
+pub fn get_tags(conn: &PgConnection) -> Vec<Tag> {
+    use schema::tags;
+    tags::table.load::<Tag>(conn).expect("Unable to fetch tags")
+}
+
 #[derive(Queryable, Serialize)]
 pub struct VideoTag {
     id: i32,
@@ -99,4 +104,18 @@ pub fn get_tags_for_video(conn: &PgConnection, video_id: &str) -> Vec<VideoTag> 
         ))
         .load::<VideoTag>(conn)
         .expect("Unable to fetch tags for video")
+}
+
+pub fn update_tag<'a>(
+    conn: &PgConnection,
+    tag_id: i32,
+    name: Option<&'a str>,
+    description: Option<&'a str>,
+) {
+    use schema::tags;
+
+    diesel::update(tags::table.find(tag_id))
+        .set(&TagUpdate { name, description })
+        .execute(conn)
+        .expect("Unable to update tag");
 }

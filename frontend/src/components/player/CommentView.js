@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Box, Section } from 'react-bulma-components';
 import { useParams } from 'react-router';
-import { client } from '../../App';
+import client from '../../global/client';
 import Comment from '../comment/Comment';
 import CreateComment from '../comment/CreateComment';
 

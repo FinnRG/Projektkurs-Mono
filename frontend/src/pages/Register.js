@@ -1,11 +1,12 @@
 import { faEnvelope, faLock, faUser } from '@fortawesome/free-solid-svg-icons';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { Form, Progress } from 'react-bulma-components';
 import { Navigate } from 'react-router-dom';
 import zxcvbn from 'zxcvbn';
-import { client } from '../App';
 import FormInputField from '../components/shared/FormInputField';
 import FormSubmitButton from '../components/shared/FormSubmitButton';
+import client from '../global/client';
+import userContext from '../global/userContext';
 
 const { Field, Help } = Form;
 
@@ -28,14 +29,15 @@ const calculatePasswordColor = (passwordStrength) => {
 
 const Register = () => {
 
-    const [username, setUsername] = useState('testUser');
+    const user = useContext(userContext);
 
+    const [username, setUsername] = useState('testUser');
     const [email, setEmail] = useState('testEmail@email.com');
     const [password, setPassword] = useState('testPassword');
+
     const [success, setSuccess] = useState(null);
 
     const passwordStrength = zxcvbn(password).score;
-
     const passwordColor = calculatePasswordColor(passwordStrength);
 
     const handleSubmit = (e) => {
@@ -49,7 +51,8 @@ const Register = () => {
             },
             headers: { 'Content-Type': 'multipart/form-data' }
         })
-            .then((resp) => {
+            .then(() => {
+                user.setLoggedIn(true);
                 setSuccess(true);
             })
             .catch((err) => console.log(err))

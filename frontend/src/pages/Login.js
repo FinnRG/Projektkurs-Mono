@@ -1,10 +1,11 @@
 import { faEnvelope, faLock } from '@fortawesome/free-solid-svg-icons';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { Form } from 'react-bulma-components';
 import { Navigate } from 'react-router';
-import { client } from '../App';
 import FormInputField from '../components/shared/FormInputField';
 import FormSubmitButton from '../components/shared/FormSubmitButton';
+import client from '../global/client';
+import userContext from '../global/userContext';
 
 const { Field } = Form;
 
@@ -12,6 +13,8 @@ const Login = () => {
     const [email, setEmail] = useState('');
     const [success, setSuccess] = useState(false);
     const [password, setPassword] = useState('');
+
+    const user = useContext(userContext);
 
     const handleSubmit = (e) => {
         client({
@@ -23,7 +26,8 @@ const Login = () => {
             },
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
         })
-            .then((resp) => {
+            .then(() => {
+                user.setLoggedIn(true);
                 setSuccess(true);
             })
             .catch((err) => console.log(err))

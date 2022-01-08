@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useEffect, useState } from 'react';
 import { Button, Icon } from 'react-bulma-components';
 import { useParams } from 'react-router';
-import { client } from '../../App';
+import client from '../../global/client';
 
 const Rating = () => {
 
@@ -34,6 +34,9 @@ const Rating = () => {
         })
             .then(() => {
                 let updatedData = Object.assign({}, ratingData);
+                if (ratingData.user_like != null && ratingData.user_like !== value) {
+                    value ? (updatedData.dislikes -= 1) : updatedData.likes -= 1;
+                }
                 updatedData.user_like = value;
                 value ? (updatedData.likes += 1) : (updatedData.dislikes += 1);
                 setRatingData(updatedData);

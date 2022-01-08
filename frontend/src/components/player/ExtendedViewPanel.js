@@ -1,7 +1,8 @@
-import { useState } from 'react';
-import { Button, Form, Panel } from 'react-bulma-components';
+import { autocomplete } from '@algolia/autocomplete-js';
+import { useEffect, useState } from 'react';
+import { Form, Panel } from 'react-bulma-components';
 import { useParams } from 'react-router';
-import { client } from '../../App';
+import client from '../../global/client';
 
 const { Block, Header, Tabs } = Panel;
 
@@ -10,15 +11,54 @@ const ExtendedViewPanel = (props) => {
     const params = useParams();
 
     const [currentTab, setCurrentTab] = useState('playlists');
-    const [tagToAdd, setTagToAdd] = useState('');
 
-    const addTag = () => {
+    const [tags, setTags] = useState([]);
+
+    useEffect(() => {
+        client.get('http://localhost:8000/tag/get')
+            .then((resp) => {
+                setTags(resp.data);
+                autocomplete({
+                    container: '#autocomplete',
+                    placeholder: 'Search for tags',
+                    getSources({ setQuery, setIsOpen }) {
+                        return [{
+                            sourceId: 'id',
+                            getItems({ query }) {
+                                return resp.data.filter(({ deleted, name }) => deleted !== true && name.toLowerCase().includes(query.toLowerCase()))
+                            },
+                            onSelect({ item }) {
+                                setQuery('');
+                                setIsOpen(false);
+                                addTag(item.id);
+                            },
+                            getItemUrl({ item }) {
+                                return item.id;
+                            },
+                            templates: {
+                                item({ item }) {
+                                    return `${item.name}`
+                                }
+                            }
+                        }];
+                    },
+                    // Completely disables the built in navigation
+                    navigator: {
+                        navigate() { },
+                        navigateNewTab() { },
+                        navigateNewWindow() { },
+                    }
+                });
+            });
+    }, []);
+
+    const addTag = (tagId) => {
         client({
             method: 'POST',
             url: 'http://localhost:8000/tag/add',
             params: {
                 video_id: params.video_id,
-                tag_id: tagToAdd,
+                tag_id: tagId,
             }
         })
             .then(() => props.update());
@@ -38,16 +78,11 @@ const ExtendedViewPanel = (props) => {
             </Tabs.Tab>
         </Tabs>
 
-        {currentTab === 'tag' && (
-            <Block>
-                <Form.Field className='has-addons'>
-                    <Form.Input onChange={(e) => setTagToAdd(e.target.value)} />
-                    <Button onClick={() => addTag()} >
-                        Add
-                    </Button>
-                </Form.Field>
-            </Block>
-        )}
+        <Block display={currentTab === 'tag' ? 'visible' : 'hidden'}>
+            <Form.Field className='has-addons'>
+                <div id='autocomplete'></div>
+            </Form.Field>
+        </Block>
 
     </Panel>
 }

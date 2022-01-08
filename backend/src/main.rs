@@ -36,7 +36,7 @@ fn get_storage() -> Storage {
     Storage {
         region: Region::Custom {
             region: "minio".into(),
-            endpoint: endpoint,
+            endpoint,
         },
         credentials: Credentials {
             access_key: Some("minio-admin".to_owned()),
@@ -77,7 +77,7 @@ async fn get_file(mut name: String) -> ByteStream![Vec<u8>] {
 
     // Reroutes the /get/name to /get/name.m3u8 request
     if !(name.ends_with(".ts") || name.ends_with(".m3u8")) {
-        name = name + ".m3u8";
+        name += ".m3u8";
     }
 
     let path = format!("media/{}/output/{}", id, name);

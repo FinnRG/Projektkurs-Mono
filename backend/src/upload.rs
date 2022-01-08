@@ -72,7 +72,7 @@ async fn upload(
             id,
             user_id,
             name,
-            description.unwrap_or("".to_string()),
+            description.unwrap_or_else(|| "".to_string()),
         )
         .await;
 
