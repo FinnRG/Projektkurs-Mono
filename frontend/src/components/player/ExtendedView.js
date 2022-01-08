@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Container } from 'react-bulma-components';
 import { useParams } from 'react-router';
-import { client } from '../../App';
+import client from '../../global/client';
 import ExtendedViewPanel from './ExtendedViewPanel';
 import TagView from './TagView';
 

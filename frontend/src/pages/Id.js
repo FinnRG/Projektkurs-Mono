@@ -1,18 +1,11 @@
-import { useState } from 'react';
-import { client } from '../App';
+import { useContext } from 'react';
+import userContext from '../global/userContext';
 
 const Id = () => {
-    const [id, setId] = useState('');
-    client.get('http://localhost:8000/user/id', {
-        headers: {
-            'Accept': 'text/html',
-            'Content-Type': 'text/plain',
-        }
-    })
-        .then((resp) => setId(resp.data))
+    const user = useContext(userContext);
 
     return <>
-        <p>{id}</p>
+        <p>{user.userId}</p>
     </>
 }
 

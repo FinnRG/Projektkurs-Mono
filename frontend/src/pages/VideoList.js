@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { client } from '../App';
+import client from '../global/client';
 import VideoLink from '../components/list/VideoLink';
 
 const VideoList = () => {

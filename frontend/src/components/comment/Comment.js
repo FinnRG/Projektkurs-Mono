@@ -1,6 +1,6 @@
 import { Content, Media } from 'react-bulma-components';
 import { useParams } from 'react-router';
-import { client } from '../../App';
+import client from '../../global/client';
 import Trash from '../shared/Trash';
 
 const { Item } = Media;
