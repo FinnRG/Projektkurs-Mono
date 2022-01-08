@@ -72,12 +72,12 @@ pub struct NewLike<'a> {
     pub video_id: &'a str,
 }
 
-#[derive(Queryable, Identifiable, Associations, Debug)]
+#[derive(Queryable, Identifiable, Associations, Debug, Serialize)]
 #[belongs_to(User, foreign_key = "author")]
 pub struct Tag {
     pub id: i32,
     pub name: String,
-    pub description: String,
+    pub description: Option<String>,
     pub author: String,
     pub deleted: bool,
 }
@@ -88,4 +88,11 @@ pub struct NewTag<'a> {
     pub name: &'a str,
     pub description: &'a str,
     pub author: &'a str,
+}
+
+#[derive(AsChangeset)]
+#[table_name = "tags"]
+pub struct TagUpdate<'a> {
+    pub name: Option<&'a str>,
+    pub description: Option<&'a str>,
 }

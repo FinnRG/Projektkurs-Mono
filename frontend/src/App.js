@@ -9,6 +9,7 @@ import PlayerPage from './pages/PlayerPage';
 import Register from './pages/Register';
 import Upload from './pages/Upload';
 import VideoList from './pages/VideoList';
+import EditTag from './pages/EditTag';
 import client from './global/client';
 import userContext from './global/userContext';
 
@@ -53,6 +54,7 @@ export const App = () => {
                 </Route>
                 <Route path='videos' element={<VideoList />} />
                 <Route path='upload' element={<Upload />} />
+                <Route path='tag/edit' element={<EditTag />} />
                 <Route path='login' element={<Login />} />
                 <Route path='register' element={<Register />} />
                 <Route path='id' element={<Id />} />

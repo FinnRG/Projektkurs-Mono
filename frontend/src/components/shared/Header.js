@@ -37,11 +37,18 @@ const Header = () => {
                         </Link>
                     </Item>
                     {user.loggedIn && (
-                        <Item>
-                            <Link to='upload'>
-                                Upload
-                            </Link>
-                        </Item>
+                        <>
+                            <Item>
+                                <Link to='upload'>
+                                    Upload
+                                </Link>
+                            </Item>
+                            <Item>
+                                <Link to='tag/edit'>
+                                    Edit tags
+                                </Link>
+                            </Item>
+                        </>
                     )}
                     {!user.loggedIn && (
                         <>

@@ -1,5 +1,6 @@
 use crate::get_user_id;
 use crate::PostgresConn;
+use postgres::models::Tag;
 use postgres::tag::*;
 use rocket::http::{CookieJar, Status};
 use rocket::serde::json::Json;
@@ -11,13 +12,16 @@ async fn create(
     cookies: &CookieJar<'_>,
     name: String,
     description: Option<String>,
-) -> Status {
-    let user_id = get_user_id!(cookies);
-
-    conn.run(move |c| create_tag(c, &name, description.as_deref(), &user_id))
-        .await;
-
-    Status::from_code(200).unwrap()
+) -> Option<Json<Tag>> {
+    let user_id = cookies.get_private("user_id");
+    if user_id.is_some() {
+        let id = user_id.unwrap().value().to_owned();
+        return Some(Json(
+            conn.run(move |c| create_tag(c, &name, description.as_deref(), &id))
+                .await,
+        ));
+    }
+    None
 }
 
 #[post("/add?<tag_id>&<video_id>")]
@@ -50,6 +54,11 @@ async fn remove_from_video(
         .await;
 
     Status::from_code(200).unwrap()
+}
+
+#[get("/get")]
+async fn get(conn: PostgresConn) -> Json<Vec<Tag>> {
+    Json(conn.run(move |c| get_tags(c)).await)
 }
 
 #[get("/get?<video_id>")]
@@ -87,14 +96,33 @@ async fn restore(conn: PostgresConn, cookies: &CookieJar<'_>, tag_id: i32) -> St
     Status::from_code(200).unwrap()
 }
 
+#[post("/update?<tag_id>&<name>&<description>")]
+async fn update(
+    conn: PostgresConn,
+    cookies: &CookieJar<'_>,
+    tag_id: i32,
+    name: Option<String>,
+    description: Option<String>,
+) -> Status {
+    // Checks that the user is logged in, serves no real purpose
+    let _user_id = get_user_id!(cookies);
+
+    conn.run(move |c| update_tag(c, tag_id, name.as_deref(), description.as_deref()))
+        .await;
+
+    Status::from_code(200).unwrap()
+}
+
 pub fn routes() -> Vec<Route> {
     routes![
         add_to_video,
         create,
+        get,
         get_from_video,
         hard_delete,
         remove_from_video,
         restore,
-        soft_delete
+        soft_delete,
+        update
     ]
 }
