@@ -7,7 +7,7 @@ const TagView = (props) => {
     }
 
     return <>
-        {props.tags.map((tag, index) => <TagViewElement key={index} name={tag.name} tag_id={tag.id} onSuccess={() => removeTag(tag.id)} />)}
+        {props.tags.filter((tag) => !tag.deleted).map((tag, index) => <TagViewElement key={index} name={tag.name} tag_id={tag.id} onSuccess={() => removeTag(tag.id)} />)}
     </>
 }
 
