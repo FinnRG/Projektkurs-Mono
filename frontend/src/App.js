@@ -25,7 +25,10 @@ export const App = () => {
                     'Content-Type': 'text/plain',
                 }
             })
-                .then((resp) => setUserId(resp.data))
+                .then((resp) => {
+                    setLoggedIn(true);
+                    setUserId(resp.data);
+                })
                 .catch(() => null);
         }
         getId();
