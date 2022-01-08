@@ -3,7 +3,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useEffect, useState } from 'react';
 import { Button, Columns, Form, Panel } from 'react-bulma-components';
 import FormInputField from '../components/shared/FormInputField';
-import FormSubmitButton from '../components/shared/FormSubmitButton';
 import client from '../global/client';
 
 const { Field } = Form;

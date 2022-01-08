@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
-import { Button, Form, Panel } from 'react-bulma-components';
-import { useParams } from 'react-router';
 import { autocomplete } from '@algolia/autocomplete-js';
+import { useEffect, useState } from 'react';
+import { Form, Panel } from 'react-bulma-components';
+import { useParams } from 'react-router';
 import client from '../../global/client';
 
 const { Block, Header, Tabs } = Panel;

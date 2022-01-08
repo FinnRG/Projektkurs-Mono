@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import client from '../global/client';
 import VideoLink from '../components/list/VideoLink';
+import client from '../global/client';
 
 const VideoList = () => {
 

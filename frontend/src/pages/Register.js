@@ -3,9 +3,9 @@ import { useContext, useState } from 'react';
 import { Form, Progress } from 'react-bulma-components';
 import { Navigate } from 'react-router-dom';
 import zxcvbn from 'zxcvbn';
-import client from '../global/client';
 import FormInputField from '../components/shared/FormInputField';
 import FormSubmitButton from '../components/shared/FormSubmitButton';
+import client from '../global/client';
 import userContext from '../global/userContext';
 
 const { Field, Help } = Form;

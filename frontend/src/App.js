@@ -2,16 +2,16 @@ import React, { useEffect, useState } from 'react';
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import CommentView from './components/player/CommentView';
 import Player from './components/player/Player';
+import client from './global/client';
+import userContext from './global/userContext';
 import { Layout } from './Layout';
+import EditTag from './pages/EditTag';
 import Id from './pages/Id';
 import Login from './pages/Login';
 import PlayerPage from './pages/PlayerPage';
 import Register from './pages/Register';
 import Upload from './pages/Upload';
 import VideoList from './pages/VideoList';
-import EditTag from './pages/EditTag';
-import client from './global/client';
-import userContext from './global/userContext';
 
 export const App = () => {
 

@@ -2,9 +2,9 @@ import { faEnvelope, faLock } from '@fortawesome/free-solid-svg-icons';
 import { useContext, useState } from 'react';
 import { Form } from 'react-bulma-components';
 import { Navigate } from 'react-router';
-import client from '../global/client';
 import FormInputField from '../components/shared/FormInputField';
 import FormSubmitButton from '../components/shared/FormSubmitButton';
+import client from '../global/client';
 import userContext from '../global/userContext';
 
 const { Field } = Form;

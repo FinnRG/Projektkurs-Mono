@@ -1,10 +1,10 @@
 import { faAlignLeft, faHeading } from '@fortawesome/free-solid-svg-icons';
 import { useState } from 'react';
 import { Form, Progress } from 'react-bulma-components';
-import client from '../global/client';
 import FormInputField from '../components/shared/FormInputField';
 import FormSubmitButton from '../components/shared/FormSubmitButton';
 import FileUpload from '../components/upload/FileUpload';
+import client from '../global/client';
 
 const { Field } = Form;
 

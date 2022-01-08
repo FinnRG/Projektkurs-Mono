@@ -30,7 +30,7 @@ async fn remove(conn: PostgresConn, cookies: &CookieJar<'_>, video_id: String) -
 async fn info(conn: PostgresConn, cookies: &CookieJar<'_>, video_id: String) -> Json<VideoRating> {
     let user_id = cookies
         .get_private("user_id")
-        .map_or(None, |crumb| Some(crumb.value().to_owned()));
+        .map(|crumb| crumb.value().to_owned());
     Json(
         conn.run(move |c| info_like(c, user_id.as_deref(), &video_id))
             .await,
