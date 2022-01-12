@@ -26,7 +26,7 @@ tasks:
     command: |
       sudo mkdir /data
       sudo chown -R gitpod /data && sudo chmod u+rxw /data
-      MINIO_ROOT_USER=admin MINIO_ROOT_PASSWORD=strongPassword ./minio server /data --console-address ":9001"
+      MINIO_ROOT_USER=minio-admin MINIO_ROOT_PASSWORD=strongPassword ./minio server /data --console-address ":9001"
   - name: Backend
     init: |
       cd backend
