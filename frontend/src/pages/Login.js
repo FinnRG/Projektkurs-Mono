@@ -19,7 +19,7 @@ const Login = () => {
     const handleSubmit = (e) => {
         client({
             method: 'post',
-            url: 'http://localhost:8000/user/login',
+            url: '/user/login',
             params: {
                 email,
                 password

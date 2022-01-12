@@ -12,7 +12,7 @@ const CommentView = () => {
     const [comments, setComments] = useState([]);
 
     const getComments = () => {
-        client.get('http://localhost:8000/comment/get', {
+        client.get('/comment/get', {
             params: {
                 video_id: params.video_id
             }

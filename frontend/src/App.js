@@ -20,7 +20,7 @@ export const App = () => {
 
     useEffect(() => {
         const getId = () => {
-            client.get('http://localhost:8000/user/id', {
+            client.get('/user/id', {
                 headers: {
                     'Accept': 'text/html',
                     'Content-Type': 'text/plain',

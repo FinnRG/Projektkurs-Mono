@@ -19,14 +19,14 @@ const Rating = () => {
 
     useEffect(() => {
         const getLikeData = () => {
-            client.get('http://localhost:8000/like/info', axiosParams)
+            client.get('/like/info', axiosParams)
                 .then((resp) => setRatingData(resp.data))
         };
         getLikeData();
     }, []);
 
     const handleLike = (value) => {
-        client.post('http://localhost:8000/like/add', {}, {
+        client.post('/like/add', {}, {
             params: {
                 video_id: params.video_id,
                 value
@@ -44,7 +44,7 @@ const Rating = () => {
     };
 
     const handleLikeRemove = () => {
-        client.post('http://localhost:8000/like/remove', {}, axiosParams)
+        client.post('/like/remove', {}, axiosParams)
             .then(() => {
                 let updatedData = Object.assign({}, ratingData);
                 ratingData.user_like ? (updatedData.likes -= 1) : (updatedData.dislikes -= 1);

@@ -14,7 +14,7 @@ const CreateComment = (props) => {
 
     const handleSubmit = (e) => {
         setLoading(true);
-        client.post('http://localhost:8000/comment/create', {}, {
+        client.post('/comment/create', {}, {
             params: {
                 video_id: params.video_id,
                 content: content

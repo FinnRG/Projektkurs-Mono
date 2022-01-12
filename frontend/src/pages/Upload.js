@@ -19,7 +19,7 @@ const Upload = () => {
 
     const handleSubmit = (e) => {
 
-        client.post(`http://localhost:8000/upload/${title}`, file, {
+        client.post(`/upload/${title}`, file, {
             params: {
                 description,
             },

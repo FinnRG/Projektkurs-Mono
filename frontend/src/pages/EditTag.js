@@ -17,7 +17,7 @@ const EditTag = () => {
 
     useEffect(() => {
         const getTags = () => {
-            client.get('http://localhost:8000/tag/get')
+            client.get('/tag/get')
                 .then((resp) => setTags([...tags, ...resp.data]));
         };
 
@@ -31,7 +31,7 @@ const EditTag = () => {
     };
 
     const handleCreate = () => {
-        client.post('http://localhost:8000/tag/create', {}, {
+        client.post('/tag/create', {}, {
             params: {
                 tag_id: tagId,
                 name,
@@ -47,7 +47,7 @@ const EditTag = () => {
             return;
         }
 
-        client.post('http://localhost:8000/tag/update', {}, {
+        client.post('/tag/update', {}, {
             params: {
                 tag_id: tagId,
                 name,
@@ -57,7 +57,7 @@ const EditTag = () => {
     };
 
     const handleDelete = () => {
-        client.post('http://localhost:8000/tag/delete', {}, {
+        client.post('/tag/delete', {}, {
             params: {
                 tag_id: tagId
             }
