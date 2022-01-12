@@ -16,9 +16,12 @@ tasks:
       sudo apt-get -y install pkg-config libssl-dev libpq-dev
       sudo curl https://sh.rustup.rs -sSf | sh -s -- -y
       rustup default nightly
-      cargo install diesel_cli --no-default-features --features postgres 
+      cargo install diesel_cli --no-default-features --features postgres
       cd backend/postgres
+      cp src/shema.rs src/schema.rs.BAK
       diesel migration run
+      rm src/schema.rs
+      cp src/schema.rs.BAK src/schema.rs
     command: |
       echo "Hello to Projektkurs-Mono!"
   - name: Minio
