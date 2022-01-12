@@ -21,6 +21,5 @@ tasks:
       sudo systemctl stop postgresql.service
       sudo systemctl start postgresql.service
       sudo systemctl enable postgresql.service
-      sudo passwd postgres
     command: |
       echo "Hello to Projektkurs-Mono!"
