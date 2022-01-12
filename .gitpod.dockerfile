@@ -1,33 +1,7 @@
 # Note: You can use any Debian/Ubuntu based image you want. 
-FROM ubuntu:21.10
+FROM dtzar/helm-kubectl
 
-# Enable new "BUILDKIT" mode for Docker CLI
-ENV DOCKER_BUILDKIT=1
-
-# Options
-ARG INSTALL_ZSH="true"
-ARG UPGRADE_PACKAGES="false"
-ARG USE_MOBY="false"
-ARG USERNAME=vscode
-ARG USER_UID=1000
-ARG USER_GID=$USER_UID
-# Install needed packages and setup non-root user. Use a separate RUN statement to add your own dependencies.
-COPY .devcontainer/library-scripts/*.sh /tmp/library-scripts/
-RUN apt-get update && /bin/bash /tmp/library-scripts/common-debian.sh "${INSTALL_ZSH}" "${USERNAME}" "${USER_UID}" "${USER_GID}" "${UPGRADE_PACKAGES}" "true" "true" \
-    && /bin/bash /tmp/library-scripts/docker-in-docker-debian.sh "true" "${USERNAME}" "${USE_MOBY}" \ 
-    && /bin/bash /tmp/library-scripts/kubectl-helm-debian.sh "latest" "latest" "latest" \
-    && mkdir -p /home/${USERNAME}/.minikube \
-    && chown ${USERNAME} /home/${USERNAME}/.minikube \
-    && apt-get autoremove -y && apt-get clean -y && rm -rf /var/lib/apt/lists/* /tmp/library-scripts/ \
-    && apt-get update -y \
-    && apt-get install -y pkg-config libssl-dev ffmpeg libpq-dev podman
-    
-RUN cp /usr/share/containers/containers.conf /etc/containers/containers.conf \
-    && sed -i '/^# cgroup_manager = "systemd"/ a cgroup_manager = "cgroupfs"' /etc/containers/containers.conf \
-    # && sed -i '/^# events_logger = "journald"/ a events_logger = "file"' /etc/containers/containers.conf \
-    # && sed -i '/^driver = "overlay"/ c\driver = "vfs"' /etc/containers/storage.conf \
-    && echo podman:10000:5000 > /etc/subuid \
-    && echo podman:10000:5000 > /etc/subgid
+RUN apk add ffmpeg openssl libpq-dev
 
 VOLUME [ "/var/lib/docker" ]
 
