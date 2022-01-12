@@ -17,6 +17,8 @@ tasks:
       sudo curl https://sh.rustup.rs -sSf | sh -s -- -y
       rustup default nightly
       cargo install diesel_cli --no-default-features --features postgres 
+      cd backend/postgres
+      diesel migration run
     command: |
       echo "Hello to Projektkurs-Mono!"
   - name: Minio
@@ -33,7 +35,7 @@ tasks:
       npm install
     command: |
       cd frontend
-      npm start
+      REACT_APP_WORKSPACE_URL=$GITPOD_WORKSPACE_URL npm start
   - name: Backend
     init: |
       cd backend
