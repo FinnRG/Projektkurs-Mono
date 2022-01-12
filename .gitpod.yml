@@ -1,4 +1,4 @@
-image: gitpod/workspace-postgres
+image: .gitpod.dockerfile
 ports:
   - port: 8000
     onOpen: open-preview
@@ -12,7 +12,7 @@ tasks:
       mv backend/Rocket.toml backend/Rocket.toml.BAK
       mv backend/Rocket.toml.gitpod backend/Rocket.toml
       sudo apt-get update -y
-      sudo apt-get -y install pkg-config libssl-dev ffmpeg libpq-dev
+      sudo apt-get -y install pkg-config libssl-dev libpq-dev
       sudo curl https://sh.rustup.rs -sSf | sh -s -- -y
       rustup default nightly
       cargo install diesel_cli --no-default-features --features postgres 
@@ -31,6 +31,7 @@ tasks:
       cd backend
       cargo build
     command: |
+      cd backend
       gp await-port 9000
       gp await-port 5432
       cargo run
