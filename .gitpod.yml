@@ -1,4 +1,4 @@
-image: rust:1.57-bullseye
+image: ubuntu:21.10
 ports:
   - port: 8000
     onOpen: open-preview
@@ -22,6 +22,7 @@ tasks:
       sudo systemctl stop postgresql.service
       sudo systemctl start postgresql.service
       sudo systemctl enable postgresql.service
+      curl https://sh.rustup.rs -sSf | sh -s -- -y
       rustup default nightly
       cargo install diesel_cli --no-default-features --features postgres 
     command: |
