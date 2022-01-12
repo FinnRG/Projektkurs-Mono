@@ -23,6 +23,12 @@ tasks:
       sudo chmod +x minio
     command: |
       sudo chown -R gitpod /data && sudo chmod u+rxw /data
-      MINIO_ROOT_USER=admin MINIO_ROOT_PASSWORD=strongPassword ./minio server /data --console-address ":9001" &
-  - name: Postgres
-    command: sudo systemctl start postgresql.service
+      MINIO_ROOT_USER=admin MINIO_ROOT_PASSWORD=strongPassword ./minio server /data --console-address ":9001"
+  - name: Backend
+    init: |
+      cd backend
+      cargo build
+    command: |
+      gp await-port 9000
+      gp await-port 5432
+      cargo run
