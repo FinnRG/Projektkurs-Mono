@@ -1,18 +1,26 @@
 image: gitpod/workspace-full
-checkoutLocation: gitpod-k3s
+ports:
+  - port: 8000
+    onOpen: open-preview
+  - port: 3000
+    onOpen: open-preview
+  - port: 9001
+    onOpen: open-preview
 tasks:
-  - name: prepare k3s
-    command: |
-      .gitpod/prepare-k3s.sh
-  - name: kernel dev environment
+  - name: Projektkurs-Mono
     init: |
-      sudo apt update -y
-      sudo apt install qemu qemu-system-x86 linux-image-$(uname -r) libguestfs-tools sshpass netcat -y
-      sudo curl -o /usr/bin/kubectl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-      sudo chmod +x /usr/bin/kubectl
-      .gitpod/prepare-rootfs.sh
-      sudo curl https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get > install-helm.sh
-      sudo chmod +x install-helm.sh
-      ./install-helm.sh
+      sudo mkdir /data
+      sudo chown -R gitpod /data && sudo chmod u+rxw /data
+      wget https://dl.min.io/server/minio/release/linux-amd64/minio
+      chmod +x minio
+      MINIO_ROOT_USER=admin MINIO_ROOT_PASSWORD=strongPassword ./minio server /data --console-address ":9001" &
+      sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+      wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+      sudo apt-get update -y
+      sudo apt-get -y install postgresql pkg-config libssl-dev ffmpeg libpq-dev
+      sudo systemctl stop postgresql.service
+      sudo systemctl start postgresql.service
+      sudo systemctl enable postgresql.service
+      sudo passwd postgres
     command: |
-      .gitpod/qemu.sh
+      echo "Hello to Projektkurs-Mono!"
