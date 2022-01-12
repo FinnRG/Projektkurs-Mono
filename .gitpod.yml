@@ -21,7 +21,7 @@ tasks:
       cp src/schema.rs src/schema.rs.BAK
       diesel migration run
       rm src/schema.rs
-      cp src/schema.rs.BAK src/schema.rs
+      mv src/schema.rs.BAK src/schema.rs
     command: |
       echo "Hello to Projektkurs-Mono!"
   - name: Minio
