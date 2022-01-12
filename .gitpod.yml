@@ -19,9 +19,10 @@ tasks:
   - name: Minio
     init: |
       sudo mkdir /data
-      sudo chown -R gitpod /data && sudo chmod u+rxw /data
       wget https://dl.min.io/server/minio/release/linux-amd64/minio
       sudo chmod +x minio
-    command: MINIO_ROOT_USER=admin MINIO_ROOT_PASSWORD=strongPassword ./minio server /data --console-address ":9001" &
+    command: |
+      sudo chown -R gitpod /data && sudo chmod u+rxw /data
+      MINIO_ROOT_USER=admin MINIO_ROOT_PASSWORD=strongPassword ./minio server /data --console-address ":9001" &
   - name: Postgres
     commmand: sudo systemctl start postgresql.service
