@@ -7,20 +7,21 @@ ports:
   - port: 9001
     onOpen: open-preview
 tasks:
-  - name: Projektkurs-Mono
+  - name: Dependencies & Database
     init: |
-      mkdir /data
-      chown -R gitpod /data && sudo chmod u+rxw /data
-      wget https://dl.min.io/server/minio/release/linux-amd64/minio
-      chmod +x minio
-      MINIO_ROOT_USER=admin MINIO_ROOT_PASSWORD=strongPassword ./minio server /data --console-address ":9001" &
-      apt-get update -y
-      apt-get -y install postgresql pkg-config libssl-dev ffmpeg libpq-dev
-      systemctl stop postgresql.service
-      systemctl start postgresql.service
-      systemctl enable postgresql.service
-      curl https://sh.rustup.rs -sSf | sh -s -- -y
+      sudo apt-get update -y
+      sudo apt-get -y install pkg-config libssl-dev ffmpeg libpq-dev
+      sudo curl https://sh.rustup.rs -sSf | sh -s -- -y
       rustup default nightly
       cargo install diesel_cli --no-default-features --features postgres 
     command: |
       echo "Hello to Projektkurs-Mono!"
+  - name: Minio
+    init: |
+      sudo mkdir /data
+      sudo chown -R gitpod /data && sudo chmod u+rxw /data
+      wget https://dl.min.io/server/minio/release/linux-amd64/minio
+      sudo chmod +x minio
+    command: MINIO_ROOT_USER=admin MINIO_ROOT_PASSWORD=strongPassword ./minio server /data --console-address ":9001" &
+  - name: Postgres
+    commmand: sudo systemctl start postgresql.service
