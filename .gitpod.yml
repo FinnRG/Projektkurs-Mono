@@ -11,6 +11,9 @@ tasks:
       sudo curl -o /usr/bin/kubectl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
       sudo chmod +x /usr/bin/kubectl
       .gitpod/prepare-rootfs.sh
+      sudo curl https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get > install-helm.sh
+      sudo chmod +x install-helm.sh
+      ./install-helm.sh
     command: |
       .gitpod/qemu.shimage:
   file: .gitpod.dockerfile
