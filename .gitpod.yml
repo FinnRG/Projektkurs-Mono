@@ -1,4 +1,4 @@
-image: ubuntu:21.10
+image: rust:1.57-bullseye
 ports:
   - port: 8000
     onOpen: open-preview
