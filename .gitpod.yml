@@ -15,10 +15,4 @@ tasks:
       sudo chmod +x install-helm.sh
       ./install-helm.sh
     command: |
-      .gitpod/qemu.shimage:
-  file: .gitpod.dockerfile
-tasks:
-  - init: |
-      echo 'TODO: build project'
-    command: |
-      echo 'TODO: start app'
+      .gitpod/qemu.sh
