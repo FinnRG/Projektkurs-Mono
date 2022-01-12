@@ -18,7 +18,7 @@ tasks:
       rustup default nightly
       cargo install diesel_cli --no-default-features --features postgres
       cd backend/postgres
-      cp src/shema.rs src/schema.rs.BAK
+      cp src/schema.rs src/schema.rs.BAK
       diesel migration run
       rm src/schema.rs
       cp src/schema.rs.BAK src/schema.rs
