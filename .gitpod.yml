@@ -9,6 +9,8 @@ ports:
 tasks:
   - name: Dependencies & Database
     init: |
+      mv backend/Rocket.toml backend/Rocket.toml.BAK
+      mv backend/Rocket.toml.gitpod backend/Rocket.toml
       sudo apt-get update -y
       sudo apt-get -y install pkg-config libssl-dev ffmpeg libpq-dev
       sudo curl https://sh.rustup.rs -sSf | sh -s -- -y
@@ -18,10 +20,10 @@ tasks:
       echo "Hello to Projektkurs-Mono!"
   - name: Minio
     init: |
-      sudo mkdir /data
       wget https://dl.min.io/server/minio/release/linux-amd64/minio
       sudo chmod +x minio
     command: |
+      sudo mkdir /data
       sudo chown -R gitpod /data && sudo chmod u+rxw /data
       MINIO_ROOT_USER=admin MINIO_ROOT_PASSWORD=strongPassword ./minio server /data --console-address ":9001"
   - name: Backend
@@ -32,3 +34,10 @@ tasks:
       gp await-port 9000
       gp await-port 5432
       cargo run
+  - name: Frontend
+    init: |
+      cd frontend
+      npm install
+    command: |
+      cd frontend
+      npm start
