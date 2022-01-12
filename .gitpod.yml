@@ -27,6 +27,13 @@ tasks:
       sudo mkdir /data
       sudo chown -R gitpod /data && sudo chmod u+rxw /data
       MINIO_ROOT_USER=minio-admin MINIO_ROOT_PASSWORD=strongPassword ./minio server /data --console-address ":9001"
+  - name: Frontend
+    init: |
+      cd frontend
+      npm install
+    command: |
+      cd frontend
+      npm start
   - name: Backend
     init: |
       cd backend
@@ -36,10 +43,3 @@ tasks:
       gp await-port 9000
       gp await-port 5432
       cargo run
-  - name: Frontend
-    init: |
-      cd frontend
-      npm install
-    command: |
-      cd frontend
-      npm start
