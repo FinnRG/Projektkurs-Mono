@@ -21,6 +21,13 @@ RUN apt-get update && /bin/bash /tmp/library-scripts/common-debian.sh "${INSTALL
     && apt-get autoremove -y && apt-get clean -y && rm -rf /var/lib/apt/lists/* /tmp/library-scripts/ \
     && apt-get update -y \
     && apt-get install -y pkg-config libssl-dev ffmpeg libpq-dev
+    
+RUN cp /usr/share/containers/containers.conf /etc/containers/containers.conf \
+    && sed -i '/^# cgroup_manager = "systemd"/ a cgroup_manager = "cgroupfs"' /etc/containers/containers.conf \
+    # && sed -i '/^# events_logger = "journald"/ a events_logger = "file"' /etc/containers/containers.conf \
+    && sed -i '/^driver = "overlay"/ c\driver = "vfs"' /etc/containers/storage.conf \
+    && echo podman:10000:5000 > /etc/subuid \
+    && echo podman:10000:5000 > /etc/subgid
 
 VOLUME [ "/var/lib/docker" ]
 
