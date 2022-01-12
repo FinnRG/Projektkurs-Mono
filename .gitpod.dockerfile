@@ -25,9 +25,7 @@ RUN apt-get update && /bin/bash /tmp/library-scripts/common-debian.sh "${INSTALL
 RUN cp /usr/share/containers/containers.conf /etc/containers/containers.conf \
     && sed -i '/^# cgroup_manager = "systemd"/ a cgroup_manager = "cgroupfs"' /etc/containers/containers.conf \
     # && sed -i '/^# events_logger = "journald"/ a events_logger = "file"' /etc/containers/containers.conf \
-    && sed -i '/^driver = "overlay"/ c\driver = "vfs"' /etc/containers/storage.conf \
-    && echo podman:10000:5000 > /etc/subuid \
-    && echo podman:10000:5000 > /etc/subgid
+    && sed -i '/^driver = "overlay"/ c\driver = "vfs"' /etc/containers/storage.conf
 
 VOLUME [ "/var/lib/docker" ]
 
