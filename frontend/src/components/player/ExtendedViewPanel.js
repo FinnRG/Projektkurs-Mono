@@ -15,7 +15,7 @@ const ExtendedViewPanel = (props) => {
     const [tags, setTags] = useState([]);
 
     useEffect(() => {
-        client.get('http://localhost:8000/tag/get')
+        client.get('/tag/get')
             .then((resp) => {
                 setTags(resp.data);
                 autocomplete({
@@ -55,7 +55,7 @@ const ExtendedViewPanel = (props) => {
     const addTag = (tagId) => {
         client({
             method: 'POST',
-            url: 'http://localhost:8000/tag/add',
+            url: '/tag/add',
             params: {
                 video_id: params.video_id,
                 tag_id: tagId,

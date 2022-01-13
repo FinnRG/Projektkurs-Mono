@@ -13,7 +13,7 @@ const TagViewElement = (props) => {
                 tag_id: props.tag_id,
                 video_id: params.video_id,
             },
-            url: 'http://localhost:8000/tag/remove',
+            url: '/tag/remove',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
         })
             .then(() => props.onSuccess())

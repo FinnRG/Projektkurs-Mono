@@ -8,7 +8,7 @@ const VideoList = () => {
 
     useEffect(() => {
         const getVideoList = async () => {
-            const resp = await client.get("http://localhost:8000/video/list");
+            const resp = await client.get("/video/list");
             setList(resp.data);
         }
         getVideoList();

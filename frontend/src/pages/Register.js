@@ -43,7 +43,7 @@ const Register = () => {
     const handleSubmit = (e) => {
         client({
             method: 'post',
-            url: 'http://localhost:8000/user/register',
+            url: '/user/register',
             params: {
                 username,
                 email,

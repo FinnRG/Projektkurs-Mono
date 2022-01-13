@@ -12,7 +12,7 @@ const Header = () => {
 
     const handleLogout = () => {
         client
-            .post('http://localhost:8000/user/logout')
+            .post('/user/logout')
             .then(() => {
                 user.setUserId(null);
                 user.setLoggedIn(false);

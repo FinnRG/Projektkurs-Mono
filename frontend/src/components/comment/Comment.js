@@ -10,7 +10,7 @@ const Comment = (props) => {
     const params = useParams();
 
     const deleteComment = () => {
-        client.post('http://localhost:8000/comment/delete', {}, {
+        client.post('/comment/delete', {}, {
             params: {
                 comment_id: props.comment_id
             }
