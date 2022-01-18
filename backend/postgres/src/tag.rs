@@ -76,6 +76,14 @@ pub fn restore_tag(conn: &PgConnection, tag_id: i32) {
         .expect("Unable to restore tag");
 }
 
+pub fn get_tag_info(conn: &PgConnection, tag_id: i32) -> Tag {
+    use schema::tags;
+
+    tags::table.find(tag_id)
+        .first::<Tag>(conn)
+        .expect("Unable to find tag")
+}
+
 pub fn get_tags(conn: &PgConnection) -> Vec<Tag> {
     use schema::tags;
     tags::table.load::<Tag>(conn).expect("Unable to fetch tags")

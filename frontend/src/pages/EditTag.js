@@ -2,6 +2,7 @@ import { faAlignLeft, faHeading, faPlus, faTag } from '@fortawesome/free-solid-s
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useEffect, useState } from 'react';
 import { Button, Columns, Form, Panel } from 'react-bulma-components';
+import { useParams } from 'react-router';
 import FormInputField from '../components/shared/FormInputField';
 import client from '../global/client';
 
@@ -15,20 +16,28 @@ const EditTag = () => {
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
 
-    useEffect(() => {
-        const getTags = () => {
-            client.get('/tag/get')
-                .then((resp) => setTags([...tags, ...resp.data]));
-        };
-
-        getTags();
-    }, []);
+    const params = useParams();
 
     const editTag = (tag) => {
         setTagId(tag.id)
         setName(tag.id === -1 ? '' : tag.name);
         setDescription(tag.description);
     };
+
+    useEffect(() => {
+        const getTags = () => {
+            client.get('/tag/get')
+                .then((resp) => {
+                    setTags([...tags, ...resp.data]);
+                    if (params.tag_id) {
+                        let tag = resp.data.filter((tag) => tag.id == params.tag_id)[0];
+                        editTag(tag);
+                    }
+                })
+        };
+
+        getTags();
+    }, []);
 
     const handleCreate = () => {
         client.post('/tag/create', {}, {
