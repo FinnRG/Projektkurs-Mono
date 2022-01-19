@@ -76,20 +76,28 @@ pub fn restore_tag(conn: &PgConnection, tag_id: i32) {
         .expect("Unable to restore tag");
 }
 
+pub fn get_tag_info(conn: &PgConnection, tag_id: i32) -> Tag {
+    use schema::tags;
+
+    tags::table.find(tag_id)
+        .first::<Tag>(conn)
+        .expect("Unable to find tag")
+}
+
 pub fn get_tags(conn: &PgConnection) -> Vec<Tag> {
     use schema::tags;
     tags::table.load::<Tag>(conn).expect("Unable to fetch tags")
 }
 
 #[derive(Queryable, Serialize)]
-pub struct VideoTag {
+pub struct TagForVideo {
     id: i32,
     name: String,
     description: Option<String>,
     deleted: bool,
 }
 
-pub fn get_tags_for_video(conn: &PgConnection, video_id: &str) -> Vec<VideoTag> {
+pub fn get_tags_for_video(conn: &PgConnection, video_id: &str) -> Vec<TagForVideo> {
     use schema::tag_to_video;
     use schema::tags;
 
@@ -102,8 +110,27 @@ pub fn get_tags_for_video(conn: &PgConnection, video_id: &str) -> Vec<VideoTag> 
             tags::description,
             tags::deleted,
         ))
-        .load::<VideoTag>(conn)
+        .load::<TagForVideo>(conn)
         .expect("Unable to fetch tags for video")
+}
+
+#[derive(Queryable, Serialize)]
+pub struct VideoForTag {
+    id: String,
+    title: String,
+    description: String,
+}
+
+pub fn get_videos_for_tag(conn: &PgConnection, tag_id: i32) -> Vec<VideoForTag> {
+    use schema::videos;
+    use schema::tag_to_video;
+
+    tag_to_video::table
+        .filter(tag_to_video::tag_id.eq(tag_id))
+        .inner_join(videos::table)
+        .select((tag_to_video::video_id, videos::title, videos::description))
+        .load::<VideoForTag>(conn)
+        .expect("Unable to fetch videos for tag")
 }
 
 pub fn update_tag<'a>(

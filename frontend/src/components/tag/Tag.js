@@ -1,10 +1,14 @@
 import { Tag } from 'react-bulma-components';
 import { useParams } from 'react-router';
 import client from '../../global/client';
+import { Navigate } from "react-router"
+import { useState } from 'react';
 
 const TagViewElement = (props) => {
 
     const params = useParams();
+
+    const [redirect, setRedirect] = useState(false);
 
     const onDelete = () => {
         client({
@@ -19,10 +23,13 @@ const TagViewElement = (props) => {
             .then(() => props.onSuccess())
             .catch((err) => console.log(err));
     }
-
+    
+    if (redirect == true) {
+        return <Navigate to={`/tag/${props.tag_id}`} />;
+    }
 
     return <Tag.Group hasAddons>
-        <Tag color='danger'>
+        <Tag onClick={() => setRedirect(true)} color='danger'>
             {props.name}
         </Tag>
         <Tag remove onClick={() => onDelete()} />

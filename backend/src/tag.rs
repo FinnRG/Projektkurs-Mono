@@ -61,9 +61,14 @@ async fn get(conn: PostgresConn) -> Json<Vec<Tag>> {
     Json(conn.run(move |c| get_tags(c)).await)
 }
 
-#[get("/get?<video_id>")]
-async fn get_from_video(conn: PostgresConn, video_id: String) -> Json<Vec<VideoTag>> {
-    Json(conn.run(move |c| get_tags_for_video(c, &video_id)).await)
+#[get("/get?<tag_id>")]
+async fn get_tag(conn: PostgresConn, tag_id: i32) -> Json<Tag> {
+    Json(conn.run(move |c| get_tag_info(c, tag_id)).await)
+}
+
+#[get("/videos?<tag_id>")]
+async fn get_videos(conn: PostgresConn, tag_id: i32) -> Json<Vec<VideoForTag>> {
+    Json(conn.run(move |c| get_videos_for_tag(c, tag_id)).await)
 }
 
 #[post("/delete?<tag_id>")]
@@ -118,7 +123,8 @@ pub fn routes() -> Vec<Route> {
         add_to_video,
         create,
         get,
-        get_from_video,
+        get_tag,
+        get_videos,
         hard_delete,
         remove_from_video,
         restore,

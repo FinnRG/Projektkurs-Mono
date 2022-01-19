@@ -12,6 +12,7 @@ import PlayerPage from './pages/PlayerPage';
 import Register from './pages/Register';
 import Upload from './pages/Upload';
 import VideoList from './pages/VideoList';
+import TagPage from './pages/TagPage'
 
 export const App = () => {
 
@@ -54,7 +55,12 @@ export const App = () => {
                 </Route>
                 <Route path='videos' element={<VideoList />} />
                 <Route path='upload' element={<Upload />} />
-                <Route path='tag/edit' element={<EditTag />} />
+                <Route path='tag'>
+                    <Route path=':tag_id' element={<TagPage />} />
+                    <Route path='edit' element={<EditTag />} >
+                        <Route path=':tag_id' element={<EditTag />} />
+                    </Route>
+                </Route>
                 <Route path='login' element={<Login />} />
                 <Route path='register' element={<Register />} />
                 <Route path='id' element={<Id />} />

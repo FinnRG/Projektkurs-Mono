@@ -51,6 +51,7 @@ table! {
 }
 
 joinable!(tag_to_video -> tags (tag_id));
+joinable!(tag_to_video -> videos (video_id));
 joinable!(tags -> users (author));
 joinable!(comments -> users (user_id));
 
