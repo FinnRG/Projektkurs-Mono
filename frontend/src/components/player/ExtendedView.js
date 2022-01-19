@@ -11,7 +11,7 @@ const ExtendedView = () => {
     const [tags, setTags] = useState([])
 
     const getTags = () => {
-        client.get("/tag/get", {
+        client.get("/video/tags", {
             params: {
                 video_id: params.video_id
             }
