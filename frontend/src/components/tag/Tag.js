@@ -1,7 +1,7 @@
 import { Tag } from 'react-bulma-components';
 import { useParams } from 'react-router';
 import client from '../../global/client';
-import { Navigate } from "react-router"
+import { Navigate } from 'react-router';
 import { useState } from 'react';
 
 const TagViewElement = (props) => {
@@ -23,8 +23,8 @@ const TagViewElement = (props) => {
             .then(() => props.onSuccess())
             .catch((err) => console.log(err));
     }
-    
-    if (redirect == true) {
+
+    if (redirect) {
         return <Navigate to={`/tag/${props.tag_id}`} />;
     }
 
