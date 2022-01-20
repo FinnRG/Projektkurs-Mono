@@ -62,7 +62,7 @@ const EditTag = () => {
                 name,
                 description,
             }
-        }).then(() => console.log("Tag update successfull"));
+        }).then(() => console.log('Tag update successfull'));
     };
 
     const handleDelete = () => {

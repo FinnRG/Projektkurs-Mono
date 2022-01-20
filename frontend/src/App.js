@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import CommentView from './components/player/CommentView';
 import Player from './components/player/Player';
 import client from './global/client';
@@ -13,6 +13,7 @@ import Register from './pages/Register';
 import Upload from './pages/Upload';
 import VideoList from './pages/VideoList';
 import TagPage from './pages/TagPage'
+import EditVideo from './pages/EditVideo';
 
 export const App = () => {
 
@@ -53,6 +54,7 @@ export const App = () => {
                     <Route index element={<main><p>Select a video</p></main>} />
                     <Route path=':video_id' element={<><Player /><CommentView /></>} />
                 </Route>
+                <Route path='video/edit/:video_id' element={<EditVideo />} />
                 <Route path='videos' element={<VideoList />} />
                 <Route path='upload' element={<Upload />} />
                 <Route path='tag'>

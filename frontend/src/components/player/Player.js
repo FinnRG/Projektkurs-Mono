@@ -1,8 +1,9 @@
-import { faBars } from '@fortawesome/free-solid-svg-icons';
+import { faBars, faPen } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { Box, Button, Columns, Container, Level } from 'react-bulma-components';
-import { useParams } from 'react-router';
+import { Navigate, useParams } from 'react-router';
+import userContext from '../../global/userContext';
 import ExtendedView from './ExtendedView';
 import Rating from './Rating';
 import StaticPlayer from './StaticPlayer';
@@ -10,15 +11,19 @@ import StaticPlayer from './StaticPlayer';
 const Player = () => {
 
     const params = useParams();
+    const user = useContext(userContext);
     const [extendedView, setExtendedView] = useState(false);
+    const [redirect, setRedirect] = useState(false);
 
     const handleExtendedView = () => {
         setExtendedView(!extendedView);
     }
 
     useEffect(() => {
-        localStorage.setItem("last_video_id", params.video_id);
+        localStorage.setItem('last_video_id', params.video_id);
     }, []);
+
+    if (redirect) { return <Navigate to={`/video/edit/${params.video_id}`} />; }
 
     return <Box>
         <Container>
@@ -32,6 +37,11 @@ const Player = () => {
             </Level>
             <Button.Group>
                 <Rating />
+                {user.loggedIn && (
+                    <Button onClick={() => setRedirect(true)} >
+                        <FontAwesomeIcon icon={faPen} />
+                    </Button>
+                )}
                 <Button onClick={() => handleExtendedView()} >
                     <FontAwesomeIcon icon={faBars} />
                 </Button>
