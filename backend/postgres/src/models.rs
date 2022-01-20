@@ -27,6 +27,13 @@ pub struct Video {
     pub description: String,
 }
 
+#[derive(AsChangeset)]
+#[table_name = "videos"]
+pub struct VideoUpdate<'a> {
+    pub title: Option<&'a str>,
+    pub description: Option<&'a str>,
+}
+
 #[derive(Insertable)]
 #[table_name = "videos"]
 pub struct NewVideo<'a> {
