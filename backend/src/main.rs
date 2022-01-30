@@ -16,6 +16,7 @@ use uuid::Uuid;
 // Import routes separated into different files
 mod comment;
 mod like;
+mod redis;
 mod tag;
 mod upload;
 mod user;
@@ -57,6 +58,23 @@ fn get_bucket() -> Bucket {
 pub struct PostgresConn(diesel::PgConnection);
 
 mod util {
+
+    #[macro_export]
+    macro_rules! cache {
+        ($cache_helper: ident, $cache_fail: expr) => {{
+            let cache_result = $cache_helper.get_cache(); 
+            match cache_result {
+                Ok(res) => res,
+                _ => {
+                    let res = $cache_fail;
+                    $cache_helper.set_cache(&res);
+                    res
+                },
+            }
+        }};
+    }
+    pub(crate) use cache;
+
     #[macro_export]
     macro_rules! get_user_id {
         ($cookies: ident) => {
