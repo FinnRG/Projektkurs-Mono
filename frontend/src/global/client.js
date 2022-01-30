@@ -4,9 +4,11 @@ import { CookieJar } from 'tough-cookie';
 
 const jar = new CookieJar();
 
-let pod_url = process.env.REACT_APP_WORKSPACE_URL || 'http://localhost:8000';
+let pod_url = process.env.REACT_APP_WORKSPACE_URL;
 if (pod_url) {
     pod_url = [pod_url.slice(0, 8), '8000-', pod_url.slice(8)].join('');
+} else {
+    pod_url = 'http://localhost:8000';
 }
 
 const client = wrapper(axios.create({
