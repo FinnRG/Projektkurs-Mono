@@ -1,4 +1,3 @@
-use crate::redis::CacheHelper;
 use crate::util::{get_user_id, invalidate};
 use crate::video::create;
 use crate::*;

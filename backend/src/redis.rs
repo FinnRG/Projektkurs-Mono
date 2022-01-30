@@ -1,11 +1,10 @@
 use redis::{
     Client, Commands, Connection, ErrorKind, FromRedisValue, RedisError, RedisResult, ToRedisArgs,
 };
-use rocket::fairing::{Fairing, Info, Kind};
-use rocket::http::{uri::Origin, ContentType, Method, Status};
+use rocket::http::uri::Origin;
 use rocket::outcome::Outcome;
 use rocket::request::{self, FromRequest};
-use rocket::{Data, Request, Response};
+use rocket::Request;
 use std::env;
 
 pub struct RedisCache {
@@ -30,7 +29,7 @@ impl RedisCache {
 fn uri_to_string(origin: &Origin) -> String {
     let base = origin.path().as_str().to_owned();
     let params = origin.query().map_or_else(|| "", |q| q.as_str());
-    if params.len() == 0 {
+    if params.is_empty() {
         return base;
     }
 
@@ -50,6 +49,7 @@ impl CacheHelper {
         }
     }
 
+    #[allow(dead_code)]
     fn set_key(&mut self, key: String) {
         self.key = Some(key);
     }
@@ -71,10 +71,10 @@ impl CacheHelper {
 
     // TODO: beautify this
     pub fn get_cache<T: FromRedisValue>(&self) -> RedisResult<T> {
-        let key = self.key.as_ref().ok_or(RedisError::from((
-            ErrorKind::InvalidClientConfig,
-            "key isn't set",
-        )))?;
+        let key = self
+            .key
+            .as_ref()
+            .ok_or_else(|| RedisError::from((ErrorKind::InvalidClientConfig, "key isn't set")))?;
         self.cache.get_connection().get(key)
     }
 

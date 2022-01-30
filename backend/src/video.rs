@@ -2,12 +2,11 @@ use crate::redis::CacheHelper;
 use crate::util::{cache_json, get_user_id};
 use crate::PostgresConn;
 use postgres::models::Video;
-use postgres::tag::{get_tags_for_video, TagForVideo};
+use postgres::tag::get_tags_for_video;
 use postgres::video::*;
 use rocket::http::{CookieJar, Status};
 use rocket::serde::json::Json;
 use rocket::Route;
-use serde_json;
 
 #[get("/get?<video_id>")]
 async fn get(conn: PostgresConn, video_id: String) -> Json<Video> {
