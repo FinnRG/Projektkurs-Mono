@@ -16,16 +16,14 @@ async fn get(conn: PostgresConn, video_id: String) -> Json<Video> {
 
 #[get("/list")]
 async fn list(cache_helper: CacheHelper, conn: PostgresConn) -> String {
-    cache_json!(cache_helper, 
-        &conn.run(move |c| list_videos(c)).await
-    )
+    cache_json!(cache_helper, &conn.run(move |c| list_videos(c)).await)
 }
-
 
 // Json<Vec<TagForVideo>>
 #[get("/tags?<video_id>")]
 async fn get_tags(cache_helper: CacheHelper, conn: PostgresConn, video_id: String) -> String {
-    cache_json!(cache_helper, 
+    cache_json!(
+        cache_helper,
         &conn.run(move |c| get_tags_for_video(c, &video_id)).await
     )
 }

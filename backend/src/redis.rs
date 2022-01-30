@@ -1,8 +1,10 @@
-use redis::{Client, Commands, Connection, RedisResult, RedisError, ErrorKind, FromRedisValue, ToRedisArgs};
+use redis::{
+    Client, Commands, Connection, ErrorKind, FromRedisValue, RedisError, RedisResult, ToRedisArgs,
+};
 use rocket::fairing::{Fairing, Info, Kind};
 use rocket::http::{uri::Origin, ContentType, Method, Status};
 use rocket::outcome::Outcome;
-use rocket::request::{FromRequest, self};
+use rocket::request::{self, FromRequest};
 use rocket::{Data, Request, Response};
 use std::env;
 
@@ -41,11 +43,10 @@ pub struct CacheHelper {
 }
 
 impl CacheHelper {
-
     fn new(key: Option<String>) -> Self {
         CacheHelper {
             cache: RedisCache::new(),
-            key
+            key,
         }
     }
 
@@ -61,17 +62,24 @@ impl CacheHelper {
 
         let key = self.key.unwrap();
 
-        let _: () = self.cache.get_connection().set(key, value).expect("Unable to cache");
+        let _: () = self
+            .cache
+            .get_connection()
+            .set(key, value)
+            .expect("Unable to cache");
     }
 
     // TODO: beautify this
     pub fn get_cache<T: FromRedisValue>(&self) -> RedisResult<T> {
-        let key = self.key.as_ref().ok_or(RedisError::from((ErrorKind::InvalidClientConfig, "key isn't set")))?;
+        let key = self.key.as_ref().ok_or(RedisError::from((
+            ErrorKind::InvalidClientConfig,
+            "key isn't set",
+        )))?;
         self.cache.get_connection().get(key)
     }
 
     pub fn del_cache<K: ToRedisArgs>(&self, key: K) {
-        let _ : RedisResult<()> = self.cache.get_connection().del(key);
+        let _: RedisResult<()> = self.cache.get_connection().del(key);
     }
 }
 
@@ -91,5 +99,5 @@ impl<'r> FromRequest<'r> for CacheHelper {
     async fn from_request(req: &'r Request<'_>) -> request::Outcome<Self, Self::Error> {
         let cache_helper = CacheHelper::new(Some(uri_to_string(req.uri())));
         Outcome::Success(cache_helper)
-    } 
+    }
 }

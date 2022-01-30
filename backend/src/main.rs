@@ -62,14 +62,14 @@ mod util {
     #[macro_export]
     macro_rules! cache {
         ($cache_helper: ident, $cache_fail: expr) => {{
-            let cache_result = $cache_helper.get_cache(); 
+            let cache_result = $cache_helper.get_cache();
             match cache_result {
                 Ok(res) => res,
                 _ => {
                     let res = $cache_fail;
                     $cache_helper.set_cache(&res);
                     res
-                },
+                }
             }
         }};
     }
@@ -78,9 +78,12 @@ mod util {
     #[macro_export]
     macro_rules! cache_json {
         ($cache_helper: ident, $cache_fail: expr) => {{
+            use crate::util::cache;
             use serde_json;
-            use crate::util::{cache};
-            cache!($cache_helper, serde_json::to_string($cache_fail).expect("Unable to jsonify data structure"))
+            cache!(
+                $cache_helper,
+                serde_json::to_string($cache_fail).expect("Unable to jsonify data structure")
+            )
         }};
     }
     pub(crate) use cache_json;

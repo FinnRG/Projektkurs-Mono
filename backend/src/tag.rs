@@ -38,7 +38,6 @@ async fn add_to_video(
     conn.run(move |c| add_tag_to_video(c, tag_id, &video_id))
         .await;
 
-
     Status::from_code(200).unwrap()
 }
 

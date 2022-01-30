@@ -6,29 +6,32 @@ import ExtendedViewPanel from './ExtendedViewPanel';
 import TagView from './TagView';
 
 const ExtendedView = () => {
-    const params = useParams();
+  const params = useParams();
 
-    const [tags, setTags] = useState([])
+  const [tags, setTags] = useState([]);
 
-    const getTags = () => {
-        client.get("/video/tags", {
-            params: {
-                video_id: params.video_id
-            }
-        })
-            .then((resp) => {
-                setTags(resp.data);
-            });
-    };
+  const getTags = () => {
+    client
+      .get('/video/tags', {
+        params: {
+          video_id: params.video_id,
+        },
+      })
+      .then((resp) => {
+        setTags(resp.data);
+      });
+  };
 
-    useEffect(() => {
-        getTags();
-    }, []);
+  useEffect(() => {
+    getTags();
+  }, []);
 
-    return <Container>
-        <TagView tags={tags} setTags={setTags} />
-        <ExtendedViewPanel update={() => getTags()} />
+  return (
+    <Container>
+      <TagView tags={tags} setTags={setTags} />
+      <ExtendedViewPanel update={() => getTags()} />
     </Container>
-}
+  );
+};
 
 export default ExtendedView;
