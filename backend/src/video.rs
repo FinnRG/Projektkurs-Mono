@@ -1,11 +1,13 @@
-use crate::get_user_id;
+use crate::redis::CacheHelper;
+use crate::util::{cache_json, get_user_id};
 use crate::PostgresConn;
 use postgres::models::Video;
-use postgres::video::*;
 use postgres::tag::{get_tags_for_video, TagForVideo};
-use rocket::serde::json::Json;
+use postgres::video::*;
 use rocket::http::{CookieJar, Status};
+use rocket::serde::json::Json;
 use rocket::Route;
+use serde_json;
 
 #[get("/get?<video_id>")]
 async fn get(conn: PostgresConn, video_id: String) -> Json<Video> {
@@ -13,13 +15,19 @@ async fn get(conn: PostgresConn, video_id: String) -> Json<Video> {
 }
 
 #[get("/list")]
-async fn list(conn: PostgresConn) -> Json<Vec<Video>> {
-    Json(conn.run(move |c| list_videos(c)).await)
+async fn list(cache_helper: CacheHelper, conn: PostgresConn) -> String {
+    cache_json!(cache_helper, 
+        &conn.run(move |c| list_videos(c)).await
+    )
 }
 
+
+// Json<Vec<TagForVideo>>
 #[get("/tags?<video_id>")]
-async fn get_tags(conn: PostgresConn, video_id: String) -> Json<Vec<TagForVideo>> {
-    Json(conn.run(move |c| get_tags_for_video(c, &video_id)).await)
+async fn get_tags(cache_helper: CacheHelper, conn: PostgresConn, video_id: String) -> String {
+    cache_json!(cache_helper, 
+        &conn.run(move |c| get_tags_for_video(c, &video_id)).await
+    )
 }
 
 #[post("/update?<video_id>&<title>&<description>")]
@@ -32,7 +40,8 @@ async fn update<'a>(
 ) -> Status {
     let _user_id = get_user_id!(cookies);
 
-    conn.run(move |c| update_video(c, &video_id, title.as_deref(), description.as_deref())).await;
+    conn.run(move |c| update_video(c, &video_id, title.as_deref(), description.as_deref()))
+        .await;
 
     Status::from_code(200).unwrap()
 }

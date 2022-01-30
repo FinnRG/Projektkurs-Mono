@@ -1,4 +1,4 @@
-use crate::get_user_id;
+use crate::util::{get_user_id, invalidate};
 use crate::PostgresConn;
 use postgres::models::Tag;
 use postgres::tag::*;
@@ -34,8 +34,10 @@ async fn add_to_video(
     // Checks that the user is logged in, serves no real purpose
     let _user_id = get_user_id!(cookies);
 
+    invalidate!("/video/tags", "video_id", &video_id);
     conn.run(move |c| add_tag_to_video(c, tag_id, &video_id))
         .await;
+
 
     Status::from_code(200).unwrap()
 }
@@ -50,6 +52,7 @@ async fn remove_from_video(
     // Checks that the user is logged in, serves no real purpose
     let _user_id = get_user_id!(cookies);
 
+    invalidate!("/video/tags", "video_id", &video_id);
     conn.run(move |c| remove_tag_from_video(c, tag_id, &video_id))
         .await;
 

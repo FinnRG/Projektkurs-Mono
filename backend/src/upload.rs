@@ -1,4 +1,5 @@
-use crate::util::get_user_id;
+use crate::redis::CacheHelper;
+use crate::util::{invalidate, get_user_id};
 use crate::video::create;
 use crate::*;
 use rocket::data::ToByteUnit;
@@ -75,6 +76,8 @@ async fn upload(
             description.unwrap_or_else(|| "".to_string()),
         )
         .await;
+
+        invalidate!("/video/list");
 
         fs::remove_dir_all(main_folder)
             .await
