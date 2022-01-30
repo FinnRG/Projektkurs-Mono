@@ -76,6 +76,26 @@ mod util {
     pub(crate) use cache;
 
     #[macro_export]
+    macro_rules! merge_params {
+        ($pname: expr, $pval: expr) => {format!("{}={}", $pname, $pval)};
+        ($pname: expr, $pvalue: expr, $($p2name: expr, $p2val: expr),*) => {
+            format!("{}={}&{}", $pname, $pvalue, merge_params!($($p2name, $p2val),*))
+        };
+    }
+
+    #[macro_export]
+    macro_rules! invalidate {
+        ($cache_helper: expr, $key: expr) => {
+            let _: () = $cache_helper.del_cache($key);
+        };
+        ($cache_helper: expr, $base: expr, $( $pname: expr, $pval: expr),*) => {
+            let key = format!("{}?{}", $base, merge_params!($($pname, $pval),*));
+            invalidate!($cache_helper, key);
+        };
+    }
+    pub(crate) use invalidate;
+
+    #[macro_export]
     macro_rules! get_user_id {
         ($cookies: ident) => {
             match $cookies.get_private("user_id") {

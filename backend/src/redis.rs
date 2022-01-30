@@ -26,7 +26,13 @@ impl RedisCache {
 }
 
 fn uri_to_string(origin: &Origin) -> String {
-    origin.path().as_str().to_owned() + "?" + origin.query().map_or_else(|| "", |q| q.as_str())
+    let base = origin.path().as_str().to_owned();
+    let params = origin.query().map_or_else(|| "", |q| q.as_str());
+    if params.len() == 0 {
+        return base;
+    }
+
+    base + "?" + params
 }
 
 pub struct CacheHelper {
@@ -62,6 +68,16 @@ impl CacheHelper {
     pub fn get_cache<T: FromRedisValue>(&self) -> RedisResult<T> {
         let key = self.key.as_ref().ok_or(RedisError::from((ErrorKind::InvalidClientConfig, "key isn't set")))?;
         self.cache.get_connection().get(key)
+    }
+
+    pub fn del_cache<K: ToRedisArgs>(&self, key: K) {
+        let _ : RedisResult<()> = self.cache.get_connection().del(key);
+    }
+}
+
+impl Default for CacheHelper {
+    fn default() -> Self {
+        CacheHelper::new(None)
     }
 }
 
