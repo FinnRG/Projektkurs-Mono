@@ -76,22 +76,35 @@ mod util {
     pub(crate) use cache;
 
     #[macro_export]
+    macro_rules! cache_json {
+        ($cache_helper: ident, $cache_fail: expr) => {{
+            use serde_json;
+            use crate::util::{cache};
+            cache!($cache_helper, serde_json::to_string($cache_fail).expect("Unable to jsonify data structure"))
+        }};
+    }
+    pub(crate) use cache_json;
+
+    #[macro_export]
     macro_rules! merge_params {
         ($pname: expr, $pval: expr) => {format!("{}={}", $pname, $pval)};
         ($pname: expr, $pvalue: expr, $($p2name: expr, $p2val: expr),*) => {
             format!("{}={}&{}", $pname, $pvalue, merge_params!($($p2name, $p2val),*))
         };
     }
+    pub(crate) use merge_params;
 
     #[macro_export]
     macro_rules! invalidate {
-        ($cache_helper: expr, $key: expr) => {
-            let _: () = $cache_helper.del_cache($key);
-        };
-        ($cache_helper: expr, $base: expr, $( $pname: expr, $pval: expr),*) => {
+        ($key: expr) => {{
+            use crate::redis::CacheHelper;
+            let _: () = CacheHelper::default().del_cache($key);
+        }};
+        ($base: expr, $( $pname: expr, $pval: expr),*) => {{
+            use crate::util::merge_params;
             let key = format!("{}?{}", $base, merge_params!($($pname, $pval),*));
-            invalidate!($cache_helper, key);
-        };
+            invalidate!(key);
+        }};
     }
     pub(crate) use invalidate;
 
