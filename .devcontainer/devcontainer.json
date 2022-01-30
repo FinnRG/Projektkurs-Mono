@@ -23,7 +23,7 @@
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [],
 	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": "rustup default nightly && cargo install diesel_cli --no-default-features --features postgres && minikube start && helm repo add bitnami https://charts.bitnami.com/bitnami && helm repo update && helm install minio --set auth.rootUser=minio-admin --set auth.rootPassword=strongPassword bitnami/minio && helm install postgres --set postgresqlPassword=strongPassword,postgresqlDatabase=projekt bitnami/postgresql",
+	"postCreateCommand": "rustup default nightly && cargo install diesel_cli --no-default-features --features postgres && minikube start && helm repo add bitnami https://charts.bitnami.com/bitnami && helm repo update && helm install minio --set auth.rootUser=minio-admin --set auth.rootPassword=strongPassword bitnami/minio && helm install postgres --set postgresqlPassword=strongPassword,postgresqlDatabase=projekt bitnami/postgresql && helm install redis --set auth.password=strongPassword bitnami/redis",
 	// Use 'postStartCommand' to run commands after the container is created like starting minikube.
 	"postStartCommand": "nohup bash -c 'minikube start &' > minikube.log 2>&1",
 	// Minikube does not like running as root, so use a non-root user.

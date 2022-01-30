@@ -16,6 +16,7 @@ use uuid::Uuid;
 // Import routes separated into different files
 mod comment;
 mod like;
+mod redis;
 mod tag;
 mod upload;
 mod user;
@@ -57,6 +58,59 @@ fn get_bucket() -> Bucket {
 pub struct PostgresConn(diesel::PgConnection);
 
 mod util {
+
+    #[macro_export]
+    macro_rules! cache {
+        ($cache_helper: ident, $cache_fail: expr) => {{
+            let cache_result = $cache_helper.get_cache();
+            match cache_result {
+                Ok(res) => res,
+                _ => {
+                    let res = $cache_fail;
+                    $cache_helper.set_cache(&res);
+                    res
+                }
+            }
+        }};
+    }
+    pub(crate) use cache;
+
+    #[macro_export]
+    macro_rules! cache_json {
+        ($cache_helper: ident, $cache_fail: expr) => {{
+            use crate::util::cache;
+            use serde_json;
+            cache!(
+                $cache_helper,
+                serde_json::to_string($cache_fail).expect("Unable to jsonify data structure")
+            )
+        }};
+    }
+    pub(crate) use cache_json;
+
+    #[macro_export]
+    macro_rules! merge_params {
+        ($pname: expr, $pval: expr) => {format!("{}={}", $pname, $pval)};
+        ($pname: expr, $pvalue: expr, $($p2name: expr, $p2val: expr),*) => {
+            format!("{}={}&{}", $pname, $pvalue, merge_params!($($p2name, $p2val),*))
+        };
+    }
+    pub(crate) use merge_params;
+
+    #[macro_export]
+    macro_rules! invalidate {
+        ($key: expr) => {{
+            use crate::redis::CacheHelper;
+            let _: () = CacheHelper::default().del_cache($key);
+        }};
+        ($base: expr, $( $pname: expr, $pval: expr),*) => {{
+            use crate::util::merge_params;
+            let key = format!("{}?{}", $base, merge_params!($($pname, $pval),*));
+            invalidate!(key);
+        }};
+    }
+    pub(crate) use invalidate;
+
     #[macro_export]
     macro_rules! get_user_id {
         ($cookies: ident) => {

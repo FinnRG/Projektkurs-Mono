@@ -10,42 +10,57 @@ import userContext from '../global/userContext';
 const { Field } = Form;
 
 const Login = () => {
-    const [email, setEmail] = useState('');
-    const [success, setSuccess] = useState(false);
-    const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('');
+  const [success, setSuccess] = useState(false);
+  const [password, setPassword] = useState('');
 
-    const user = useContext(userContext);
+  const user = useContext(userContext);
 
-    const handleSubmit = (e) => {
-        client({
-            method: 'post',
-            url: '/user/login',
-            params: {
-                email,
-                password
-            },
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-        })
-            .then(() => {
-                user.setLoggedIn(true);
-                setSuccess(true);
-            })
-            .catch((err) => console.log(err))
-        e.preventDefault();
-    }
+  const handleSubmit = (e) => {
+    client({
+      method: 'post',
+      url: '/user/login',
+      params: {
+        email,
+        password,
+      },
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    })
+      .then(() => {
+        user.setLoggedIn(true);
+        setSuccess(true);
+      })
+      .catch((err) => console.log(err));
+    e.preventDefault();
+  };
 
-    return <form>
-        <Field>
-            <FormInputField label={"Email"} type={"email"} value={email} setValue={setEmail} icon={faEnvelope} />
-            <FormInputField label={"Password"} type={"password"} value={password} setValue={setPassword} icon={faLock} />
-        </Field>
+  return (
+    <form>
+      <Field>
+        <FormInputField
+          label={'Email'}
+          type={'email'}
+          value={email}
+          setValue={setEmail}
+          icon={faEnvelope}
+        />
+        <FormInputField
+          label={'Password'}
+          type={'password'}
+          value={password}
+          setValue={setPassword}
+          icon={faLock}
+        />
+      </Field>
 
-        <FormSubmitButton setters={[setEmail, setPassword]} submit={handleSubmit} />
+      <FormSubmitButton
+        setters={[setEmail, setPassword]}
+        submit={handleSubmit}
+      />
 
-        {success && (
-            <Navigate to='/videos' replace />
-        )}
-    </form >
-}
+      {success && <Navigate to="/videos" replace />}
+    </form>
+  );
+};
 
 export default Login;

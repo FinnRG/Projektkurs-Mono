@@ -3,3 +3,5 @@ backend/postgres/target
 backend/media
 frontend/node_modules
 minikube.log
+redis-stable.tar.gz
+redis-stable/

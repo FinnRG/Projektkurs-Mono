@@ -10,7 +10,7 @@ features = ["diesel_postgres_pool"]
 
 [dependencies]
 regex = "1.5.4"
-rust-s3 = "0.28.0"
+rust-s3 = "0.28.1"
 rocket = { version = "0.5.0-rc.1", features = ["json", "secrets"] }
 rocket_cors = { git = "https://github.com/lawliet89/rocket_cors", branch = "master" }
 tokio = "1.14.0"
@@ -21,3 +21,5 @@ uuid = { version = "1.0.0-alpha.1", features = [
 ] }
 postgres = { path = "./postgres/" }
 dotenv = "0.15.0"
+redis = { version = "0.21.5" }
+serde_json = "1.0"
