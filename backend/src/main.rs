@@ -116,7 +116,7 @@ mod util {
         ($cookies: ident) => {
             match $cookies.get_private("user_id") {
                 Some(id) => id.value().to_owned(),
-                None => return Status::from_code(401).unwrap(),
+                None => return Status::Ok,
             }
         };
     }

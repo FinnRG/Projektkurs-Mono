@@ -14,7 +14,7 @@ async fn add(conn: PostgresConn, cookies: &CookieJar<'_>, video_id: String, valu
     conn.run(move |c| add_like(c, &user_id, &video_id, value))
         .await;
 
-    Status::from_code(200).unwrap()
+    Status::Ok
 }
 
 #[post("/remove?<video_id>")]
@@ -23,7 +23,7 @@ async fn remove(conn: PostgresConn, cookies: &CookieJar<'_>, video_id: String) -
 
     conn.run(move |c| delete_like(c, &user_id, &video_id)).await;
 
-    Status::from_code(200).unwrap()
+    Status::Ok
 }
 
 #[get("/info?<video_id>")]

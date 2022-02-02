@@ -17,7 +17,7 @@ async fn create(
     conn.run(move |c| create_comment(c, &user_id, &video_id, &content))
         .await;
 
-    Status::from_code(200).unwrap()
+    Status::Ok
 }
 
 #[get("/get?<video_id>")]
@@ -32,7 +32,7 @@ async fn delete(conn: PostgresConn, cookies: &CookieJar<'_>, comment_id: i32) ->
     conn.run(move |c| delete_comment(c, &user_id, comment_id))
         .await;
 
-    Status::from_code(200).unwrap()
+    Status::Ok
 }
 
 pub fn routes() -> Vec<Route> {

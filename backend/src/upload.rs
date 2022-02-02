@@ -83,7 +83,7 @@ async fn upload(
             .expect("Unable to remove dir");
     });
 
-    Status::from_code(200).unwrap()
+    Status::Ok
 }
 
 pub fn routes() -> Vec<Route> {

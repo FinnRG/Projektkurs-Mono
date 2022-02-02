@@ -38,7 +38,7 @@ async fn add_to_video(
     conn.run(move |c| add_tag_to_video(c, tag_id, &video_id))
         .await;
 
-    Status::from_code(200).unwrap()
+    Status::Ok
 }
 
 #[post("/remove?<tag_id>&<video_id>")]
@@ -55,7 +55,7 @@ async fn remove_from_video(
     conn.run(move |c| remove_tag_from_video(c, tag_id, &video_id))
         .await;
 
-    Status::from_code(200).unwrap()
+    Status::Ok
 }
 
 #[get("/get")]
@@ -80,7 +80,7 @@ async fn soft_delete(conn: PostgresConn, cookies: &CookieJar<'_>, tag_id: i32) -
 
     conn.run(move |c| soft_delete_tag(c, tag_id)).await;
 
-    Status::from_code(200).unwrap()
+    Status::Ok
 }
 
 #[post("/delete_full?<tag_id>")]
@@ -90,7 +90,7 @@ async fn hard_delete(conn: PostgresConn, cookies: &CookieJar<'_>, tag_id: i32) -
 
     conn.run(move |c| hard_delete_tag(c, tag_id)).await;
 
-    Status::from_code(200).unwrap()
+    Status::Ok
 }
 
 #[post("/restore?<tag_id>")]
@@ -100,7 +100,7 @@ async fn restore(conn: PostgresConn, cookies: &CookieJar<'_>, tag_id: i32) -> St
 
     conn.run(move |c| restore_tag(c, tag_id)).await;
 
-    Status::from_code(200).unwrap()
+    Status::Ok
 }
 
 #[post("/update?<tag_id>&<name>&<description>")]
@@ -117,7 +117,7 @@ async fn update(
     conn.run(move |c| update_tag(c, tag_id, name.as_deref(), description.as_deref()))
         .await;
 
-    Status::from_code(200).unwrap()
+    Status::Ok
 }
 
 pub fn routes() -> Vec<Route> {

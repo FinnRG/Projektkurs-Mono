@@ -40,7 +40,7 @@ async fn update<'a>(
     conn.run(move |c| update_video(c, &video_id, title.as_deref(), description.as_deref()))
         .await;
 
-    Status::from_code(200).unwrap()
+    Status::Ok
 }
 
 // Currently used in src/upload.rs

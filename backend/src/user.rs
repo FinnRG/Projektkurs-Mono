@@ -18,7 +18,7 @@ async fn register(
         .await;
     cookies.add_private(Cookie::new("user_id", new_user.id));
 
-    Status::from_code(200).unwrap()
+    Status::Ok
 }
 
 #[post("/login?<email>&<password>")]
@@ -34,9 +34,9 @@ async fn login(
     {
         Some(x) => {
             cookies.add_private(Cookie::new("user_id", x));
-            Status::from_code(200).unwrap()
+            Status::Ok
         }
-        None => Status::from_code(500).unwrap(),
+        None => Status::Unauthorized
     }
 }
 
