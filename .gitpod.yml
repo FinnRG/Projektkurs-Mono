@@ -40,11 +40,11 @@ tasks:
       tar xvzf redis-stable.tar.gz
       cd redis-stable
       make
-      rm backend/.env
-      mv backend/.env.gitpod backend/.env
-    command: |
-      sudo cp src/redis-server /usr/local/bin
+      mv ../backend/.env ../backend/.env.BAK
+      mv ../backend/.env.gitpod ../backend/.env
       sudo cp src/redis-cli /usr/local/bin
+      sudo cp src/redis-server /usr/local/bin
+    command: |
       redis-server &
       redis-cli ping
       redis-cli
