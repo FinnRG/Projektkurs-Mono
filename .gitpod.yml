@@ -45,6 +45,7 @@ tasks:
     command: |
       alias redis-cli=redis-stable/src/redis-cli
       alias redis-server=redis-stable/src/redis-stable
+      cd /workspace/Projektkurs-Mono/
       redis-server &
       redis-cli ping
       redis-cli
