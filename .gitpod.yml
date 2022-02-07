@@ -42,12 +42,11 @@ tasks:
       make
       mv ../backend/.env ../backend/.env.BAK
       mv ../backend/.env.gitpod ../backend/.env
-      sudo cp src/redis-cli /usr/local/bin
-      sudo cp src/redis-server /usr/local/bin
     command: |
-      redis-server &
-      redis-cli ping
-      redis-cli
+      cd /workspace/Projektkurs-Mono/
+      redis-stable/src/redis-server &
+      redis-stable/src/redis-cli ping
+      redis-stable/src/redis-cli
   - name: Frontend
     init: |
       cd frontend
