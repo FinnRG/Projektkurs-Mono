@@ -42,7 +42,7 @@ pub fn remove_tag_from_video(conn: &PgConnection, tag_id: i32, video_id: &str) {
 
     diesel::delete(tag_to_video::table.find((tag_id, video_id)))
         .execute(conn)
-        .expect("Unable to remove relationship for tag and user");
+        .expect("Unable to remove relationship for tag and video");
 }
 
 pub fn soft_delete_tag(conn: &PgConnection, tag_id: i32) {
@@ -79,7 +79,8 @@ pub fn restore_tag(conn: &PgConnection, tag_id: i32) {
 pub fn get_tag_info(conn: &PgConnection, tag_id: i32) -> Tag {
     use schema::tags;
 
-    tags::table.find(tag_id)
+    tags::table
+        .find(tag_id)
         .first::<Tag>(conn)
         .expect("Unable to find tag")
 }
@@ -122,8 +123,8 @@ pub struct VideoForTag {
 }
 
 pub fn get_videos_for_tag(conn: &PgConnection, tag_id: i32) -> Vec<VideoForTag> {
-    use schema::videos;
     use schema::tag_to_video;
+    use schema::videos;
 
     tag_to_video::table
         .filter(tag_to_video::tag_id.eq(tag_id))
