@@ -1,5 +1,5 @@
 use crate::*;
-use models::{NewPlaylist, Playlist, PlaylistUpdate, VideoSuggestion};
+use models::{NewPlaylist, Playlist, PlaylistEntry, PlaylistUpdate};
 
 pub fn create_playlist<'a>(
     conn: &PgConnection,
@@ -51,7 +51,6 @@ pub fn add_video_to_playlist(conn: &PgConnection, playlist_id: &str, video_id: &
         ))
         .execute(conn)
         .expect("Unable to add video to playlist");
-
 }
 
 pub fn remove_video_from_playlist(
@@ -83,7 +82,7 @@ pub fn get_videos_for_playlist(
     conn: &PgConnection,
     playlist_id: &str,
     author: &str,
-) -> Vec<VideoSuggestion> {
+) -> Vec<PlaylistEntry> {
     use schema::playlist_to_video;
     use schema::videos;
 
@@ -93,23 +92,43 @@ pub fn get_videos_for_playlist(
         .filter(playlist_to_video::playlist_id.eq(playlist_id))
         .inner_join(videos::table)
         .select((
-            playlist_to_video::video_id,
+            playlist_to_video::id,
             videos::title,
             videos::description,
+            playlist_to_video::video_id,
         ))
-        .load::<VideoSuggestion>(conn)
+        .load::<PlaylistEntry>(conn)
         .expect("Unable to fetch videos for playlist")
 }
 
 pub fn get_playlists(conn: &PgConnection, author: &str) -> Vec<Playlist> {
     use schema::playlists;
 
-    playlists::table.filter(playlists::author.eq(author))
+    playlists::table
+        .filter(playlists::author.eq(author))
         .get_results(conn)
         .expect("Unable to fetch playlists for user")
 }
 
-pub fn update_playlist<'a>(conn: &PgConnection, playlist_id: &str, title: Option<&'a str>, author: &str) {
+pub fn get_playlist_info(conn: &PgConnection, playlist_id: &str, author: &str) -> Option<Playlist> {
+    use schema::playlists;
+
+    return_on_unauthorized!(conn, playlist_id, author, None);
+
+    Some(
+        playlists::table
+            .find(playlist_id)
+            .get_result(conn)
+            .expect("Unable to fetch info for playlist"),
+    )
+}
+
+pub fn update_playlist<'a>(
+    conn: &PgConnection,
+    playlist_id: &str,
+    title: Option<&'a str>,
+    author: &str,
+) {
     use schema::playlists;
 
     return_on_unauthorized!(conn, playlist_id, author);

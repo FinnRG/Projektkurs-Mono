@@ -14,6 +14,8 @@ import Upload from './pages/Upload';
 import VideoList from './pages/VideoList';
 import TagPage from './pages/TagPage';
 import EditVideo from './pages/EditVideo';
+import Playlist from './pages/Playlist';
+import PlaylistPage from './pages/PlaylistPage';
 
 export const App = () => {
   const [loggedIn, setLoggedIn] = useState(false);
@@ -77,6 +79,11 @@ export const App = () => {
           <Route path="video/edit/:video_id" element={<EditVideo />} />
           <Route path="videos" element={<VideoList />} />
           <Route path="upload" element={<Upload />} />
+          <Route path="playlist" element={<Playlist />} />
+          <Route path="playlist">
+            <Route index element={<Playlist />} />
+            <Route path=":playlist_id" element={<PlaylistPage />} />
+          </Route>
           <Route path="tag">
             <Route path=":tag_id" element={<TagPage />} />
             <Route path="edit" element={<EditTag />}>
