@@ -1,4 +1,4 @@
-use crate::util::{get_user_id};
+use crate::util::get_user_id;
 use crate::PostgresConn;
 use postgres::models::{Playlist, PlaylistEntry};
 use postgres::playlist::*;
@@ -59,15 +59,10 @@ async fn delete(conn: PostgresConn, cookies: &CookieJar<'_>, playlist_id: String
 }
 
 #[get("/get")]
-async fn get(
-    conn: PostgresConn,
-    cookies: &CookieJar<'_>
-) -> Option<Json<Vec<Playlist>>> {
+async fn get(conn: PostgresConn, cookies: &CookieJar<'_>) -> Option<Json<Vec<Playlist>>> {
     let user_id = get_user_id!(cookies, None);
 
-    Some(Json(
-        conn.run(move |c| get_playlists(c, &user_id)).await
-    ))
+    Some(Json(conn.run(move |c| get_playlists(c, &user_id)).await))
 }
 
 #[get("/get?<playlist_id>")]
@@ -78,14 +73,23 @@ async fn get_individual(
 ) -> Option<Json<Vec<PlaylistEntry>>> {
     let user_id = get_user_id!(cookies, None);
 
-    Some(Json(conn.run(move |c| get_videos_for_playlist(c, &playlist_id, &user_id)).await))
+    Some(Json(
+        conn.run(move |c| get_videos_for_playlist(c, &playlist_id, &user_id))
+            .await,
+    ))
 }
 
 #[get("/info?<playlist_id>")]
-async fn info(conn: PostgresConn, cookies: &CookieJar<'_>, playlist_id: String) -> Option<Json<Playlist>> {
+async fn info(
+    conn: PostgresConn,
+    cookies: &CookieJar<'_>,
+    playlist_id: String,
+) -> Option<Json<Playlist>> {
     let user_id = get_user_id!(cookies, None);
 
-    let playlist = conn.run(move |c| get_playlist_info(c, &playlist_id, &user_id)).await;
+    let playlist = conn
+        .run(move |c| get_playlist_info(c, &playlist_id, &user_id))
+        .await;
 
     if playlist.is_none() {
         return None;
@@ -110,5 +114,14 @@ async fn update(
 }
 
 pub fn routes() -> Vec<Route> {
-    routes![create, add_video, remove_video, delete, get, get_individual, info, update]
+    routes![
+        create,
+        add_video,
+        remove_video,
+        delete,
+        get,
+        get_individual,
+        info,
+        update
+    ]
 }

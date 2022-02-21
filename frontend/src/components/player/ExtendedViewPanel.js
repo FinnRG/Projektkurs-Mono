@@ -13,10 +13,9 @@ const ExtendedViewPanel = (props) => {
 
   const [tags, setTags] = useState([]);
   const [playlists, setPlaylists] = useState([]);
-  const [playlistTitle, setPlaylistTitle] = useState("");
+  const [playlistTitle, setPlaylistTitle] = useState('');
 
   const setPlaylistAutocomplete = () => {
-
     const node = document.getElementById('autocomplete-playlist');
 
     while (node.firstChild) {
@@ -33,15 +32,14 @@ const ExtendedViewPanel = (props) => {
             {
               sourceId: 'id',
               getItems({ query }) {
-                return resp.data.filter(
-                  ({ title }) =>
-                    title.toLowerCase().includes(query.toLowerCase())
+                return resp.data.filter(({ title }) =>
+                  title.toLowerCase().includes(query.toLowerCase())
                 );
               },
               onSelect({ item }) {
                 setQuery('');
                 setIsOpen(false);
-                addVideo(item)
+                addVideo(item);
               },
               getItemUrl({ item }) {
                 return item.id;
@@ -56,13 +54,13 @@ const ExtendedViewPanel = (props) => {
         },
         // Completely disables the built in navigation
         navigator: {
-          navigate() { },
-          navigateNewTab() { },
-          navigateNewWindow() { },
+          navigate() {},
+          navigateNewTab() {},
+          navigateNewWindow() {},
         },
       });
     });
-  }
+  };
 
   useEffect(() => {
     client.get('/tag/get').then((resp) => {
@@ -99,9 +97,9 @@ const ExtendedViewPanel = (props) => {
         },
         // Completely disables the built in navigation
         navigator: {
-          navigate() { },
-          navigateNewTab() { },
-          navigateNewWindow() { },
+          navigate() {},
+          navigateNewTab() {},
+          navigateNewWindow() {},
         },
       });
     });
@@ -127,22 +125,22 @@ const ExtendedViewPanel = (props) => {
       params: {
         playlist_id: playlist.id,
         video_id: params.video_id,
-      }
-    })
-  }
+      },
+    });
+  };
 
   const createPlaylist = () => {
     client({
       method: 'POST',
       url: '/playlist/create',
       params: {
-        title: playlistTitle
-      }
+        title: playlistTitle,
+      },
     }).then(() => setPlaylistAutocomplete());
-  }
+  };
 
   return (
-    <Panel color='info'>
+    <Panel color="info">
       <Header>Extended View</Header>
 
       <Tabs>
@@ -154,23 +152,32 @@ const ExtendedViewPanel = (props) => {
 
       <Block display={currentTab === 'playlists' ? 'visible' : 'hidden'}>
         <form onSubmit={(e) => e.preventDefault()}>
-          <Form.Field className='has-addons mb-2'>
-            <Button onClick={(e) => {
-              createPlaylist(e);
-              e.preventDefault();
-            }} color='info'>+</Button>
-            <Form.Input placeholder='Playlist Name' value={playlistTitle} onChange={(e) => setPlaylistTitle(e.target.value)}></Form.Input>
+          <Form.Field className="has-addons mb-2">
+            <Button
+              onClick={(e) => {
+                createPlaylist(e);
+                e.preventDefault();
+              }}
+              color="info"
+            >
+              +
+            </Button>
+            <Form.Input
+              placeholder="Playlist Name"
+              value={playlistTitle}
+              onChange={(e) => setPlaylistTitle(e.target.value)}
+            ></Form.Input>
           </Form.Field>
-          <Form.Field className='has-addons'>
-            <div id='autocomplete-playlist'></div>
+          <Form.Field className="has-addons">
+            <div id="autocomplete-playlist"></div>
           </Form.Field>
         </form>
       </Block>
 
       <Block display={currentTab === 'tag' ? 'visible' : 'hidden'}>
         <form>
-          <Form.Field className='has-addons'>
-            <div id='autocomplete-tag'></div>
+          <Form.Field className="has-addons">
+            <div id="autocomplete-tag"></div>
           </Form.Field>
         </form>
       </Block>

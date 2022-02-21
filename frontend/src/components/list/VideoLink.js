@@ -9,10 +9,10 @@ const VideoLink = (props) => {
     <>
       <Card>
         <Content>
-          {props.tagView && (
-            <Trash onClick={() => props.trash()} />
-          )}
-          <Link className='ml-4' to={`/player/${props.id}`}>{props.title} </Link>
+          {props.tagView && <Trash onClick={() => props.trash()} />}
+          <Link className="ml-4" to={`/player/${props.id}`}>
+            {props.title}{' '}
+          </Link>
         </Content>
       </Card>
     </>
