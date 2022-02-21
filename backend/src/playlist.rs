@@ -1,6 +1,6 @@
 use crate::util::{get_user_id};
 use crate::PostgresConn;
-use postgres::models::VideoSuggestion;
+use postgres::models::{VideoSuggestion, Playlist};
 use postgres::playlist::*;
 use rocket::http::{CookieJar, Status};
 use rocket::serde::json::Json;
@@ -58,18 +58,27 @@ async fn delete(conn: PostgresConn, cookies: &CookieJar<'_>, playlist_id: String
     Status::Ok
 }
 
-#[get("/get?<playlist_id>")]
+#[get("/get")]
 async fn get(
+    conn: PostgresConn,
+    cookies: &CookieJar<'_>
+) -> Option<Json<Vec<Playlist>>> {
+    let user_id = get_user_id!(cookies, None);
+
+    Some(Json(
+        conn.run(move |c| get_playlists(c, &user_id)).await
+    ))
+}
+
+#[get("/get?<playlist_id>")]
+async fn get_individual(
     conn: PostgresConn,
     cookies: &CookieJar<'_>,
     playlist_id: String,
 ) -> Option<Json<Vec<VideoSuggestion>>> {
     let user_id = get_user_id!(cookies, None);
 
-    Some(Json(
-        conn.run(move |c| get_videos_for_playlist(c, &playlist_id, &user_id))
-            .await,
-    ))
+    Some(Json(conn.run(move |c| get_videos_for_playlist(c, &playlist_id, &user_id)).await))
 }
 
 #[post("/update?<playlist_id>&<title>")]
@@ -88,5 +97,5 @@ async fn update(
 }
 
 pub fn routes() -> Vec<Route> {
-    routes![create, add_video, remove_video, delete, get, update]
+    routes![create, add_video, remove_video, delete, get, get_individual, update]
 }

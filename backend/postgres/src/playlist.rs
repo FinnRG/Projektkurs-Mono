@@ -101,6 +101,14 @@ pub fn get_videos_for_playlist(
         .expect("Unable to fetch videos for playlist")
 }
 
+pub fn get_playlists(conn: &PgConnection, author: &str) -> Vec<Playlist> {
+    use schema::playlists;
+
+    playlists::table.filter(playlists::author.eq(author))
+        .get_results(conn)
+        .expect("Unable to fetch playlists for user")
+}
+
 pub fn update_playlist<'a>(conn: &PgConnection, playlist_id: &str, title: Option<&'a str>, author: &str) {
     use schema::playlists;
 
