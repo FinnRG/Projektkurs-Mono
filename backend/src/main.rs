@@ -16,6 +16,7 @@ use uuid::Uuid;
 // Import routes separated into different files
 mod comment;
 mod like;
+mod playlist;
 mod redis;
 mod tag;
 mod upload;
@@ -114,9 +115,12 @@ mod util {
     #[macro_export]
     macro_rules! get_user_id {
         ($cookies: ident) => {
+            get_user_id!($cookies, Status::Unauthorized)
+        };
+        ($cookies: ident, $val: expr) => {
             match $cookies.get_private("user_id") {
                 Some(id) => id.value().to_owned(),
-                None => return Status::Ok,
+                None => return $val,
             }
         };
     }
@@ -183,6 +187,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .mount("/comment", comment::routes())
         .mount("/like", like::routes())
         .mount("/tag", tag::routes())
+        .mount("/playlist", playlist::routes())
         .attach(cors)
         .attach(PostgresConn::fairing())
         .launch()

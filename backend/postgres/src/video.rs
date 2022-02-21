@@ -26,12 +26,18 @@ pub fn create_video<'a>(
 pub fn get_video(conn: &PgConnection, video_id: &str) -> Video {
     use schema::videos;
 
-    videos::table.find(video_id)
+    videos::table
+        .find(video_id)
         .first::<Video>(conn)
         .expect("Unable to get video info")
 }
 
-pub fn update_video<'a>(conn: &PgConnection, id: &'a str, title: Option<&'a str>, description: Option<&'a str>) {
+pub fn update_video<'a>(
+    conn: &PgConnection,
+    id: &'a str,
+    title: Option<&'a str>,
+    description: Option<&'a str>,
+) {
     use schema::videos;
 
     diesel::update(videos::table.find(id))

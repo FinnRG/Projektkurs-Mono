@@ -38,6 +38,9 @@ const Header = () => {
                   <Link to="upload">Upload</Link>
                 </Item>
                 <Item>
+                  <Link to="playlist">Playlist</Link>
+                </Item>
+                <Item>
                   <Link to="tag/edit">Edit tags</Link>
                 </Item>
               </>

@@ -36,7 +36,7 @@ async fn login(
             cookies.add_private(Cookie::new("user_id", x));
             Status::Ok
         }
-        None => Status::Unauthorized
+        None => Status::Unauthorized,
     }
 }
 

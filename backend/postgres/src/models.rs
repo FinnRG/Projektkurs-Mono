@@ -1,4 +1,4 @@
-use crate::schema::{comments, likes, tags, users, videos};
+use crate::schema::{comments, likes, playlist_to_video, playlists, tags, users, videos};
 use serde::Serialize;
 
 #[derive(Queryable, Identifiable, Debug)]
@@ -41,6 +41,13 @@ pub struct NewVideo<'a> {
     pub user_id: &'a str,
     pub title: &'a str,
     pub description: &'a str,
+}
+
+#[derive(Queryable, Serialize)]
+pub struct VideoSuggestion {
+    id: String,
+    title: String,
+    description: String,
 }
 
 #[derive(Queryable, Identifiable, Associations, Debug, Serialize)]
@@ -102,4 +109,42 @@ pub struct NewTag<'a> {
 pub struct TagUpdate<'a> {
     pub name: Option<&'a str>,
     pub description: Option<&'a str>,
+}
+
+#[derive(Queryable, Identifiable, Associations, Debug, Serialize)]
+#[belongs_to(User, foreign_key = "author")]
+pub struct Playlist {
+    pub id: String,
+    pub title: String,
+    pub author: String,
+}
+
+#[derive(Insertable)]
+#[table_name = "playlists"]
+pub struct NewPlaylist<'a> {
+    pub id: &'a str,
+    pub title: &'a str,
+    pub author: &'a str,
+}
+
+#[derive(AsChangeset)]
+#[table_name = "playlists"]
+pub struct PlaylistUpdate<'a> {
+    pub title: Option<&'a str>,
+}
+
+#[derive(Queryable, Insertable, Debug, Serialize)]
+#[table_name = "playlist_to_video"]
+pub struct PlaylistToVideo {
+    pub id: i32,
+    pub video_id: String,
+    pub playlist_id: String,
+}
+
+#[derive(Queryable, Debug, Serialize)]
+pub struct PlaylistEntry {
+    pub id: i32,
+    pub title: String,
+    pub description: String,
+    pub video_id: String,
 }
