@@ -1,6 +1,6 @@
 use crate::util::{get_user_id, invalidate};
 use crate::PostgresConn;
-use postgres::models::Tag;
+use postgres::models::{Tag, VideoSuggestion};
 use postgres::tag::*;
 use rocket::http::{CookieJar, Status};
 use rocket::serde::json::Json;
@@ -69,7 +69,7 @@ async fn get_tag(conn: PostgresConn, tag_id: i32) -> Json<Tag> {
 }
 
 #[get("/videos?<tag_id>")]
-async fn get_videos(conn: PostgresConn, tag_id: i32) -> Json<Vec<VideoForTag>> {
+async fn get_videos(conn: PostgresConn, tag_id: i32) -> Json<Vec<VideoSuggestion>> {
     Json(conn.run(move |c| get_videos_for_tag(c, tag_id)).await)
 }
 

@@ -1,4 +1,4 @@
-use crate::schema::{comments, likes, playlists, tags, users, videos};
+use crate::schema::{comments, likes, playlists, playlist_to_video, tags, users, videos};
 use serde::Serialize;
 
 #[derive(Queryable, Identifiable, Debug)]
@@ -131,4 +131,12 @@ pub struct NewPlaylist<'a> {
 #[table_name = "playlists"]
 pub struct PlaylistUpdate<'a> {
     pub title: Option<&'a str>,
+}
+
+#[derive(Queryable, Insertable, Debug, Serialize)]
+#[table_name = "playlist_to_video"]
+pub struct PlaylistToVideo {
+    pub id: i32,
+    pub video_id: String,
+    pub playlist_id: String
 }

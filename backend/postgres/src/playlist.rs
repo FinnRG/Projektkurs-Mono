@@ -51,6 +51,7 @@ pub fn add_video_to_playlist(conn: &PgConnection, playlist_id: &str, video_id: &
         ))
         .execute(conn)
         .expect("Unable to add video to playlist");
+
 }
 
 pub fn remove_video_from_playlist(
@@ -100,8 +101,10 @@ pub fn get_videos_for_playlist(
         .expect("Unable to fetch videos for playlist")
 }
 
-pub fn update_playlist<'a>(conn: &PgConnection, playlist_id: &str, title: Option<&'a str>) {
+pub fn update_playlist<'a>(conn: &PgConnection, playlist_id: &str, title: Option<&'a str>, author: &str) {
     use schema::playlists;
+
+    return_on_unauthorized!(conn, playlist_id, author);
 
     diesel::update(playlists::table.find(playlist_id))
         .set(&PlaylistUpdate { title })
