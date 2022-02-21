@@ -1,6 +1,6 @@
 use crate::*;
 use diesel::pg::upsert::*;
-use models::{NewTag, Tag, TagUpdate};
+use models::{NewTag, Tag, TagUpdate, VideoSuggestion};
 use serde::Serialize;
 
 pub fn create_tag<'a>(
@@ -115,14 +115,7 @@ pub fn get_tags_for_video(conn: &PgConnection, video_id: &str) -> Vec<TagForVide
         .expect("Unable to fetch tags for video")
 }
 
-#[derive(Queryable, Serialize)]
-pub struct VideoForTag {
-    id: String,
-    title: String,
-    description: String,
-}
-
-pub fn get_videos_for_tag(conn: &PgConnection, tag_id: i32) -> Vec<VideoForTag> {
+pub fn get_videos_for_tag(conn: &PgConnection, tag_id: i32) -> Vec<VideoSuggestion> {
     use schema::tag_to_video;
     use schema::videos;
 
@@ -130,7 +123,7 @@ pub fn get_videos_for_tag(conn: &PgConnection, tag_id: i32) -> Vec<VideoForTag> 
         .filter(tag_to_video::tag_id.eq(tag_id))
         .inner_join(videos::table)
         .select((tag_to_video::video_id, videos::title, videos::description))
-        .load::<VideoForTag>(conn)
+        .load::<VideoSuggestion>(conn)
         .expect("Unable to fetch videos for tag")
 }
 

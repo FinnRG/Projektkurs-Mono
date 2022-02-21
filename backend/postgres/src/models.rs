@@ -43,6 +43,13 @@ pub struct NewVideo<'a> {
     pub description: &'a str,
 }
 
+#[derive(Queryable, Serialize)]
+pub struct VideoSuggestion {
+    id: String,
+    title: String,
+    description: String,
+}
+
 #[derive(Queryable, Identifiable, Associations, Debug, Serialize)]
 #[belongs_to(User)]
 #[belongs_to(Video)]
@@ -118,4 +125,10 @@ pub struct NewPlaylist<'a> {
     pub id: &'a str,
     pub title: &'a str,
     pub author: &'a str,
+}
+
+#[derive(AsChangeset)]
+#[table_name = "playlists"]
+pub struct PlaylistUpdate<'a> {
+    pub title: Option<&'a str>,
 }
