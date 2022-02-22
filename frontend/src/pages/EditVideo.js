@@ -32,6 +32,7 @@ const EditVideo = () => {
         .get('/video/get', { params: { video_id: params.video_id } })
         .then((resp) => {
           setTitle(resp.data.title);
+          setDescription(resp.data.description);
         });
     };
 

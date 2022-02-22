@@ -26,6 +26,7 @@ const CreateComment = (props) => {
       )
       .then(() => {
         setLoading(false);
+        setContent('');
         props.onUpdate();
       })
       .catch((err) => console.log(err));
@@ -38,6 +39,7 @@ const CreateComment = (props) => {
           <Control loading={loading}>
             <Textarea
               onChange={(e) => setContent(e.target.value)}
+              value={content}
               size="medium"
               placeholder="Enter your comment"
             />
