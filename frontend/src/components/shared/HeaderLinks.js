@@ -21,8 +21,8 @@ const HeaderLinks = () => {
 
   return (
     <>
-        <HeaderLink text='Player' />
-        <HeaderLink text='Videos' />
+      <HeaderLink text='Player' />
+      <HeaderLink text='Videos' />
       {user.loggedIn && (
         <>
           <HeaderLink text='Upload' />
@@ -32,14 +32,18 @@ const HeaderLinks = () => {
       )}
       {!user.loggedIn && (
         <>
-            <HeaderLink text='Login' />
-            <HeaderLink text='Register' />
+          <HeaderLink text='Login' />
+          <HeaderLink text='Register' />
         </>
       )}
       {user.loggedIn && (
         <>
-        <HeaderLink text='Id' />
-        <HeaderLink text='Logout' to='player' onClick={(e) => handleLogout(e)} />
+          <HeaderLink text='Id' />
+          <HeaderLink
+            text='Logout'
+            to='player'
+            onClick={(e) => handleLogout(e)}
+          />
         </>
       )}
     </>

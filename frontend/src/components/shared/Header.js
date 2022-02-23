@@ -4,7 +4,6 @@ import HeaderLinks from './HeaderLinks';
 import { useLocation } from 'react-router';
 
 const Header = () => {
-
   const [showMenu, setShowMenu] = useState(false);
 
   const location = useLocation();
@@ -15,7 +14,7 @@ const Header = () => {
 
   return (
     <>
-      <Navbar mb={showMenu? 4 : 0} transparent={true}>
+      <Navbar mb={showMenu ? 4 : 0} transparent={true}>
         <Navbar.Brand>
           <Navbar.Burger onClick={() => setShowMenu(!showMenu)} />
         </Navbar.Brand>
