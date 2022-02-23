@@ -30,7 +30,8 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "fmt": "npx prettier --write --jsx-single-quote --single-quote \"src/**/*.js\""
+    "fmt": "npx prettier --write --jsx-single-quote --single-quote \"src/**/*.js\"",
+    "count": "cd .. && cloc --fullpath --not-match-d=\"(node_modules|target|redis-stable)\" --not-match-f=\"package-lock\" ."
   },
   "eslintConfig": {
     "extends": [
