@@ -14,11 +14,14 @@ import client from '../global/client';
 const { Field } = Form;
 
 const EditTag = () => {
+
+  const emptyTag = { id: -1, name: 'Add a tag', deleted: false, description: '' }
+
   const [tags, setTags] = useState([
-    { id: -1, name: 'Add a tag', deleted: false, description: '' },
+    emptyTag,
   ]);
 
-  const [tagId, setTagId] = useState(null);
+  const [tagId, setTagId] = useState(-1);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
 
@@ -57,7 +60,10 @@ const EditTag = () => {
           },
         }
       )
-      .then((resp) => setTags([...tags, resp.data]));
+      .then((resp) => {
+        setTags([...tags, resp.data]);
+        editTag(resp.data.id);
+      });
   };
 
   const handleSubmit = () => {
@@ -94,6 +100,7 @@ const EditTag = () => {
       )
       .then(() => {
         setTags(tags.filter((tag) => tag.id !== tagId));
+        editTag(emptyTag)
       });
   };
 
