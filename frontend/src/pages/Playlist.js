@@ -14,6 +14,7 @@ const Playlist = () => {
 
   return (
     <>
+      {playlists.length == 0 && (<p>You can create a playlist in the extended view panel </p>)}
       {playlists.map((playlist, index) => (
         <PlaylistLink id={playlist.id} title={playlist.title} key={index} />
       ))}
