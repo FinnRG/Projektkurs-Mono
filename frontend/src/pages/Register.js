@@ -81,10 +81,10 @@ const Register = () => {
           icon={faLock}
         >
           <Progress
-            className="mb-0"
+            className='mb-0'
             max={4}
             value={passwordStrength}
-            size="small"
+            size='small'
             color={passwordColor}
           />
           <Help color={passwordColor}>
@@ -101,7 +101,7 @@ const Register = () => {
         submit={handleSubmit}
       />
 
-      {success && <Navigate to="/videos" replace />}
+      {success && <Navigate to='/videos' replace />}
     </form>
   );
 };

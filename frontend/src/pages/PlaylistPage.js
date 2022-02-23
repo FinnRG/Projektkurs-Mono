@@ -43,7 +43,7 @@ const PlaylistPage = () => {
       {!playlistInfo && <p>Fetching playlist Info</p>}
       {playlistInfo && (
         <>
-          <h1 className="title">{playlistInfo.title}</h1>
+          <h1 className='title'>{playlistInfo.title}</h1>
           {videos &&
             videos.map(({ video_id, id, title }, index) => (
               <VideoLink

@@ -27,41 +27,41 @@ const Header = () => {
         <Level>
           <Side>
             <Item>
-              <Link to="player">Player</Link>
+              <Link to='player'>Player</Link>
             </Item>
             <Item>
-              <Link to="videos">Videos</Link>
+              <Link to='videos'>Videos</Link>
             </Item>
             {user.loggedIn && (
               <>
                 <Item>
-                  <Link to="upload">Upload</Link>
+                  <Link to='upload'>Upload</Link>
                 </Item>
                 <Item>
-                  <Link to="playlist">Playlist</Link>
+                  <Link to='playlist'>Playlist</Link>
                 </Item>
                 <Item>
-                  <Link to="tag/edit">Edit tags</Link>
+                  <Link to='tag/edit'>Edit tags</Link>
                 </Item>
               </>
             )}
             {!user.loggedIn && (
               <>
                 <Item>
-                  <Link to="login">Login</Link>
+                  <Link to='login'>Login</Link>
                 </Item>
                 <Item>
-                  <Link to="register">Register</Link>
+                  <Link to='register'>Register</Link>
                 </Item>
               </>
             )}
             {user.loggedIn && (
               <>
                 <Item>
-                  <Link to="id">Id</Link>
+                  <Link to='id'>Id</Link>
                 </Item>
                 <Item>
-                  <Link to="player" onClick={(e) => handleLogout(e)}>
+                  <Link to='player' onClick={(e) => handleLogout(e)}>
                     Logout
                   </Link>
                 </Item>

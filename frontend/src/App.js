@@ -50,14 +50,14 @@ export const App = () => {
     <BrowserRouter>
       <Routes>
         <Route
-          path="/"
+          path='/'
           element={
             <userContext.Provider value={user}>
               <Layout />
             </userContext.Provider>
           }
         >
-          <Route path="player" element={<PlayerPage />}>
+          <Route path='player' element={<PlayerPage />}>
             <Route
               index
               element={
@@ -67,7 +67,7 @@ export const App = () => {
               }
             />
             <Route
-              path=":video_id"
+              path=':video_id'
               element={
                 <>
                   <Player />
@@ -76,23 +76,23 @@ export const App = () => {
               }
             />
           </Route>
-          <Route path="video/edit/:video_id" element={<EditVideo />} />
-          <Route path="videos" element={<VideoList />} />
-          <Route path="upload" element={<Upload />} />
-          <Route path="playlist" element={<Playlist />} />
-          <Route path="playlist">
+          <Route path='video/edit/:video_id' element={<EditVideo />} />
+          <Route path='videos' element={<VideoList />} />
+          <Route path='upload' element={<Upload />} />
+          <Route path='playlist' element={<Playlist />} />
+          <Route path='playlist'>
             <Route index element={<Playlist />} />
-            <Route path=":playlist_id" element={<PlaylistPage />} />
+            <Route path=':playlist_id' element={<PlaylistPage />} />
           </Route>
-          <Route path="tag">
-            <Route path=":tag_id" element={<TagPage />} />
-            <Route path="edit" element={<EditTag />}>
-              <Route path=":tag_id" element={<EditTag />} />
+          <Route path='tag'>
+            <Route path=':tag_id' element={<TagPage />} />
+            <Route path='edit' element={<EditTag />}>
+              <Route path=':tag_id' element={<EditTag />} />
             </Route>
           </Route>
-          <Route path="login" element={<Login />} />
-          <Route path="register" element={<Register />} />
-          <Route path="id" element={<Id />} />
+          <Route path='login' element={<Login />} />
+          <Route path='register' element={<Register />} />
+          <Route path='id' element={<Id />} />
         </Route>
       </Routes>
     </BrowserRouter>

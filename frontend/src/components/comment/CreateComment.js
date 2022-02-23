@@ -34,14 +34,14 @@ const CreateComment = (props) => {
 
   return (
     <Media>
-      <Media.Item align="center">
+      <Media.Item align='center'>
         <Field>
           <Control loading={loading}>
             <Textarea
               onChange={(e) => setContent(e.target.value)}
               value={content}
-              size="medium"
-              placeholder="Enter your comment"
+              size='medium'
+              placeholder='Enter your comment'
             />
           </Control>
         </Field>

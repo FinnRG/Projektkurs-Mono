@@ -29,7 +29,7 @@ const TagViewElement = (props) => {
 
   return (
     <Tag.Group hasAddons>
-      <Tag onClick={() => setRedirect(true)} color="danger">
+      <Tag onClick={() => setRedirect(true)} color='danger'>
         {props.name}
       </Tag>
       <Tag remove onClick={() => onDelete()} />

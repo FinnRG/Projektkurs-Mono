@@ -140,7 +140,7 @@ const ExtendedViewPanel = (props) => {
   };
 
   return (
-    <Panel color="info">
+    <Panel color='info'>
       <Header>Extended View</Header>
 
       <Tabs>
@@ -152,32 +152,32 @@ const ExtendedViewPanel = (props) => {
 
       <Block display={currentTab === 'playlists' ? 'visible' : 'hidden'}>
         <form onSubmit={(e) => e.preventDefault()}>
-          <Form.Field className="has-addons mb-2">
+          <Form.Field className='has-addons mb-2'>
             <Button
               onClick={(e) => {
                 createPlaylist(e);
                 e.preventDefault();
               }}
-              color="info"
+              color='info'
             >
               +
             </Button>
             <Form.Input
-              placeholder="Playlist Name"
+              placeholder='Playlist Name'
               value={playlistTitle}
               onChange={(e) => setPlaylistTitle(e.target.value)}
             ></Form.Input>
           </Form.Field>
-          <Form.Field className="has-addons">
-            <div id="autocomplete-playlist"></div>
+          <Form.Field className='has-addons'>
+            <div id='autocomplete-playlist'></div>
           </Form.Field>
         </form>
       </Block>
 
       <Block display={currentTab === 'tag' ? 'visible' : 'hidden'}>
         <form>
-          <Form.Field className="has-addons">
-            <div id="autocomplete-tag"></div>
+          <Form.Field className='has-addons'>
+            <div id='autocomplete-tag'></div>
           </Form.Field>
         </form>
       </Block>

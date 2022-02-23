@@ -23,8 +23,8 @@ const Comment = (props) => {
   };
 
   return (
-    <Media renderAs="article">
-      <Item align="center">
+    <Media renderAs='article'>
+      <Item align='center'>
         <Content>
           <p>
             <strong>{props.username}</strong>
@@ -35,7 +35,7 @@ const Comment = (props) => {
           </p>
         </Content>
       </Item>
-      <Item align="right">
+      <Item align='right'>
         <Trash onClick={deleteComment} />
       </Item>
     </Media>

@@ -8,8 +8,8 @@ const StaticPlayer = (props) => {
       src={pod_url + '/get/' + props.video_id}
       autoPlay={false}
       controls={true}
-      className="mr-6"
-      height="auto"
+      className='mr-6'
+      height='auto'
     />
   );
 };

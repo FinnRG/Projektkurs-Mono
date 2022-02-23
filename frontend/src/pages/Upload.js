@@ -58,7 +58,7 @@ const Upload = () => {
           icon={faAlignLeft}
         />
       </Field>
-      <Field className="mb-1">
+      <Field className='mb-1'>
         <FileUpload setValue={setFile} />
       </Field>
       <FormSubmitButton

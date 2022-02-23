@@ -99,8 +99,8 @@ const EditTag = () => {
 
   return (
     <Columns>
-      <Columns.Column size="half">
-        <Panel color="info">
+      <Columns.Column size='half'>
+        <Panel color='info'>
           <Panel.Header>Tags</Panel.Header>
           {tags
             .filter((tag) => tag.deleted === false)
@@ -119,7 +119,7 @@ const EditTag = () => {
             ))}
         </Panel>
       </Columns.Column>
-      <Columns.Column size="half">
+      <Columns.Column size='half'>
         <FormInputField
           label={'Name'}
           type={'text'}
@@ -136,11 +136,11 @@ const EditTag = () => {
         />
 
         <Button.Group mt={2}>
-          <Button onClick={() => handleSubmit()} color="primary">
+          <Button onClick={() => handleSubmit()} color='primary'>
             {' '}
             Submit{' '}
           </Button>
-          <Button onClick={() => handleDelete()} color="danger">
+          <Button onClick={() => handleDelete()} color='danger'>
             Delete
           </Button>
         </Button.Group>

@@ -14,7 +14,7 @@ const FormInputField = (props) => {
             return props.setValue(e.target.value);
           }}
         />
-        <Icon align="left" size="small">
+        <Icon align='left' size='small'>
           <FontAwesomeIcon icon={props.icon} />
         </Icon>
         {props.children}
