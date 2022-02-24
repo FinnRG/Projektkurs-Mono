@@ -18,7 +18,12 @@ const VideoList = () => {
       {list.length === 0 && <p>There are currently no uploaded videos :(</p>}
       {list.length > 0 &&
         list.map((video, index) => (
-          <VideoLink key={index} title={video.title} id={video.id} />
+          <VideoLink
+            key={index}
+            title={video.title}
+            description={video.description}
+            id={video.id}
+          />
         ))}
     </>
   );

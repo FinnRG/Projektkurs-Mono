@@ -58,7 +58,7 @@ const Login = () => {
         submit={handleSubmit}
       />
 
-      {success && <Navigate to="/videos" replace />}
+      {success && <Navigate to='/videos' replace />}
     </form>
   );
 };

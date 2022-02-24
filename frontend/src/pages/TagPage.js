@@ -36,9 +36,9 @@ const TagView = () => {
 
   return (
     <>
-      <Level className="mb-0">
-        <p className="title">{tag.name}</p>
-        <Icon onClick={() => setRedirect(true)} size="small">
+      <Level className='mb-0'>
+        <p className='title'>{tag.name}</p>
+        <Icon onClick={() => setRedirect(true)} size='small'>
           <FontAwesomeIcon icon={faPen} />
         </Icon>
       </Level>
@@ -47,7 +47,7 @@ const TagView = () => {
       <br />
 
       {videos.length > 0 && (
-        <p className="title is-size-5">Videos with this tag:</p>
+        <p className='title is-size-5'>Videos with this tag:</p>
       )}
       {videos.map((video) => (
         <Card>

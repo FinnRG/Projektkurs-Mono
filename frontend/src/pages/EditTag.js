@@ -14,11 +14,14 @@ import client from '../global/client';
 const { Field } = Form;
 
 const EditTag = () => {
+
+  const emptyTag = { id: -1, name: 'Add a tag', deleted: false, description: '' }
+
   const [tags, setTags] = useState([
-    { id: -1, name: 'Add a tag', deleted: false, description: '' },
+    emptyTag,
   ]);
 
-  const [tagId, setTagId] = useState(null);
+  const [tagId, setTagId] = useState(-1);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
 
@@ -57,7 +60,10 @@ const EditTag = () => {
           },
         }
       )
-      .then((resp) => setTags([...tags, resp.data]));
+      .then((resp) => {
+        setTags([...tags, resp.data]);
+        editTag(resp.data.id);
+      });
   };
 
   const handleSubmit = () => {
@@ -94,13 +100,14 @@ const EditTag = () => {
       )
       .then(() => {
         setTags(tags.filter((tag) => tag.id !== tagId));
+        editTag(emptyTag)
       });
   };
 
   return (
     <Columns>
-      <Columns.Column size="half">
-        <Panel color="info">
+      <Columns.Column size='half'>
+        <Panel color='info'>
           <Panel.Header>Tags</Panel.Header>
           {tags
             .filter((tag) => tag.deleted === false)
@@ -119,7 +126,7 @@ const EditTag = () => {
             ))}
         </Panel>
       </Columns.Column>
-      <Columns.Column size="half">
+      <Columns.Column size='half'>
         <FormInputField
           label={'Name'}
           type={'text'}
@@ -136,11 +143,11 @@ const EditTag = () => {
         />
 
         <Button.Group mt={2}>
-          <Button onClick={() => handleSubmit()} color="primary">
+          <Button onClick={() => handleSubmit()} color='primary'>
             {' '}
             Submit{' '}
           </Button>
-          <Button onClick={() => handleDelete()} color="danger">
+          <Button onClick={() => handleDelete()} color='danger'>
             Delete
           </Button>
         </Button.Group>

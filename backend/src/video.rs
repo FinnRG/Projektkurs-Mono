@@ -1,5 +1,5 @@
 use crate::redis::CacheHelper;
-use crate::util::{cache_json, get_user_id};
+use crate::util::{cache_json, get_user_id, invalidate};
 use crate::PostgresConn;
 use postgres::models::Video;
 use postgres::tag::get_tags_for_video;
@@ -39,6 +39,8 @@ async fn update<'a>(
 
     conn.run(move |c| update_video(c, &video_id, title.as_deref(), description.as_deref()))
         .await;
+
+    invalidate!("/video/list");
 
     Status::Ok
 }

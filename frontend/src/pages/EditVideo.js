@@ -32,6 +32,7 @@ const EditVideo = () => {
         .get('/video/get', { params: { video_id: params.video_id } })
         .then((resp) => {
           setTitle(resp.data.title);
+          setDescription(resp.data.description);
         });
     };
 
@@ -54,7 +55,7 @@ const EditVideo = () => {
         setValue={setDescription}
         icon={faAlignLeft}
       />
-      <Button mt={2} onClick={() => handleSubmit()} color="primary">
+      <Button mt={2} onClick={() => handleSubmit()} color='primary'>
         Submit
       </Button>
     </>

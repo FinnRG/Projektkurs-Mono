@@ -51,14 +51,16 @@ const Upload = () => {
           setValue={setTitle}
           icon={faHeading}
         />
+        <div className='mb-3' />
         <FormInputField
           label={'Description'}
           value={description}
           setValue={setDescription}
           icon={faAlignLeft}
         />
+        <div className='mb-3' />
       </Field>
-      <Field className="mb-1">
+      <Field className='mb-3'>
         <FileUpload setValue={setFile} />
       </Field>
       <FormSubmitButton

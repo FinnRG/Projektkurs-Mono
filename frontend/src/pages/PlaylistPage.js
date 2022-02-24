@@ -43,13 +43,13 @@ const PlaylistPage = () => {
       {!playlistInfo && <p>Fetching playlist Info</p>}
       {playlistInfo && (
         <>
-          <h1 className="title">{playlistInfo.title}</h1>
+          <h1 className='title'>{playlistInfo.title}</h1>
           {videos &&
-            videos.map(({ id, title }, index) => (
+            videos.map(({ video_id, id, title }, index) => (
               <VideoLink
                 tagView
                 trash={() => removeVideo(id)}
-                id={id}
+                id={video_id}
                 title={title}
                 key={index}
               />

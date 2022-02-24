@@ -4,16 +4,16 @@ const { Field, Control } = Form;
 
 const FormSubmitButton = (props) => {
   return (
-    <Field kind="group">
+    <Field kind='group'>
       <Control>
-        <Button color="link" onClick={(e) => props.submit(e)}>
+        <Button color='link' onClick={(e) => props.submit(e)}>
           Submit
         </Button>
       </Control>
       <Control>
         <Button
-          color="link"
-          colorVariant="light"
+          color='link'
+          colorVariant='light'
           onClick={() => {
             props.setters.forEach((func) => func(''));
           }}

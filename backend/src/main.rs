@@ -12,6 +12,7 @@ use std::env;
 use std::{error::Error, process::Command};
 use tokio::fs;
 use uuid::Uuid;
+use postgres::run_db_migrations;
 
 // Import routes separated into different files
 mod comment;
@@ -155,6 +156,8 @@ async fn get_file(mut name: String) -> ByteStream![Vec<u8>] {
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     dotenv().ok();
+
+    run_db_migrations();
 
     let bucket = get_bucket();
     Bucket::create_with_path_style(

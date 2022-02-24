@@ -26,6 +26,7 @@ const CreateComment = (props) => {
       )
       .then(() => {
         setLoading(false);
+        setContent('');
         props.onUpdate();
       })
       .catch((err) => console.log(err));
@@ -33,13 +34,14 @@ const CreateComment = (props) => {
 
   return (
     <Media>
-      <Media.Item align="center">
+      <Media.Item align='center'>
         <Field>
           <Control loading={loading}>
             <Textarea
               onChange={(e) => setContent(e.target.value)}
-              size="medium"
-              placeholder="Enter your comment"
+              value={content}
+              size='medium'
+              placeholder='Enter your comment'
             />
           </Control>
         </Field>
