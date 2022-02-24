@@ -37,7 +37,7 @@ export const App = () => {
         .catch(() => null);
     };
     getId();
-  });
+  }, []);
 
   const user = {
     loggedIn,
