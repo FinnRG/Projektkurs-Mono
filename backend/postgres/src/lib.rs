@@ -4,6 +4,7 @@ pub mod schema;
 pub mod comment;
 pub mod like;
 pub mod playlist;
+pub mod subscription;
 pub mod tag;
 pub mod user;
 pub mod video;

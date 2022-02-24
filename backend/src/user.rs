@@ -1,6 +1,8 @@
-use crate::PostgresConn;
+use crate::{get_user_id, PostgresConn};
+use postgres::models::{Notification, Subscription};
 use postgres::user::*;
 use rocket::http::{Cookie, CookieJar, Status};
+use rocket::serde::json::Json;
 use rocket::Route;
 use uuid::Uuid;
 
@@ -47,6 +49,30 @@ async fn logout(cookies: &CookieJar<'_>) {
     }
 }
 
+#[get("/subscriptions")]
+async fn subscriptions(
+    conn: PostgresConn,
+    cookies: &CookieJar<'_>,
+) -> Option<Json<Vec<Subscription>>> {
+    let user_id = get_user_id!(cookies, None);
+
+    Some(Json(
+        conn.run(move |c| get_subscriptions(c, &user_id)).await,
+    ))
+}
+
+#[get("/notifications")]
+async fn notifications(
+    conn: PostgresConn,
+    cookies: &CookieJar<'_>,
+) -> Option<Json<Vec<Notification>>> {
+    let user_id = get_user_id!(cookies, None);
+
+    Some(Json(
+        conn.run(move |c| get_notifications(c, &user_id)).await,
+    ))
+}
+
 #[get("/id", format = "text/html")]
 fn id(cookies: &CookieJar<'_>) -> Option<String> {
     cookies
@@ -55,5 +81,5 @@ fn id(cookies: &CookieJar<'_>) -> Option<String> {
 }
 
 pub fn routes() -> Vec<Route> {
-    routes![register, login, logout, id]
+    routes![register, login, logout, id, subscriptions, notifications]
 }

@@ -1,4 +1,7 @@
-use crate::schema::{comments, likes, playlist_to_video, playlists, tags, users, videos};
+use crate::schema::{
+    comments, likes, notifications, playlist_to_video, playlists, subscriptions, tags, users,
+    videos,
+};
 use serde::Serialize;
 
 #[derive(Queryable, Identifiable, Debug)]
@@ -147,4 +150,37 @@ pub struct PlaylistEntry {
     pub title: String,
     pub description: String,
     pub video_id: String,
+}
+
+#[derive(Queryable, Debug, Serialize, Associations)]
+#[belongs_to(User)]
+#[belongs_to(Tag)]
+pub struct Subscription {
+    pub user_id: String,
+    pub tag_id: i32,
+}
+
+#[derive(Insertable)]
+#[table_name = "subscriptions"]
+pub struct NewSubscription<'a> {
+    pub user_id: &'a str,
+    pub tag_id: i32,
+}
+
+#[derive(Queryable, Debug, Serialize, Associations)]
+#[belongs_to(User)]
+#[belongs_to(Tag)]
+#[belongs_to(Video)]
+pub struct Notification {
+    pub user_id: String,
+    pub tag_id: i32,
+    pub video_id: String,
+}
+
+#[derive(Insertable)]
+#[table_name = "notifications"]
+pub struct NewNotification<'a> {
+    pub user_id: &'a str,
+    pub tag_id: i32,
+    pub video_id: &'a str,
 }

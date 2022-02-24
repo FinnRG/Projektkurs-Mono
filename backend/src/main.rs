@@ -2,6 +2,7 @@
 extern crate rocket;
 
 use dotenv::dotenv;
+use postgres::run_db_migrations;
 use regex::Regex;
 use rocket::http::Method;
 use rocket::response::stream::ByteStream;
@@ -12,13 +13,13 @@ use std::env;
 use std::{error::Error, process::Command};
 use tokio::fs;
 use uuid::Uuid;
-use postgres::run_db_migrations;
 
 // Import routes separated into different files
 mod comment;
 mod like;
 mod playlist;
 mod redis;
+mod subscription;
 mod tag;
 mod upload;
 mod user;
@@ -191,6 +192,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .mount("/like", like::routes())
         .mount("/tag", tag::routes())
         .mount("/playlist", playlist::routes())
+        .mount("/subscription", subscription::routes())
         .attach(cors)
         .attach(PostgresConn::fairing())
         .launch()

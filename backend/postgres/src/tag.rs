@@ -1,3 +1,4 @@
+use crate::models::{NewNotification, Subscription};
 use crate::*;
 use diesel::pg::upsert::*;
 use models::{NewTag, Tag, TagUpdate, VideoSuggestion};
@@ -24,6 +25,8 @@ pub fn create_tag<'a>(
 }
 
 pub fn add_tag_to_video(conn: &PgConnection, tag_id: i32, video_id: &str) {
+    use schema::notifications;
+    use schema::subscriptions;
     use schema::tag_to_video;
 
     diesel::insert_into(tag_to_video::table)
@@ -35,6 +38,27 @@ pub fn add_tag_to_video(conn: &PgConnection, tag_id: i32, video_id: &str) {
         .do_nothing()
         .execute(conn)
         .expect("Error saving new tag to video relationship");
+
+    let subs: Vec<Subscription> = subscriptions::table
+        .filter(subscriptions::tag_id.eq(tag_id))
+        .get_results(conn)
+        .expect("Unable to fetch subscribers");
+
+    let notifs = subs
+        .iter()
+        .map(|subscriber| {
+            return NewNotification {
+                user_id: &subscriber.user_id,
+                tag_id,
+                video_id,
+            };
+        })
+        .collect::<Vec<_>>();
+
+    diesel::insert_into(notifications::table)
+        .values(&notifs)
+        .execute(conn)
+        .expect("Unable to create notification");
 }
 
 pub fn remove_tag_from_video(conn: &PgConnection, tag_id: i32, video_id: &str) {

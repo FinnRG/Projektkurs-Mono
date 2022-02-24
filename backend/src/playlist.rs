@@ -91,11 +91,7 @@ async fn info(
         .run(move |c| get_playlist_info(c, &playlist_id, &user_id))
         .await;
 
-    if playlist.is_none() {
-        return None;
-    }
-
-    Some(Json(playlist.unwrap()))
+    Some(Json(playlist?))
 }
 
 #[post("/update?<playlist_id>&<title>")]

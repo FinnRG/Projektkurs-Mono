@@ -1,6 +1,6 @@
 use crate::*;
 use bcrypt::{hash, verify, DEFAULT_COST};
-use models::{NewUser, User};
+use models::{NewUser, Notification, Subscription, User};
 
 pub fn create_user<'a>(
     conn: &PgConnection,
@@ -42,4 +42,22 @@ pub fn check_password<'a>(
         },
         Err(_) => None,
     }
+}
+
+pub fn get_subscriptions(conn: &PgConnection, user_id: &str) -> Vec<Subscription> {
+    use schema::subscriptions;
+
+    subscriptions::table
+        .filter(subscriptions::user_id.eq(user_id))
+        .get_results(conn)
+        .expect("Unable to fetch subscriptions for user")
+}
+
+pub fn get_notifications(conn: &PgConnection, user_id: &str) -> Vec<Notification> {
+    use schema::notifications;
+
+    notifications::table
+        .filter(notifications::user_id.eq(user_id))
+        .get_results(conn)
+        .expect("Unable to fetchg notifications for user")
 }
