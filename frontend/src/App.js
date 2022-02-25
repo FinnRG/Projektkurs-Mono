@@ -14,8 +14,9 @@ import Upload from './pages/Upload';
 import VideoList from './pages/VideoList';
 import TagPage from './pages/TagPage';
 import EditVideo from './pages/EditVideo';
-import Playlist from './pages/Playlist';
+import PlaylistList from './pages/PlaylistList';
 import PlaylistPage from './pages/PlaylistPage';
+import NotificationPage from './pages/NotificationPage';
 
 export const App = () => {
   const [loggedIn, setLoggedIn] = useState(false);
@@ -37,7 +38,7 @@ export const App = () => {
         .catch(() => null);
     };
     getId();
-  });
+  }, []);
 
   const user = {
     loggedIn,
@@ -79,9 +80,8 @@ export const App = () => {
           <Route path='video/edit/:video_id' element={<EditVideo />} />
           <Route path='videos' element={<VideoList />} />
           <Route path='upload' element={<Upload />} />
-          <Route path='playlist' element={<Playlist />} />
           <Route path='playlist'>
-            <Route index element={<Playlist />} />
+            <Route index element={<PlaylistList />} />
             <Route path=':playlist_id' element={<PlaylistPage />} />
           </Route>
           <Route path='tag'>
@@ -90,6 +90,7 @@ export const App = () => {
               <Route path=':tag_id' element={<EditTag />} />
             </Route>
           </Route>
+          <Route path='notifications' element={<NotificationPage />} />
           <Route path='login' element={<Login />} />
           <Route path='register' element={<Register />} />
           <Route path='id' element={<Id />} />

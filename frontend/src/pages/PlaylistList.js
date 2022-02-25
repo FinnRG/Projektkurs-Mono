@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import PlaylistLink from '../components/list/PlaylistLink';
 import client from '../global/client';
 
-const Playlist = () => {
+const PlaylistList = () => {
   const [playlists, setPlaylists] = useState([]);
 
   useEffect(() => {
@@ -24,4 +24,4 @@ const Playlist = () => {
   );
 };
 
-export default Playlist;
+export default PlaylistList;
