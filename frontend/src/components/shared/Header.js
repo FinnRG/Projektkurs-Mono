@@ -18,7 +18,10 @@ const Header = () => {
     <>
       <Navbar mb={showMenu ? 4 : 0} transparent={true}>
         <Navbar.Brand>
-          <Navbar.Burger className={showMenu ? 'is-active' : ''} onClick={() => setShowMenu(!showMenu)} />
+          <Navbar.Burger
+            className={showMenu ? 'is-active' : ''}
+            onClick={() => setShowMenu(!showMenu)}
+          />
         </Navbar.Brand>
 
         <Navbar.Menu className={showMenu ? 'is-active' : ''}>

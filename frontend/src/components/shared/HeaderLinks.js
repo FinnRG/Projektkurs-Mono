@@ -32,9 +32,7 @@ const HeaderLinks = () => {
       )}
       <HeaderDropdown text='Tags'>
         <HeaderLink text='List' to='tag/list' />
-        {user.loggedIn && (
-          <HeaderLink text='Edit tags' to='tag/edit' />
-        )}
+        {user.loggedIn && <HeaderLink text='Edit tags' to='tag/edit' />}
       </HeaderDropdown>
       {!user.loggedIn && (
         <>

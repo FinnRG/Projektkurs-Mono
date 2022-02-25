@@ -14,12 +14,14 @@ import client from '../global/client';
 const { Field } = Form;
 
 const EditTag = () => {
+  const emptyTag = {
+    id: -1,
+    name: 'Add a tag',
+    deleted: false,
+    description: '',
+  };
 
-  const emptyTag = { id: -1, name: 'Add a tag', deleted: false, description: '' }
-
-  const [tags, setTags] = useState([
-    emptyTag,
-  ]);
+  const [tags, setTags] = useState([emptyTag]);
 
   const [tagId, setTagId] = useState(-1);
   const [name, setName] = useState('');
@@ -100,7 +102,7 @@ const EditTag = () => {
       )
       .then(() => {
         setTags(tags.filter((tag) => tag.id !== tagId));
-        editTag(emptyTag)
+        editTag(emptyTag);
       });
   };
 
