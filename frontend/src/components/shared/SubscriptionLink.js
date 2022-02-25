@@ -18,13 +18,11 @@ const SubscriptionLink = () => {
             })
     }, []);
 
-    return <Navbar.Item>
-        <Link to='notifications'>
-            <FontAwesomeIcon
-                icon={notified ? faBell : faBellSlash}
-                color={notified ? 'red' : 'grey'}
-            />
-        </Link>
+    return <Navbar.Item renderAs={Link} to='notifications'>
+        <FontAwesomeIcon
+            icon={notified ? faBell : faBellSlash}
+            color={notified ? 'red' : 'grey'}
+        />
     </Navbar.Item>
 }
 

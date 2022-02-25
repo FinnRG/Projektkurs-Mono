@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Card, Columns } from "react-bulma-components"
+import { Card } from "react-bulma-components"
 import { Link } from "react-router-dom"
 import client from "../../global/client"
 
@@ -18,13 +18,9 @@ const Notification = ({ tagId, videoId }) => {
 
     return <Card>
         <Card.Content>
-            <Columns>
-                <Columns.Column>
-                    <Link to={'/player/' + videoId}>
-                        New video tagged with: {tagName}
-                    </Link>
-                </Columns.Column>
-            </Columns>
+            <Link to={'/player/' + videoId}>
+                New video tagged with: {tagName}
+            </Link>
         </Card.Content>
     </Card>
 }

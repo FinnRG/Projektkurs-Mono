@@ -14,8 +14,8 @@ const NotificationPage = () => {
     }, []);
 
     return <>
-        {notifications.map((notification) => (
-            <Notification tagId={notification.tag_id} videoId={notification.video_id} />
+        {notifications.map((notification, index) => (
+            <Notification key={index} tagId={notification.tag_id} videoId={notification.video_id} />
         ))}
     </>
 }

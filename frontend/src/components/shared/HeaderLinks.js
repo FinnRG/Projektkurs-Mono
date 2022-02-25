@@ -4,6 +4,7 @@ import { Box, Navbar } from 'react-bulma-components';
 import client from '../../global/client';
 import userContext from '../../global/userContext';
 import HeaderLink from './HeaderLink';
+import HeaderDropdown from './HeaderDropdown';
 
 const HeaderLinks = () => {
   const user = useContext(userContext);
@@ -27,9 +28,14 @@ const HeaderLinks = () => {
         <>
           <HeaderLink text='Upload' />
           <HeaderLink text='Playlist' />
-          <HeaderLink text='Edit tags' to='tag/edit' />
         </>
       )}
+      <HeaderDropdown text='Tags'>
+        <HeaderLink text='List' to='tag/list' />
+        {user.loggedIn && (
+          <HeaderLink text='Edit tags' to='tag/edit' />
+        )}
+      </HeaderDropdown>
       {!user.loggedIn && (
         <>
           <HeaderLink text='Login' />

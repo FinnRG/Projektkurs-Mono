@@ -17,6 +17,7 @@ import EditVideo from './pages/EditVideo';
 import PlaylistList from './pages/PlaylistList';
 import PlaylistPage from './pages/PlaylistPage';
 import NotificationPage from './pages/NotificationPage';
+import TagList from './pages/tag/TagList';
 
 export const App = () => {
   const [loggedIn, setLoggedIn] = useState(false);
@@ -85,6 +86,7 @@ export const App = () => {
             <Route path=':playlist_id' element={<PlaylistPage />} />
           </Route>
           <Route path='tag'>
+            <Route path='list' element={<TagList />} />
             <Route path=':tag_id' element={<TagPage />} />
             <Route path='edit' element={<EditTag />}>
               <Route path=':tag_id' element={<EditTag />} />
