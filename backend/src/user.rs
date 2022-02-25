@@ -61,7 +61,7 @@ async fn subscriptions(
     ))
 }
 
-#[get("/notifications")]
+#[get("/notifications/list")]
 async fn notifications(
     conn: PostgresConn,
     cookies: &CookieJar<'_>,
@@ -73,6 +73,21 @@ async fn notifications(
     ))
 }
 
+#[post("/notifications/remove?<tag_id>&<video_id>")]
+async fn remove(
+    conn: PostgresConn,
+    cookies: &CookieJar<'_>,
+    tag_id: i32,
+    video_id: String,
+) -> Status {
+    let user_id = get_user_id!(cookies);
+
+    conn.run(move |c| remove_notification(c, &user_id, tag_id, &video_id))
+        .await;
+
+    Status::Ok
+}
+
 #[get("/id", format = "text/html")]
 fn id(cookies: &CookieJar<'_>) -> Option<String> {
     cookies
@@ -81,5 +96,13 @@ fn id(cookies: &CookieJar<'_>) -> Option<String> {
 }
 
 pub fn routes() -> Vec<Route> {
-    routes![register, login, logout, id, subscriptions, notifications]
+    routes![
+        register,
+        login,
+        logout,
+        id,
+        subscriptions,
+        remove,
+        notifications
+    ]
 }

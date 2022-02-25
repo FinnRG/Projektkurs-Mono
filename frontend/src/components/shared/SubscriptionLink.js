@@ -10,7 +10,7 @@ const SubscriptionLink = () => {
     const [notified, setNotified] = useState(false);
 
     useEffect(() => {
-        client.get('/user/notifications')
+        client.get('/user/notifications/list')
             .then((resp) => {
                 if (resp.data.length > 0) {
                     setNotified(true);

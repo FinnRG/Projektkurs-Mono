@@ -46,12 +46,10 @@ pub fn add_tag_to_video(conn: &PgConnection, tag_id: i32, video_id: &str) {
 
     let notifs = subs
         .iter()
-        .map(|subscriber| {
-            return NewNotification {
-                user_id: &subscriber.user_id,
-                tag_id,
-                video_id,
-            };
+        .map(|subscriber| NewNotification {
+            user_id: &subscriber.user_id,
+            tag_id,
+            video_id,
         })
         .collect::<Vec<_>>();
 

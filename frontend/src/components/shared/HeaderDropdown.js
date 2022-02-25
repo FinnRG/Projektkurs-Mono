@@ -12,7 +12,7 @@ const HeaderDropdown = (props) => {
         setActive(false);
     }, [location]);
 
-    return <div className="navbar-item p-0 m-0" tagIndex={0} onBlur={() => setActive(false)}>
+    return <div className="navbar-item p-0 m-0" tabIndex={0} onBlur={() => setActive(false)}>
         <Navbar.Item className={active ? 'is-active' : ''}>
             <Navbar.Link onClick={() => setActive(!active)}>
                 {props.text}

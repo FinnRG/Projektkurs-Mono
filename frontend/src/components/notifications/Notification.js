@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react"
-import { Card } from "react-bulma-components"
+import { Card, Columns } from "react-bulma-components"
 import { Link } from "react-router-dom"
 import client from "../../global/client"
+import Trash from "../shared/Trash"
 
-const Notification = ({ tagId, videoId }) => {
+const Notification = ({ tagId, videoId, onDelete }) => {
 
     const [tagName, setTagName] = useState('');
 
@@ -16,11 +17,27 @@ const Notification = ({ tagId, videoId }) => {
         }).then((resp) => setTagName(resp.data.name))
     }, [tagId])
 
+    const remove = () => {
+        client.post('/user/notifications/remove', {}, {
+            params: {
+                tag_id: tagId,
+                video_id: videoId,
+            }
+        }).then(() => onDelete())
+    }
+
     return <Card>
         <Card.Content>
-            <Link to={'/player/' + videoId}>
-                New video tagged with: {tagName}
-            </Link>
+            <Columns>
+                <Columns.Column className='is-narrow'>
+                    <Trash onClick={() => remove()} />
+                </Columns.Column>
+                <Columns.Column>
+                    <Link to={'/player/' + videoId}>
+                        New video tagged with: {tagName}
+                    </Link>
+                </Columns.Column>
+            </Columns>
         </Card.Content>
     </Card>
 }

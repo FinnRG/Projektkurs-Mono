@@ -61,3 +61,11 @@ pub fn get_notifications(conn: &PgConnection, user_id: &str) -> Vec<Notification
         .get_results(conn)
         .expect("Unable to fetchg notifications for user")
 }
+
+pub fn remove_notification(conn: &PgConnection, user_id: &str, tag_id: i32, video_id: &str) {
+    use schema::notifications;
+
+    diesel::delete(notifications::table.find((user_id, tag_id, video_id)))
+        .execute(conn)
+        .expect("Unable to delete notification");
+}
