@@ -21,6 +21,7 @@
     "react-scripts": "5.0.0",
     "tough-cookie": "^4.0.0",
     "url": "^0.11.0",
+    "use-onclickoutside": "^0.4.0",
     "util": "^0.12.4",
     "web-vitals": "^2.1.2",
     "zxcvbn": "^4.4.2"
