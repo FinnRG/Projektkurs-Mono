@@ -6,7 +6,7 @@ const jar = new CookieJar();
 
 let pod_url = process.env.REACT_APP_API_URl;
 if (!pod_url) {
-  pod_url = 'http://localhost:8000';
+  pod_url = 'http://backend:8000';
 }
 
 const client = wrapper(

@@ -18,10 +18,8 @@ spec:
       - name: frontend
         image: finnrg/msostream-frontend:latest
         ports:
-        - containerPort: 3000
+        - containerPort: 80
         env:
-        - name: REACT_APP_API_URL
-          value: "backend:8000"
         - name: NODE_ENV
           value: "production"
 

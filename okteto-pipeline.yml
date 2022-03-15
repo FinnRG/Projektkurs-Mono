@@ -3,8 +3,8 @@ deploy:
   - helm repo update
   - helm install minio --set auth.rootUser=minio-admin --set auth.rootPassword=strongPassword --set persistence.size=2Gi bitnami/minio
   - helm install postgres --set auth.postgresPassword=strongPassword,auth.database=projekt,primary.persistence.size=500Mi,readReplicas.persistence.size=200Mi bitnami/postgresql
-  - helm install redis --set auth.password=strongPassword,master.persistence.size=1Gi,replica.persistence.size=250Mi bitnami/redis
+  - helm install redis --set auth.password=strongPassword,master.persistence.size=1Gi,replica.persistence.size=250Mi,replica.replicaCount=1 bitnami/redis
   - kubectl create deployment --image=finnrg/backend:latest backend
   - kubectl create service nodeport backend --tcp=8000:8000
   - kubectl apply -f ./manifests/
-  - kubectl create service nodeport frontend --tcp=3000:3000
+  - kubectl create service nodeport frontend --tcp=80:80
