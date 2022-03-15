@@ -7,4 +7,4 @@ deploy:
   - kubectl create deployment --image=finnrg/backend:latest backend
   - kubectl create service nodeport backend --tcp=8000:8000
   - kubectl apply -f ./manifests/
-  - kubectl create service nodeport frontend --tcp=3000:3000
+  - kubectl create service nodeport frontend --tcp=80:80
