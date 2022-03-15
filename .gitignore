@@ -1,5 +1,4 @@
-backend/target
-backend/postgres/target
+target/
 backend/media
 frontend/node_modules
 minikube.log

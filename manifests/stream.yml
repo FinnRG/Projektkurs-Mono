@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: backend
+  name: stream
 spec:
   selector:
     matchLabels:
@@ -13,13 +13,13 @@ spec:
     metadata:
       labels:
         app: msostream
-        name: backend
+        name: stream
         tier: backend
         track: stable
     spec:
       containers:
-      - name: backend
-        image: finnrg/backend:latest
+      - name: stream
+        image: finnrg/msostream-stream:latest
         ports:
         - name: http
           containerPort: 80

@@ -3,9 +3,7 @@ extern crate rocket;
 
 use dotenv::dotenv;
 use postgres::run_db_migrations;
-use regex::Regex;
 use rocket::http::Method;
-use rocket::response::stream::ByteStream;
 use rocket_cors::{AllowedHeaders, AllowedOrigins};
 use rocket_sync_db_pools::{database, diesel};
 use s3::{creds::Credentials, Bucket, BucketConfiguration, Region};
@@ -26,8 +24,6 @@ mod user;
 mod video;
 
 extern crate s3;
-
-const CHUNK_SIZE: u64 = 1024 * 1024;
 
 struct Storage {
     region: Region,
@@ -129,31 +125,6 @@ mod util {
     pub(crate) use get_user_id;
 }
 
-#[get("/get/<name>")]
-async fn get_file(mut name: String) -> ByteStream![Vec<u8>] {
-    let bucket = get_bucket();
-    let re = Regex::new(r"\d*\.(ts|m3u8)$").unwrap();
-    let id = re.replace(&name, "").into_owned();
-
-    // Reroutes the /get/name to /get/name.m3u8 request
-    if !(name.ends_with(".ts") || name.ends_with(".m3u8")) {
-        name += ".m3u8";
-    }
-
-    let path = format!("media/{}/output/{}", id, name);
-
-    ByteStream! {
-        let mut i = 0;
-        loop {
-            match bucket.get_object_range(path.clone(), i, Some(i + CHUNK_SIZE)).await {
-                Ok((data, 200..=299)) => yield data,
-                _ => break,
-            }
-            i += CHUNK_SIZE + 1;
-        }
-    }
-}
-
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     dotenv().ok();
@@ -184,7 +155,6 @@ async fn main() -> Result<(), Box<dyn Error>> {
     .to_cors()?;
 
     rocket::build()
-        .mount("/", routes![get_file])
         .mount("/upload", upload::routes())
         .mount("/user", user::routes())
         .mount("/video", video::routes())

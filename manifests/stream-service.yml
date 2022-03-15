@@ -1,13 +1,13 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: backend
+  name: stream
 spec:
   selector:
+    name: stream
     app: msostream
-    name: backend
     tier: backend
   ports:
   - protocol: TCP
     port: 80
-    targetPort: http
+    targetPort: 80
