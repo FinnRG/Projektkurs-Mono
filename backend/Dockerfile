@@ -36,4 +36,6 @@ COPY .env.docker .env
 
 # Run the binary
 EXPOSE 80
-CMD ["ROCKET_ENV=production ROCKET_PORT=80 /usr/src/backend"]
+ENV ROCKET_ENV=production
+ENV ROCKET_PORT=80
+CMD ["/usr/src/backend"]
