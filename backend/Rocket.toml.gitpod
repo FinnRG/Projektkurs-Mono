@@ -1,6 +1,0 @@
-[global.databases]
-postgres_logs = { url = "postgresql://gitpod@localhost" }
-
-[release]
-## Generate your own key using openssl with: "openssl rand -base64 32"
-secret_key = "2MDLTHqMDMAxhoz/ZqduEkXu8xFEtmPh7XNtIeXy+Kg="

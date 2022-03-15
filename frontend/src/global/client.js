@@ -4,7 +4,7 @@ import { CookieJar } from 'tough-cookie';
 
 const jar = new CookieJar();
 
-let pod_url = process.env.REACT_APP_WORKSPACE_URL;
+let pod_url = process.env.API_URl;
 if (pod_url) {
   pod_url = [pod_url.slice(0, 8), '8000-', pod_url.slice(8)].join('');
 } else {
