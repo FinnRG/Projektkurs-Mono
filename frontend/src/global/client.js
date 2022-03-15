@@ -4,17 +4,11 @@ import { CookieJar } from 'tough-cookie';
 
 const jar = new CookieJar();
 
-let pod_url = process.env.REACT_APP_API_URl;
-if (!pod_url) {
-  pod_url = 'http://backend:8000';
-}
-
 const client = wrapper(
   axios.create({
     jar,
     withCredentials: true,
-    baseURL: pod_url,
+    baseURL: '/api'
   })
 );
 export default client;
-export { pod_url };
