@@ -35,5 +35,7 @@ COPY --from=build /backend/Rocket.toml Rocket.toml
 COPY .env.docker .env
 
 # Run the binary
-EXPOSE 8000
+EXPOSE 80
+ENV ROCKET_ENV=production
+ENV ROCKET_PORT=80
 CMD ["/usr/src/backend"]

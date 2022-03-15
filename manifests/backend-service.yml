@@ -7,6 +7,6 @@ spec:
     app: msostream
     tier: backend
   ports:
-    - protocol: TCP
-      port: 80
-      targetPort: http
+  - protocol: TCP
+    port: 80
+    targetPort: http
