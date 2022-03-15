@@ -8,5 +8,4 @@ spec:
     tier: backend
   ports:
   - protocol: TCP
-    port: 80
-    targetPort: http
+    port: 8000
