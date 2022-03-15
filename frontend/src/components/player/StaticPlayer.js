@@ -4,7 +4,7 @@ import ReactHlsPlayer from 'react-hls-player';
 const StaticPlayer = (props) => {
   return (
     <ReactHlsPlayer
-      src={'/stream/' + props.video_id}
+      src={'/stream/get/' + props.video_id}
       autoPlay={false}
       controls={true}
       className='mr-6'
