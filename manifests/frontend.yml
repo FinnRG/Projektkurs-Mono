@@ -5,7 +5,7 @@ metadata:
 spec:
   containers:
   - name: frontend-container
-    image: finnrg/mssostream-frontend
+    image: finnrg/msostream-frontend
     env:
     - name: API_URL
       value: "backend:8000"
