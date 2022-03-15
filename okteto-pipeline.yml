@@ -5,4 +5,3 @@ deploy:
   - helm install postgres --set auth.postgresPassword=strongPassword,auth.database=projekt,primary.persistence.size=500Mi,readReplicas.persistence.size=200Mi bitnami/postgresql
   - helm install redis --set auth.password=strongPassword,master.persistence.size=1Gi,replica.persistence.size=250Mi,replica.replicaCount=1 bitnami/redis
   - kubectl apply -f ./manifests/
-  - kubectl create service nodeport frontend --tcp=80:80
