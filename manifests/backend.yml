@@ -1,27 +1,24 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: frontend
+  name: backend
 spec:
   selector:
     matchLabels:
       app: msostream
-      tier: frontend
+      tier: backend
       track: stable
-  replicas: 1
+  replicas: 2
   template:
     metadata:
       labels:
         app: msostream
-        tier: frontend
+        tier: backend
         track: stable
     spec:
       containers:
-      - name: frontend
-        image: finnrg/msostream-frontend:latest
+      - name: msostream
+        image: finnrg/backend:latest
         ports:
-        - containerPort: 80
-        env:
-        - name: NODE_ENV
-          value: "production"
-
+        - name: http
+          containerPort: 8000
