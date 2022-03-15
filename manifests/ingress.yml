@@ -21,4 +21,4 @@ spec:
           service:
             name: msostream
             port:
-              number: 8000
+              number: 80
