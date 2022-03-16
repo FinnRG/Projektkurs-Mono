@@ -1,7 +1,7 @@
 use crate::util::{get_user_id, invalidate};
 use crate::PostgresConn;
-use postgres::models::{Tag, VideoSuggestion};
-use postgres::tag::*;
+use msostream::models::{Tag, VideoSuggestion};
+use msostream::tag::*;
 use rocket::http::{CookieJar, Status};
 use rocket::serde::json::Json;
 use rocket::Route;

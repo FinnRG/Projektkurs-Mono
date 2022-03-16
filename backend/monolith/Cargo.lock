@@ -190,7 +190,7 @@ name = "backend"
 version = "0.1.0"
 dependencies = [
  "dotenv",
- "postgres",
+ "msostream",
  "redis",
  "regex",
  "rocket",
@@ -1099,6 +1099,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "msostream"
+version = "0.1.0"
+dependencies = [
+ "bcrypt",
+ "chrono",
+ "diesel",
+ "diesel_migrations",
+ "dotenv",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "multer"
 version = "2.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1310,19 +1323,6 @@ dependencies = [
  "cpuid-bool",
  "opaque-debug",
  "universal-hash",
-]
-
-[[package]]
-name = "postgres"
-version = "0.1.0"
-dependencies = [
- "bcrypt",
- "chrono",
- "diesel",
- "diesel_migrations",
- "dotenv",
- "serde",
- "serde_json",
 ]
 
 [[package]]

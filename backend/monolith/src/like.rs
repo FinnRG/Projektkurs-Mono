@@ -1,6 +1,6 @@
 use crate::util::get_user_id;
 use crate::PostgresConn;
-use postgres::like::*;
+use msostream::like::*;
 use rocket::{
     http::{CookieJar, Status},
     serde::json::Json,

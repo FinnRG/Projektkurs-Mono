@@ -1,5 +1,5 @@
 target/
-backend/media
+media/
 frontend/node_modules
 minikube.log
 redis-stable.tar.gz

@@ -1,9 +1,9 @@
 use crate::redis::CacheHelper;
 use crate::util::{cache_json, get_user_id, invalidate};
 use crate::PostgresConn;
-use postgres::models::Video;
-use postgres::tag::get_tags_for_video;
-use postgres::video::*;
+use msostream::models::Video;
+use msostream::tag::get_tags_for_video;
+use msostream::video::*;
 use rocket::http::{CookieJar, Status};
 use rocket::serde::json::Json;
 use rocket::Route;

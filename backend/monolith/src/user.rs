@@ -1,6 +1,6 @@
 use crate::{get_user_id, PostgresConn};
-use postgres::models::{Notification, Subscription};
-use postgres::user::*;
+use msostream::models::{Notification, Subscription};
+use msostream::user::*;
 use rocket::http::{Cookie, CookieJar, Status};
 use rocket::serde::json::Json;
 use rocket::Route;

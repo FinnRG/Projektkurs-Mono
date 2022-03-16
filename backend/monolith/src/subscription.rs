@@ -1,4 +1,4 @@
-use postgres::subscription::*;
+use msostream::subscription::*;
 use rocket::{
     http::{CookieJar, Status},
     Route,

@@ -2,7 +2,7 @@
 extern crate rocket;
 
 use dotenv::dotenv;
-use postgres::run_db_migrations;
+use msostream::run_db_migrations;
 use rocket::http::Method;
 use rocket_cors::{AllowedHeaders, AllowedOrigins};
 use rocket_sync_db_pools::{database, diesel};

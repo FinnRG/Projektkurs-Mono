@@ -1,7 +1,7 @@
 use crate::util::get_user_id;
 use crate::PostgresConn;
-use postgres::models::{Playlist, PlaylistEntry};
-use postgres::playlist::*;
+use msostream::models::{Playlist, PlaylistEntry};
+use msostream::playlist::*;
 use rocket::http::{CookieJar, Status};
 use rocket::serde::json::Json;
 use rocket::Route;
