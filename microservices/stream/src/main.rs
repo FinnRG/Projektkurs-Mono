@@ -1,9 +1,12 @@
+extern crate dotenv;
+
 use std::env;
 
 use actix_cors::Cors;
-use actix_web::{get, post, Responder, HttpResponse, HttpServer, App, web};
+use actix_web::{get, web, App, HttpResponse, HttpServer, Responder};
 use regex::Regex;
-use s3::{creds::Credentials, Bucket, BucketConfiguration, Region};
+use s3::{creds::Credentials, Bucket, Region};
+use dotenv::dotenv;
 
 struct Storage {
     region: Region,
@@ -49,25 +52,23 @@ async fn stream(name: web::Path<String>) -> impl Responder {
     let resp = bucket.get_object(path).await;
     match resp {
         Ok((data, _)) => HttpResponse::Ok().body(data),
-        _ => HttpResponse::NotFound().finish()
+        _ => HttpResponse::NotFound().finish(),
     }
 }
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     pretty_env_logger::init();
+    dotenv().ok();
 
     HttpServer::new(|| {
-
         let cors = Cors::default()
             .allow_any_origin()
             .allow_any_header()
             .allow_any_method()
             .max_age(3600);
 
-        App::new()
-            .wrap(cors)
-            .service(stream)
+        App::new().wrap(cors).service(stream)
     })
     .bind(("0.0.0.0", 80))?
     .run()
