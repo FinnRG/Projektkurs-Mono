@@ -5,7 +5,7 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: msostream
+      name: stream
       tier: backend
       track: stable
   replicas: 2

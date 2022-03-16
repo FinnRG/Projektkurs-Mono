@@ -6,6 +6,7 @@ spec:
   selector:
     matchLabels:
       app: msostream
+      name: backend
       tier: backend
       track: stable
   replicas: 1
