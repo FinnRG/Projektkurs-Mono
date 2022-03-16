@@ -56,6 +56,7 @@ async fn stream(name: web::Path<String>) -> impl Responder {
     }
 }
 
+// TODO: Add logging
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     pretty_env_logger::init();
