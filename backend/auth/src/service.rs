@@ -1,6 +1,6 @@
 use std::{env, str::Bytes};
 
-use auth_lib::db::create_user;
+use auth_lib::db::{check_password, create_user, establish_connection, run_migrations};
 use auth_lib::rpc::{
     auth_server::{Auth, AuthServer},
     login_response::ResponseType,
@@ -10,8 +10,6 @@ use chrono::{Duration, Local};
 use jsonwebtoken::{encode, Algorithm, EncodingKey, Header};
 use lazy_static::lazy_static;
 use log::{error, trace};
-use msostream::establish_connection;
-use msostream::user::check_password;
 use serde::{Deserialize, Serialize};
 use tonic::{transport::Server, Request, Response, Status};
 
@@ -68,7 +66,7 @@ impl Auth for Authenticator {
         request: Request<LoginRequest>,
     ) -> Result<Response<LoginResponse>, Status> {
         let cred = request.into_inner();
-        match check_password(&establish_connection(), &cred.email, &cred.password) {
+        match check_password(&cred.email, &cred.password) {
             Some(id) => {
                 let claims = Claims::new(id);
 
@@ -94,7 +92,7 @@ impl Auth for Authenticator {
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     pretty_env_logger::env_logger::init();
-    msostream::run_db_migrations();
+    run_migrations();
 
     let addr = "0.0.0.0:50051".parse()?;
     let authenticator = Authenticator::default();
