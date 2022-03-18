@@ -2,8 +2,11 @@ syntax = "proto3";
 
 package auth;
 
-message EncodedJWT {
-  string jwt = 1;
+enum ResponseType {
+  SUCCESS = 0;
+  WRONGPASSWORD = 1;
+  WRONGUSERNAME = 2;
+  OTHER = 3;
 }
 
 message RegisterRequest {
@@ -12,24 +15,28 @@ message RegisterRequest {
   string email = 3;
 }
 
+message RegisterResponse {
+  enum Type {
+    SUCCESS = 0;
+    UNIQUEVIOLATION = 1;
+    OTHER = 3;
+  }
+  Type result = 1;
+  string jwt = 2;
+}
+
 message LoginRequest {
   string email = 1;
   string password = 2;
 }
 
 message LoginResponse {
-  enum ResponseType {
-    SUCCESS = 0;
-    WRONGPASSWORD = 1;
-    WRONGUSERNAME = 2;
-    OTHER = 3;
-  }
   ResponseType result = 1;
   string jwt = 2;
 }
 
 
 service Auth {
-  rpc Register (RegisterRequest) returns (EncodedJWT);
+  rpc Register (RegisterRequest) returns (RegisterResponse);
   rpc Login (LoginRequest) returns (LoginResponse);
 }
