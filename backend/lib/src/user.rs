@@ -2,6 +2,7 @@ use crate::*;
 use bcrypt::{hash, verify, DEFAULT_COST};
 use models::{NewUser, Notification, Subscription, User};
 
+#[deprecated]
 pub fn create_user<'a>(
     conn: &PgConnection,
     id: &'a str,
@@ -25,6 +26,7 @@ pub fn create_user<'a>(
         .expect("Error saving new user")
 }
 
+#[deprecated]
 pub fn check_password<'a>(
     conn: &PgConnection,
     email: &'a str,

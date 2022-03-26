@@ -1,17 +1,15 @@
-use std::{env, str::Bytes};
+use std::env;
 
-use auth_lib::db::create_user;
+use auth_lib::db::{check_password, create_user, run_migrations};
 use auth_lib::rpc::{
+    register_response::Type,
     auth_server::{Auth, AuthServer},
-    login_response::ResponseType,
-    EncodedJwt, LoginRequest, LoginResponse, RegisterRequest,
+    LoginRequest, LoginResponse, RegisterRequest, RegisterResponse, ResponseType,
 };
 use chrono::{Duration, Local};
-use jsonwebtoken::{encode, Algorithm, EncodingKey, Header};
+use jsonwebtoken::{encode, EncodingKey, Header};
 use lazy_static::lazy_static;
-use log::{error, trace};
-use msostream::establish_connection;
-use msostream::user::check_password;
+
 use serde::{Deserialize, Serialize};
 use tonic::{transport::Server, Request, Response, Status};
 
@@ -46,21 +44,14 @@ impl Auth for Authenticator {
     async fn register(
         &self,
         request: Request<RegisterRequest>,
-    ) -> Result<Response<EncodedJwt>, Status> {
+    ) -> Result<Response<RegisterResponse>, Status> {
         let user = request.into_inner();
-        let id = create_user(&user.name, &user.email, &user.password);
-        let claims = Claims::new(id);
+        let db_res = create_user(&user.name, &user.email, &user.password);
 
-        let jwt = match encode(
-            &Header::default(),
-            &claims,
-            &EncodingKey::from_secret(JWT_SECRET.as_bytes()),
-        ) {
-            Ok(c) => c,
-            Err(err) => panic!(),
-        };
-
-        Ok(Response::new(EncodedJwt { jwt }))
+        Ok(Response::new(match db_res {
+            Ok(id) => return_id(id),
+            Err(err) => return_err(err),
+        }))
     }
 
     async fn login(
@@ -68,7 +59,7 @@ impl Auth for Authenticator {
         request: Request<LoginRequest>,
     ) -> Result<Response<LoginResponse>, Status> {
         let cred = request.into_inner();
-        match check_password(&establish_connection(), &cred.email, &cred.password) {
+        match check_password(&cred.email, &cred.password) {
             Some(id) => {
                 let claims = Claims::new(id);
 
@@ -78,7 +69,7 @@ impl Auth for Authenticator {
                     &EncodingKey::from_secret(JWT_SECRET.as_bytes()),
                 ) {
                     Ok(c) => c,
-                    Err(err) => panic!(),
+                    Err(_err) => panic!(),
                 };
 
                 Ok(Response::new(LoginResponse {
@@ -91,10 +82,35 @@ impl Auth for Authenticator {
     }
 }
 
+fn return_id(id: String) -> RegisterResponse {
+    let claims = Claims::new(id);
+
+    let jwt = match encode(
+        &Header::default(),
+        &claims,
+        &EncodingKey::from_secret(JWT_SECRET.as_bytes()),
+    ) {
+        Ok(c) => c,
+        Err(_err) => panic!(),
+    };
+
+    RegisterResponse {
+        jwt,
+        result: Type::Success as i32,
+    }
+}
+
+fn return_err(err: Type) -> RegisterResponse {
+    RegisterResponse {
+        jwt: String::from(""),
+        result: err as i32,
+    }
+}
+
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     pretty_env_logger::env_logger::init();
-    msostream::run_db_migrations();
+    run_migrations();
 
     let addr = "0.0.0.0:50051".parse()?;
     let authenticator = Authenticator::default();
