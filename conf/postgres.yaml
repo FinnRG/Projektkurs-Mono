@@ -1,0 +1,13 @@
+global:
+  postgresql:
+    auth:
+      username: "postgres"
+      password: "strongPassword"
+primary:
+  initdb:
+    scripts:
+      init.sql: |
+        CREATE DATABASE projekt;
+        CREATE DATABASE auth;
+    user: "postgres"
+    password: "strongPassword"

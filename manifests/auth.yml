@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth
+spec:
+  selector:
+    matchLabels:
+      name: auth
+      tier: backend
+      track: stable
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: msostream
+        name: auth
+        tier: backend
+        track: stable
+    spec:
+      containers:
+      - name: auth
+        image: finnrg/msostream-auth:latest
+        env:
+        - name: DATABASE_URL
+          value: "postgres://postgres:strongPassword@postgres-postgresql/auth"
+        ports:
+        - name: http
+          containerPort: 50051
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth
+spec:
+  selector:
+    name: auth
+    app: msostream
+    tier: backend
+  ports:
+  - protocol: TCP
+    port: 50051
+    targetPort: 50051
