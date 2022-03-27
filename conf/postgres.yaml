@@ -1,8 +1,9 @@
 global:
   postgresql:
     auth:
-      username: "postgres"
-      password: "strongPassword"
+      postgresPassword: "strongPassword"
+volumePermissions:
+  enabled: true
 primary:
   initdb:
     scripts:
