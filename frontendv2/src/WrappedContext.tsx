@@ -5,7 +5,7 @@ import {
 } from '@mantine/core';
 import { useColorScheme, useLocalStorage } from '@mantine/hooks';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import Player from "./routes/Player";
+import Player from './routes/Player';
 import Context from './Context';
 import Videos from './routes/Videos';
 
@@ -27,7 +27,7 @@ const WrappedContext = () => {
         <BrowserRouter>
           <Routes>
             <Route path='/' element={<Context />}>
-              <Route path='player' element={<Player />} />
+              <Route path='player/:videoId' element={<Player />} />
               <Route path='videos' element={<Videos />} />
             </Route>
           </Routes>

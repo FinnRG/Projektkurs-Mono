@@ -67,6 +67,7 @@ async fn main() -> std::io::Result<()> {
             .allow_any_origin()
             .allow_any_header()
             .allow_any_method()
+            .supports_credentials()
             .max_age(3600);
 
         App::new().wrap(cors).service(stream)
