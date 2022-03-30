@@ -1,11 +1,19 @@
-pub mod db {
-    use msostream::{establish_connection, user};
+#[macro_use]
+extern crate diesel_migrations;
+#[macro_use]
+extern crate diesel;
 
-    pub fn create_user(name: &str, email: &str, password: &str) -> String {
-        let id = uuid::Uuid::new_v4().to_string();
-        user::create_user(&establish_connection(), &id, name, email, password);
-        id
+pub mod db;
+
+pub mod middleware {
+    use actix_web::dev::ServiceRequest;
+    use actix_web::Error;
+    use actix_web_httpauth::extractors::bearer::BearerAuth;
+
+    pub async fn jwt_validator(
+        req: ServiceRequest,
+        credentials: BearerAuth,
+    ) -> Result<ServiceRequest, Error> {
+        Ok(req)
     }
 }
-
-pub fn test() {}

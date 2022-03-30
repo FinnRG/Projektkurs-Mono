@@ -13,8 +13,6 @@ path = "src/service.rs"
 chrono = { version = "0.4.19", default-features = false, features = [ "clock", "std" ] }
 jsonwebtoken = "8.0.1"
 lazy_static = "1.4.0"
-log = "0.4.14"
-pretty_env_logger = "0.4.0"
 serde = "1.0.136"
 tokio = { version = "1.17.0", features = ["macros", "rt-multi-thread"] }
 msostream = { path = "../lib/" }
@@ -22,3 +20,7 @@ uuid = { version = "0.8.2", features = ["v4"] }
 actix = "0.13.0"
 actix-cors = "0.6.1"
 actix-web = "4"
+actix-web-httpauth = "0.6.0"
+diesel = { version = "1.4.8", features = ["postgres", "chrono"] }
+diesel_migrations = "1.4.0"
+bcrypt = "0.12.0"
