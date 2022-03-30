@@ -15,7 +15,6 @@ jsonwebtoken = "8.0.1"
 lazy_static = "1.4.0"
 serde = "1.0.136"
 tokio = { version = "1.17.0", features = ["macros", "rt-multi-thread"] }
-msostream = { path = "../lib/" }
 uuid = { version = "0.8.2", features = ["v4"] }
 actix = "0.13.0"
 actix-cors = "0.6.1"

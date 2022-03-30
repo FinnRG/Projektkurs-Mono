@@ -1,25 +1,22 @@
-use std::{env, str::Bytes};
+use std::{env};
 
 use actix_cors::Cors;
 use actix_web::{
-    dev::ServiceRequest,
     error::ParseError,
     get,
     http::header::Header,
     post,
-    web::{post, Either, Form, Json},
-    App, Error, HttpRequest, HttpResponse, HttpServer, Responder,
+    web::{Either, Form, Json},
+    App, HttpRequest, HttpResponse, HttpServer, Responder,
 };
 use actix_web_httpauth::{
     headers::authorization::{Authorization, Bearer},
-    middleware::HttpAuthentication,
 };
 use auth_lib::{
     db::{check_password, create_user, CreateUserError},
-    middleware::jwt_validator,
 };
 use chrono::{Duration, Local};
-use jsonwebtoken::{encode, Algorithm, EncodingKey, Header as JWTHeader};
+use jsonwebtoken::{encode, EncodingKey, Header as JWTHeader};
 use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
 
@@ -110,8 +107,6 @@ async fn get_id(req: HttpRequest) -> Result<String, ParseError> {
 
 #[tokio::main]
 async fn main() -> std::io::Result<()> {
-    msostream::run_db_migrations();
-
     HttpServer::new(|| {
         App::new()
             .service(register)

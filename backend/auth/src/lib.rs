@@ -12,7 +12,7 @@ pub mod middleware {
 
     pub async fn jwt_validator(
         req: ServiceRequest,
-        credentials: BearerAuth,
+        _credentials: BearerAuth,
     ) -> Result<ServiceRequest, Error> {
         Ok(req)
     }

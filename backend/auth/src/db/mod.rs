@@ -7,7 +7,7 @@ use diesel::prelude::*;
 use diesel::result::{DatabaseErrorKind, Error};
 use models::{NewUser, User};
 use schema::users;
-use serde::Serialize;
+
 use std::env;
 use uuid::Uuid;
 
@@ -16,7 +16,9 @@ embed_migrations!();
 pub fn run_migrations() {
     let connection = establish_connection();
 
-    embedded_migrations::run(&connection);
+    if embedded_migrations::run(&connection).is_err() {
+        panic!("Unable to run migrations")
+    }
 }
 
 pub fn establish_connection() -> PgConnection {
