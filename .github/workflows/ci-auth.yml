@@ -31,7 +31,6 @@ jobs:
         name: Build and push
         uses: docker/build-push-action@v2
         with:
-          context: backend/
-          file: backend/auth/Dockerfile
+          context: backend/auth/
           push: true
           tags: finnrg/msostream-auth:latest

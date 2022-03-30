@@ -3,24 +3,22 @@ FROM rust:1.57.0-slim-buster as build
 
 # Create a new empty shell project
 RUN USER=root cargo new --bin auth
-COPY ./lib ./lib
 WORKDIR /auth
 RUN apt-get update
 RUN apt-get install -y pkg-config libssl-dev libpq-dev
 
 # Copy relevant files
-COPY ./auth/Cargo.lock ./Cargo.lock
-COPY ./auth/Cargo.toml ./Cargo.toml
+COPY ./Cargo.lock ./Cargo.lock
+COPY ./Cargo.toml ./Cargo.toml
+COPY ./migrations/ ./migrations/
 RUN mv src/main.rs src/service.rs
-COPY ./auth/build.rs build.rs
-COPY ./auth/proto/ ./proto/
 
 # Build only the dependencies to cache them
 RUN cargo build --release
 RUN rm src/*.rs
 
 # Copy the source code
-COPY ./auth/src ./src
+COPY ./src ./src
 
 # Build for release.
 RUN rm ./target/release/deps/auth*
