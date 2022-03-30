@@ -11,7 +11,7 @@ use schema::users;
 use std::env;
 use uuid::Uuid;
 
-embed_migrations!();
+embed_migrations!("./migrations/");
 
 pub fn run_migrations() {
     let connection = establish_connection();

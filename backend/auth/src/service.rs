@@ -43,13 +43,6 @@ impl Claims {
     }
 }
 
-#[derive(Deserialize)]
-struct Register {
-    name: String,
-    email: String,
-    password: String,
-}
-
 fn create_jwt(id: String) -> String {
     let claims = Claims::new(id);
 
@@ -71,6 +64,13 @@ fn create_auth_response(id: String) -> HttpResponse {
         .finish()
 }
 
+#[derive(Deserialize)]
+struct Register {
+    name: String,
+    email: String,
+    password: String,
+}
+
 #[post("/register")]
 async fn register(form: Either<Json<Register>, Form<Register>>) -> impl Responder {
     let Register {
@@ -89,11 +89,17 @@ async fn register(form: Either<Json<Register>, Form<Register>>) -> impl Responde
     }
 }
 
-#[post("/login")]
-async fn login(form: Either<Json<Register>, Form<Register>>) -> impl Responder {
-    let cred = form.into_inner();
+#[derive(Deserialize)]
+struct Login {
+    email: String,
+    password: String,
+}
 
-    match check_password(&cred.email, &cred.password) {
+#[post("/login")]
+async fn login(form: Either<Json<Login>, Form<Login>>) -> impl Responder {
+    let Login { email, password } = form.into_inner();
+
+    match check_password(&email, &password) {
         Some(id) => create_auth_response(id),
         _ => HttpResponse::Unauthorized().finish(),
     }
@@ -110,6 +116,7 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(|| {
         App::new()
             .service(register)
+            .service(login)
             .service(get_id)
             .wrap(Cors::permissive())
     })
