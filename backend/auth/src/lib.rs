@@ -1,7 +1,3 @@
-pub mod rpc {
-    tonic::include_proto!("auth");
-}
-
 pub mod db {
     use msostream::{establish_connection, user};
 
