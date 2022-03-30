@@ -1,5 +1,3 @@
-use std::{env};
-
 use actix_cors::Cors;
 use actix_web::{
     error::ParseError,
@@ -9,52 +7,12 @@ use actix_web::{
     web::{Either, Form, Json},
     App, HttpRequest, HttpResponse, HttpServer, Responder,
 };
-use actix_web_httpauth::{
-    headers::authorization::{Authorization, Bearer},
-};
+use actix_web_httpauth::headers::authorization::{Authorization, Bearer};
 use auth_lib::{
+    create_jwt,
     db::{check_password, create_user, CreateUserError},
 };
-use chrono::{Duration, Local};
-use jsonwebtoken::{encode, EncodingKey, Header as JWTHeader};
-use lazy_static::lazy_static;
-use serde::{Deserialize, Serialize};
-
-lazy_static! {
-    static ref JWT_SECRET: String = env::var("JWT_SECRET").unwrap();
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-struct Claims {
-    sub: String,
-    exp: i64,
-}
-
-fn get_exp() -> i64 {
-    (Local::now() + Duration::days(1)).timestamp()
-}
-
-impl Claims {
-    fn new(id: String) -> Self {
-        Claims {
-            sub: id,
-            exp: get_exp(),
-        }
-    }
-}
-
-fn create_jwt(id: String) -> String {
-    let claims = Claims::new(id);
-
-    match encode(
-        &JWTHeader::default(),
-        &claims,
-        &EncodingKey::from_secret(JWT_SECRET.as_bytes()),
-    ) {
-        Ok(c) => c,
-        Err(_err) => panic!(),
-    }
-}
+use serde::Deserialize;
 
 fn create_auth_response(id: String) -> HttpResponse {
     let jwt = create_jwt(id);
