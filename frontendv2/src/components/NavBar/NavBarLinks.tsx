@@ -47,20 +47,24 @@ interface NavbarLinkProps {
   icon: TablerIcon;
   label: string;
   active?: boolean;
-  route: string;
+  route?: string;
   onClick?(): void;
 }
 
-function NavbarLink({ icon: Icon, label, active, onClick }: NavbarLinkProps) {
+const NavbarLink = ({ icon: Icon, label, onClick, route }: NavbarLinkProps) => {
   const { classes, cx } = useStyles();
+  const navigate = useNavigate();
   return (
     <Tooltip label={label} position='right' withArrow transitionDuration={0}>
-      <UnstyledButton onClick={onClick} className={cx(classes.link)}>
+      <UnstyledButton
+        onClick={onClick ? onClick : () => navigate(route || '')}
+        className={cx(classes.link)}
+      >
         <Icon />
       </UnstyledButton>
     </Tooltip>
   );
-}
+};
 
 const linkData = [
   { icon: PlayerPlay, label: 'Player', route: '/player' },
@@ -69,7 +73,7 @@ const linkData = [
   { icon: Tags, label: 'Tags', route: '/tags' },
 ];
 
-const Links = () => {
+const NavBarLinks = () => {
   const [active, setActive] = useState(2);
   const navigate = useNavigate();
   const links = linkData.map((link, index) => (
@@ -79,11 +83,11 @@ const Links = () => {
       active={index === active}
       onClick={() => {
         setActive(index);
-        navigate(link.route, { replace: true });
+        navigate(link.route);
       }}
     />
   ));
   return <>{links}</>;
 };
 
-export { Links, NavbarLink };
+export { NavBarLinks as Links, NavbarLink };

@@ -6,20 +6,22 @@ import {
   Header,
   MediaQuery,
   Navbar,
-  Text,
   useMantineColorScheme,
   useMantineTheme,
 } from '@mantine/core';
 import { useViewportSize } from '@mantine/hooks';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { Outlet } from 'react-router-dom';
-import { Logout, MoonStars, Sun } from 'tabler-icons-react';
-import { Links, NavbarLink } from './components/NavBar/Links';
+import { Login, Logout, MoonStars, Sun } from 'tabler-icons-react';
+import { Links, NavbarLink } from './components/NavBar/NavBarLinks';
+import UserContext, { logout } from './context/userContext';
 
 function Context() {
   const [opened, setOpened] = useState(false);
+  const { user } = useContext(UserContext);
   const theme = useMantineTheme();
   const { colorScheme, toggleColorScheme } = useMantineColorScheme();
+
   return (
     <AppShell
       // navbarOffsetBreakpoint controls when navbar should no longer be offset with padding-left
@@ -66,7 +68,10 @@ function Context() {
                   <MoonStars size={18} />
                 )}
               </ActionIcon>
-              <NavbarLink icon={Logout} label='Logout' route='logout' />
+              {!user && <NavbarLink icon={Login} label='Login' route='login' />}
+              {user && (
+                <NavbarLink icon={Logout} label='Logout' onClick={logout} />
+              )}
             </Group>
           </Navbar.Section>
         </Navbar>
