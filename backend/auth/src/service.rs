@@ -10,7 +10,7 @@ use actix_web::{
 use actix_web_httpauth::headers::authorization::{Authorization, Bearer};
 use auth_lib::{
     create_jwt,
-    db::{check_password, create_user, CreateUserError},
+    db::{check_password, create_user, CreateUserError, run_migrations},
 };
 use serde::Deserialize;
 
@@ -71,6 +71,7 @@ async fn get_id(req: HttpRequest) -> Result<String, ParseError> {
 
 #[tokio::main]
 async fn main() -> std::io::Result<()> {
+    run_migrations();
     HttpServer::new(|| {
         App::new()
             .service(register)

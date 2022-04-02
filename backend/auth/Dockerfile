@@ -33,5 +33,5 @@ RUN apt-get install -y libpq-dev libssl-dev
 COPY --from=build /auth/target/release/auth_service /usr/src/auth_service
 
 # Run the binary
-EXPOSE 50051
+EXPOSE 8000
 CMD ["/usr/src/auth_service"]
