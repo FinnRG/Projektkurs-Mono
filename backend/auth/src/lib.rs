@@ -1,4 +1,9 @@
+use actix_web_httpauth::headers::authorization::Bearer;
+use actix_web::http::header::Header;
 use actix_web_httpauth::extractors::bearer::BearerAuth;
+use actix_web::{dev::ServiceRequest, HttpRequest};
+use actix_web::Error;
+use actix_web_httpauth::headers::authorization::Authorization;
 use chrono::{Duration, Local};
 use jsonwebtoken::{
     decode, encode, DecodingKey, EncodingKey, Header as JWTHeader, TokenData, Validation,
@@ -20,7 +25,7 @@ lazy_static! {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Claims {
-    sub: String,
+    pub sub: String,
     exp: i64,
 }
 
@@ -50,7 +55,7 @@ pub fn create_jwt(id: String) -> String {
     }
 }
 
-pub fn get_jwt(auth: BearerAuth) -> Option<TokenData<Claims>> {
+pub fn get_jwt(auth: Bearer) -> Option<TokenData<Claims>> {
     let jwt = auth.token();
     decode(
         jwt,
@@ -60,6 +65,12 @@ pub fn get_jwt(auth: BearerAuth) -> Option<TokenData<Claims>> {
     .ok()
 }
 
-pub fn get_id(auth: BearerAuth) -> Option<String> {
+// TODO: Reorganize this mess
+pub fn parse_request(req: HttpRequest) -> Option<TokenData<Claims>> {
+    let auth = Authorization::<Bearer>::parse(&req).ok()?;
+    get_jwt(auth.into_scheme())
+}
+
+pub fn get_id(auth: Bearer) -> Option<String> {
     get_jwt(auth).map(|jwt| jwt.claims.sub)
 }

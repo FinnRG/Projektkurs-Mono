@@ -10,7 +10,7 @@ use actix_web::{
 use actix_web_httpauth::headers::authorization::{Authorization, Bearer};
 use auth_lib::{
     create_jwt,
-    db::{check_password, create_user, CreateUserError, run_migrations},
+    db::{check_password, create_user, CreateUserError, run_migrations}, get_jwt, parse_request,
 };
 use serde::Deserialize;
 
@@ -64,9 +64,8 @@ async fn login(form: Either<Json<Login>, Form<Login>>) -> impl Responder {
 }
 
 #[get("/id")]
-async fn get_id(req: HttpRequest) -> Result<String, ParseError> {
-    let auth = Authorization::<Bearer>::parse(&req)?;
-    Ok(auth.as_ref().token().to_string())
+async fn get_id(req: HttpRequest) -> Option<String> {
+    parse_request(req).map(|data| data.claims.sub)
 }
 
 #[tokio::main]
