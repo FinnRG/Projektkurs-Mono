@@ -1,9 +1,8 @@
-use actix_web_httpauth::headers::authorization::Bearer;
+use actix_web::dev::Payload;
 use actix_web::http::header::Header;
-use actix_web_httpauth::extractors::bearer::BearerAuth;
-use actix_web::{dev::ServiceRequest, HttpRequest};
-use actix_web::Error;
+use actix_web::{FromRequest, HttpRequest};
 use actix_web_httpauth::headers::authorization::Authorization;
+use actix_web_httpauth::headers::authorization::Bearer;
 use chrono::{Duration, Local};
 use jsonwebtoken::{
     decode, encode, DecodingKey, EncodingKey, Header as JWTHeader, TokenData, Validation,
@@ -42,6 +41,33 @@ impl Claims {
     }
 }
 
+pub struct Auth(pub TokenData<Claims>);
+
+impl Auth {
+    pub fn from_request(req: &HttpRequest) -> Option<Self> {
+        let auth = Authorization::<Bearer>::parse(req).ok()?;
+        let scheme = auth.into_scheme();
+        let decoded = decode(
+            scheme.token(),
+            &DecodingKey::from_secret(JWT_SECRET.as_ref()),
+            &Validation::new(jsonwebtoken::Algorithm::HS256),
+        )
+        .ok()?;
+        Some(Auth(decoded))
+    }
+}
+
+impl FromRequest for Auth {
+    type Error = actix_web::error::Error;
+    type Future = futures::future::Ready<Result<Self, Self::Error>>;
+    fn from_request(req: &HttpRequest, _payload: &mut Payload) -> Self::Future {
+        match Auth::from_request(req) {
+            Some(auth) => futures::future::ok(auth),
+            None => futures::future::err(actix_web::error::ErrorBadRequest("No token supplied")),
+        }
+    }
+}
+
 pub fn create_jwt(id: String) -> String {
     let claims = Claims::new(id);
 
@@ -53,24 +79,4 @@ pub fn create_jwt(id: String) -> String {
         Ok(c) => c,
         Err(_err) => panic!(),
     }
-}
-
-pub fn get_jwt(auth: Bearer) -> Option<TokenData<Claims>> {
-    let jwt = auth.token();
-    decode(
-        jwt,
-        &DecodingKey::from_secret(JWT_SECRET.as_ref()),
-        &Validation::new(jsonwebtoken::Algorithm::HS256),
-    )
-    .ok()
-}
-
-// TODO: Reorganize this mess
-pub fn parse_request(req: HttpRequest) -> Option<TokenData<Claims>> {
-    let auth = Authorization::<Bearer>::parse(&req).ok()?;
-    get_jwt(auth.into_scheme())
-}
-
-pub fn get_id(auth: Bearer) -> Option<String> {
-    get_jwt(auth).map(|jwt| jwt.claims.sub)
 }

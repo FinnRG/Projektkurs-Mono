@@ -1,16 +1,14 @@
 use actix_cors::Cors;
 use actix_web::{
-    error::ParseError,
-    get,
-    http::header::Header,
-    post,
+    get, post,
     web::{Either, Form, Json},
-    App, HttpRequest, HttpResponse, HttpServer, Responder,
+    App, HttpResponse, HttpServer, Responder,
 };
-use actix_web_httpauth::headers::authorization::{Authorization, Bearer};
+use actix_web_httpauth::headers::authorization::Bearer;
 use auth_lib::{
     create_jwt,
-    db::{check_password, create_user, CreateUserError, run_migrations}, get_jwt, parse_request,
+    db::{check_password, create_user, run_migrations, CreateUserError},
+    Auth,
 };
 use serde::Deserialize;
 
@@ -64,8 +62,8 @@ async fn login(form: Either<Json<Login>, Form<Login>>) -> impl Responder {
 }
 
 #[get("/id")]
-async fn get_id(req: HttpRequest) -> Option<String> {
-    parse_request(req).map(|data| data.claims.sub)
+async fn get_id(auth: Auth) -> String {
+    auth.0.claims.sub
 }
 
 #[tokio::main]
