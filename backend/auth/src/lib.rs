@@ -11,11 +11,14 @@ use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
 use std::env;
 
+#[cfg(feature = "build-binary")]
 #[macro_use]
 extern crate diesel_migrations;
+#[cfg(feature = "build-binary")]
 #[macro_use]
 extern crate diesel;
 
+#[cfg(feature = "build-binary")]
 pub mod db;
 
 lazy_static! {

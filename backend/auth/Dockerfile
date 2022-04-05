@@ -14,7 +14,7 @@ COPY ./migrations/ ./migrations/
 RUN mv src/main.rs src/service.rs
 
 # Build only the dependencies to cache them
-RUN cargo build --release
+RUN cargo build --release --bin auth_service --features build-binary
 RUN rm src/*.rs
 
 # Copy the source code
@@ -22,7 +22,7 @@ COPY ./src ./src
 
 # Build for release.
 RUN rm ./target/release/deps/auth*
-RUN cargo build --release
+RUN cargo build --release --bin auth_service --features build-binary
 
 # The final base image
 FROM debian:buster-slim
