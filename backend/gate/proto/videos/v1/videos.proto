@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package videos.v1;
+
+import "google/api/annotations.proto";
+
+option go_package = "msostream/gate;gate";
+
+message GetVideoRequest {
+  string id = 1;
+}
+
+message GetVideoResponse {
+  string message = 1;
+}
+
+service VideoService {
+  rpc GetVideo(GetVideoRequest) returns (GetVideoResponse) {
+    option (google.api.http) = {
+      get: "/v1/video/{id}"
+    };
+  }
+}
