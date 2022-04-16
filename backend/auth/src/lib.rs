@@ -58,6 +58,10 @@ impl Auth {
         .ok()?;
         Some(Auth(decoded))
     }
+
+    pub fn id(&self) -> &str {
+        &self.0.claims.sub
+    }
 }
 
 impl FromRequest for Auth {
