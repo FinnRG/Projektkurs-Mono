@@ -21,7 +21,7 @@ func main() {
 }
 
 func run() error {
-	listenOn := "0.0.0.0:8080"
+	listenOn := "0.0.0.0:50051"
 	listener, err := net.Listen("tcp", listenOn)
 	if err != nil {
 		return fmt.Errorf("failed to listen on %s: %w", listenOn, err)
