@@ -16,7 +16,7 @@
     "application/json"
   ],
   "paths": {
-    "/v1/sayHello/{name}": {
+    "/v1/video/{id}": {
       "get": {
         "operationId": "VideoService_GetVideo",
         "responses": {
@@ -35,15 +35,9 @@
         },
         "parameters": [
           {
-            "name": "name",
+            "name": "id",
             "in": "path",
             "required": true,
-            "type": "string"
-          },
-          {
-            "name": "lastName",
-            "in": "query",
-            "required": false,
             "type": "string"
           }
         ],

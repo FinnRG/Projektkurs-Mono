@@ -6,6 +6,7 @@ WORKDIR /gate
 
 RUN go build -o gateway .
 
-EXPOSE 8000
+EXPOSE 8080
+EXPOSE 50051
 
 CMD [ "/gate/gateway" ]

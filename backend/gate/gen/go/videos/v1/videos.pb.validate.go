@@ -57,9 +57,7 @@ func (m *GetVideoRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Name
-
-	// no validation rules for LastName
+	// no validation rules for Id
 
 	if len(errors) > 0 {
 		return GetVideoRequestMultiError(errors)
