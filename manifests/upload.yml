@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: upload
+spec:
+  selector:
+    matchLabels:
+      name: upload
+      tier: backend
+      track: stable
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: upload
+        name: upload
+        tier: backend
+        track: stable
+    spec:
+      containers:
+      - name: upload
+        image: finnrg/msostream-upload:latest
+        imagePullPolicy: Always
+        ports:
+        - name: rpc
+          containerPort: 50051
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: upload
+spec:
+  selector:
+    name: upload
+    app: upload
+    tier: backend
+  ports:
+  - protocol: TCP
+    port: 50051
+    targetPort: rpc
