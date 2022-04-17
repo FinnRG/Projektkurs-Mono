@@ -54,7 +54,7 @@ impl VideoService for Videos {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let addr = "0.0.0.0:8000".parse()?;
+    let addr = "0.0.0.0:8080".parse()?;
     let videos = Videos::default();
 
     Server::builder()

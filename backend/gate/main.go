@@ -57,7 +57,7 @@ func main() {
 			runtime.DefaultHTTPErrorHandler(ctx, mux, marshaler, writer, request, &newError)
 		}))
 	// setting up a dial up for gRPC service by specifying endpoint/target url
-	err := gen.RegisterVideoServiceHandlerFromEndpoint(context.Background(), mux, "api-video:8000", []grpc.DialOption{grpc.WithInsecure()})
+	err := gen.RegisterVideoServiceHandlerFromEndpoint(context.Background(), mux, "api-video:8080", []grpc.DialOption{grpc.WithInsecure()})
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -67,7 +67,7 @@ func main() {
 	}
 
 	// creating a listener for server
-	l, err := net.Listen("tcp", ":8000")
+	l, err := net.Listen("tcp", ":8080")
 	if err != nil {
 		log.Fatal(err)
 	}
