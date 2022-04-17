@@ -1,0 +1,3 @@
+[submodule "backend/gate/proto"]
+	path = backend/gate/proto
+	url = https://github.com/MSOStream/Spec
