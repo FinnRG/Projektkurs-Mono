@@ -7,3 +7,6 @@
 [submodule "backend/packager/proto"]
 	path = backend/packager/proto
 	url = https://github.com/MSOStream/Spec
+[submodule "backend/upload/proto"]
+	path = backend/upload/proto
+	url = https://github.com/MSOStream/Spec
