@@ -7,7 +7,8 @@ import (
 	"net/http"
 	"strings"
 
-	gen "msostream/gate/gen/go/videos/v1"
+	uploadv1 "msostream/gate/gen/go/upload/v1"
+	videosv1 "msostream/gate/gen/go/videos/v1"
 
 	"github.com/felixge/httpsnoop"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
@@ -57,8 +58,10 @@ func main() {
 			runtime.DefaultHTTPErrorHandler(ctx, mux, marshaler, writer, request, &newError)
 		}))
 	// setting up a dial up for gRPC service by specifying endpoint/target url
-	err := gen.RegisterVideoServiceHandlerFromEndpoint(context.Background(), mux, "api-video:8080", []grpc.DialOption{grpc.WithInsecure()})
-	if err != nil {
+	if err := videosv1.RegisterVideoServiceHandlerFromEndpoint(context.Background(), mux, "api-video:8080", []grpc.DialOption{grpc.WithInsecure()}); err != nil {
+		log.Fatal(err)
+	}
+	if err := uploadv1.RegisterUploadServiceHandlerFromEndpoint(context.Background(), mux, "upload:50051", []grpc.DialOption{grpc.WithInsecure()}); err != nil {
 		log.Fatal(err)
 	}
 	// Creating a normal HTTP server
