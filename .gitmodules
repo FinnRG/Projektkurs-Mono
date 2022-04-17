@@ -4,3 +4,6 @@
 [submodule "backend/api-video/proto"]
 	path = backend/api-video/proto
 	url = https://github.com/MSOStream/Spec
+[submodule "backend/packager/proto"]
+	path = backend/packager/proto
+	url = https://github.com/MSOStream/Spec

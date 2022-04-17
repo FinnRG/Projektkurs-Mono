@@ -4,3 +4,4 @@ frontend/node_modules
 minikube.log
 redis-stable.tar.gz
 redis-stable/
+gen/
