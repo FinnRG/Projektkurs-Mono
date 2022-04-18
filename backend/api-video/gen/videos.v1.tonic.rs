@@ -64,6 +64,46 @@ pub mod video_service_client {
             self
         }
         ///
+        pub async fn create_video(
+            &mut self,
+            request: impl tonic::IntoRequest<super::CreateVideoRequest>,
+        ) -> Result<tonic::Response<super::CreateVideoResponse>, tonic::Status> {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/videos.v1.VideoService/CreateVideo",
+            );
+            self.inner.unary(request.into_request(), path, codec).await
+        }
+        ///
+        pub async fn update_video(
+            &mut self,
+            request: impl tonic::IntoRequest<super::UpdateVideoRequest>,
+        ) -> Result<tonic::Response<super::UpdateVideoResponse>, tonic::Status> {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/videos.v1.VideoService/UpdateVideo",
+            );
+            self.inner.unary(request.into_request(), path, codec).await
+        }
+        ///
         pub async fn get_video(
             &mut self,
             request: impl tonic::IntoRequest<super::GetVideoRequest>,
@@ -92,6 +132,16 @@ pub mod video_service_server {
     ///Generated trait containing gRPC methods that should be implemented for use with VideoServiceServer.
     #[async_trait]
     pub trait VideoService: Send + Sync + 'static {
+        ///
+        async fn create_video(
+            &self,
+            request: tonic::Request<super::CreateVideoRequest>,
+        ) -> Result<tonic::Response<super::CreateVideoResponse>, tonic::Status>;
+        ///
+        async fn update_video(
+            &self,
+            request: tonic::Request<super::UpdateVideoRequest>,
+        ) -> Result<tonic::Response<super::UpdateVideoResponse>, tonic::Status>;
         ///
         async fn get_video(
             &self,
@@ -158,6 +208,86 @@ pub mod video_service_server {
         fn call(&mut self, req: http::Request<B>) -> Self::Future {
             let inner = self.inner.clone();
             match req.uri().path() {
+                "/videos.v1.VideoService/CreateVideo" => {
+                    #[allow(non_camel_case_types)]
+                    struct CreateVideoSvc<T: VideoService>(pub Arc<T>);
+                    impl<
+                        T: VideoService,
+                    > tonic::server::UnaryService<super::CreateVideoRequest>
+                    for CreateVideoSvc<T> {
+                        type Response = super::CreateVideoResponse;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::CreateVideoRequest>,
+                        ) -> Self::Future {
+                            let inner = self.0.clone();
+                            let fut = async move {
+                                (*inner).create_video(request).await
+                            };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let inner = inner.0;
+                        let method = CreateVideoSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
+                "/videos.v1.VideoService/UpdateVideo" => {
+                    #[allow(non_camel_case_types)]
+                    struct UpdateVideoSvc<T: VideoService>(pub Arc<T>);
+                    impl<
+                        T: VideoService,
+                    > tonic::server::UnaryService<super::UpdateVideoRequest>
+                    for UpdateVideoSvc<T> {
+                        type Response = super::UpdateVideoResponse;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::UpdateVideoRequest>,
+                        ) -> Self::Future {
+                            let inner = self.0.clone();
+                            let fut = async move {
+                                (*inner).update_video(request).await
+                            };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let inner = inner.0;
+                        let method = UpdateVideoSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
                 "/videos.v1.VideoService/GetVideo" => {
                     #[allow(non_camel_case_types)]
                     struct GetVideoSvc<T: VideoService>(pub Arc<T>);
