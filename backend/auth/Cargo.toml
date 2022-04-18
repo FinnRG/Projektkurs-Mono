@@ -11,6 +11,7 @@ path = "src/service.rs"
 
 [dependencies]
 chrono = { version = "0.4.19", default-features = false, features = [ "clock", "std" ] }
+rdkafka = { version = "0.28", features = ["cmake-build"] }
 jsonwebtoken = "8.0.1"
 lazy_static = "1.4.0"
 serde = "1.0.136"
@@ -21,7 +22,6 @@ rs-auth = { git = "https://github.com/MSOStream/rs-auth" }
 prost = "0.10"
 tonic = { version = "0.7", features = ["compression"] }
 redis = { version = "0.21.5", features = ["r2d2"] }
-rdkafka = { version = "0.26", features = ["cmake-build"] }
 r2d2 = "0.8.9"
 
 [build-dependencies]
