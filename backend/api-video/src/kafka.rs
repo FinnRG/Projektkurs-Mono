@@ -37,6 +37,7 @@ use rdkafka::{
 //         }
 //     }
 
+// Publishes a VideoCreated event to videos
 pub async fn emit_video_created(video: &str, id: &str) -> OwnedDeliveryResult {
     let producer: &FutureProducer = &ClientConfig::new()
         .set("bootstrap.server", "http://kafka-headless.default.svc.cluster.local:9092")
