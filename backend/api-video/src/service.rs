@@ -1,6 +1,6 @@
 use log::error;
 use r2d2::PooledConnection;
-use redis::{Commands, Client, RedisError};
+use redis::{Client, Commands, RedisError};
 use std::env;
 use tonic::{transport::Server, Request, Response, Status};
 use videos::v1::video_service_server::{VideoService, VideoServiceServer};
@@ -37,7 +37,10 @@ fn get_conn() -> Result<r2d2::PooledConnection<redis::Client>, Status> {
     }
 }
 
-fn get_video_from_redis(mut conn: PooledConnection<Client>, id: &str) -> Result<Option<String>, RedisError>  {
+fn get_video_from_redis(
+    mut conn: PooledConnection<Client>,
+    id: &str,
+) -> Result<Option<String>, RedisError> {
     conn.get::<_, Option<String>>(&id)
 }
 
@@ -74,7 +77,7 @@ impl VideoService for Videos {
         request: Request<UpdateVideoRequest>,
     ) -> Result<Response<UpdateVideoResponse>, Status> {
         if rs_auth::user_id!(request).is_none() {
-            return Err(Status::unauthenticated("User is not logged in"))
+            return Err(Status::unauthenticated("User is not logged in"));
         }
 
         let conn = get_conn()?;
@@ -84,7 +87,7 @@ impl VideoService for Videos {
         if update_request.is_none() || update_request.as_ref().unwrap().id.is_empty() {
             return Err(Status::invalid_argument("Video id not specified"));
         }
-        
+
         let update_request = update_request.unwrap();
 
         let id = update_request.id;
@@ -97,15 +100,16 @@ impl VideoService for Videos {
             Err(_) => return Err(Status::internal("Internal Redis error")),
         };
 
-        let mut video: Video = serde_json::from_str(&video_str).expect("Unable to parse stored json");
+        let mut video: Video =
+            serde_json::from_str(&video_str).expect("Unable to parse stored json");
         if !update_request.title.is_empty() {
             video.title = update_request.title;
         }
         if !update_request.description.is_empty() {
             video.description = update_request.description;
         }
-        
-        Err(Status::internal("Internal Redis error"))
+
+        Ok(Response::new(UpdateVideoResponse { video: Some(video) }))
     }
 
     async fn create_video(
