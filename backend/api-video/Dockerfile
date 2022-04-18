@@ -15,4 +15,5 @@ FROM gcr.io/distroless/cc-debian10
 
 COPY --from=build /usr/src/api-video /usr/local/bin/api-video
 
+EXPOSE 8080
 CMD [ "api-video" ]
