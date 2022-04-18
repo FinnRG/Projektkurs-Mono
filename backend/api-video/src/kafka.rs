@@ -38,7 +38,7 @@ use rdkafka::{
 //     }
 
 // Publishes a VideoCreated event to videos
-pub async fn emit_video_created(video: &str, id: &str) -> OwnedDeliveryResult {
+pub async fn emit_video(video: &str, id: &str) -> OwnedDeliveryResult {
     let producer: &FutureProducer = &ClientConfig::new()
         .set(
             "bootstrap.server",
@@ -53,7 +53,7 @@ pub async fn emit_video_created(video: &str, id: &str) -> OwnedDeliveryResult {
             FutureRecord::to("videos")
                 .payload(video)
                 .key(id)
-                .headers(OwnedHeaders::new().add("type", "VideoCreated")),
+                .headers(OwnedHeaders::new().add("type", "VideoChanged")),
             Duration::from_secs(0),
         )
         .await

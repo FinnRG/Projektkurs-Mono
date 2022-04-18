@@ -1,4 +1,4 @@
-use log::error;
+use log::{warn, error};
 use r2d2::PooledConnection;
 use redis::{Client, Commands, RedisError};
 use std::env;
@@ -38,7 +38,7 @@ fn get_conn() -> Result<r2d2::PooledConnection<redis::Client>, Status> {
 }
 
 fn get_video_from_redis(
-    mut conn: PooledConnection<Client>,
+    conn: &mut PooledConnection<Client>,
     id: &str,
 ) -> Result<Option<String>, RedisError> {
     conn.get::<_, Option<String>>(&id)
@@ -55,9 +55,9 @@ impl VideoService for Videos {
     ) -> Result<Response<GetVideoResponse>, Status> {
         let id = request.into_inner().id;
 
-        let conn = get_conn()?;
+        let mut conn = get_conn()?;
 
-        return match get_video_from_redis(conn, &id) {
+        return match get_video_from_redis(&mut conn, &id) {
             Ok(Some(video)) => {
                 let parsed: Video = serde_json::from_str(video.as_ref()).unwrap();
                 Ok(Response::new(GetVideoResponse {
@@ -76,11 +76,12 @@ impl VideoService for Videos {
         &self,
         request: Request<UpdateVideoRequest>,
     ) -> Result<Response<UpdateVideoResponse>, Status> {
+        // Authorize request
         if rs_auth::user_id!(request).is_none() {
             return Err(Status::unauthenticated("User is not logged in"));
         }
 
-        let conn = get_conn()?;
+        let mut conn = get_conn()?;
         let update_request = request.into_inner().video;
 
         // Checks that the video id is specified
@@ -89,10 +90,10 @@ impl VideoService for Videos {
         }
 
         let update_request = update_request.unwrap();
-
         let id = update_request.id;
 
-        let video_str = match get_video_from_redis(conn, &id) {
+        // Get current video from redis
+        let video_str = match get_video_from_redis(&mut conn, &id) {
             Ok(r) => match r {
                 Some(v) => v,
                 None => return Err(Status::not_found("Video with id not found")),
@@ -100,6 +101,7 @@ impl VideoService for Videos {
             Err(_) => return Err(Status::internal("Internal Redis error")),
         };
 
+        // Update video with new values
         let mut video: Video =
             serde_json::from_str(&video_str).expect("Unable to parse stored json");
         if !update_request.title.is_empty() {
@@ -107,6 +109,24 @@ impl VideoService for Videos {
         }
         if !update_request.description.is_empty() {
             video.description = update_request.description;
+        }
+
+        let video_str = serde_json::to_string(&video).expect("Unable to stringify Video object");
+
+        // Emit VideoChanged event
+        if kafka::emit_video(
+            &video_str,
+            &id,
+        )
+        .await
+        .is_err()
+        {
+            return Err(Status::internal("Internal kafka error"));
+        }
+
+        // Change video in redis
+        if let Err(e) = conn.set::<_, _, ()>(&id, &video_str) {
+            warn!("Unable to update {} with {:?} because of {:?}", &id, &video_str, e);
         }
 
         Ok(Response::new(UpdateVideoResponse { video: Some(video) }))
@@ -139,15 +159,12 @@ impl VideoService for Videos {
         })
         .expect("Unable to stringify Video object");
 
-        if conn.set::<_, _, ()>(id.to_string(), &video).is_err() {
-            return Err(Status::internal("Internal Redis error"));
+        if kafka::emit_video(&video, &id.to_string()).await.is_err() {
+            return Err(Status::internal("Internal kafka error"));
         }
 
-        if kafka::emit_video_created(&video, &id.to_string())
-            .await
-            .is_err()
-        {
-            return Err(Status::internal("Internal kafka error"));
+        if let Err(e) = conn.set::<_, _, ()>(id.to_string(), &video) {
+            warn!("Unable to create {} with {:?} because of {:?}", id.to_string(), &video, e);
         }
 
         Ok(Response::new(CreateVideoResponse { id: id.to_string() }))
