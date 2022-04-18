@@ -53,5 +53,5 @@ func PresignedURL(id string) (string, error) {
 	expiry := time.Second * 60 * 60
 	minioClient, ctx := MinioClient()
 	presignedURL, err := minioClient.PresignedPutObject(ctx, BUCKET, id, expiry)
-	return presignedURL.String(), err
+	return presignedURL.RequestURI(), err
 }
