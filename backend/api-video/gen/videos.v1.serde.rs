@@ -762,6 +762,7 @@ impl serde::Serialize for Visibility {
             Self::Public => "PUBLIC",
             Self::Private => "PRIVATE",
             Self::Processing => "PROCESSING",
+            Self::Draft => "DRAFT",
         };
         serializer.serialize_str(variant)
     }
@@ -776,6 +777,7 @@ impl<'de> serde::Deserialize<'de> for Visibility {
             "PUBLIC",
             "PRIVATE",
             "PROCESSING",
+            "DRAFT",
         ];
 
         struct GeneratedVisitor;
@@ -821,6 +823,7 @@ impl<'de> serde::Deserialize<'de> for Visibility {
                     "PUBLIC" => Ok(Visibility::Public),
                     "PRIVATE" => Ok(Visibility::Private),
                     "PROCESSING" => Ok(Visibility::Processing),
+                    "DRAFT" => Ok(Visibility::Draft),
                     _ => Err(serde::de::Error::unknown_variant(value, FIELDS)),
                 }
             }

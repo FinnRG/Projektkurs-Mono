@@ -24,7 +24,8 @@ r2d2 = "0.8.9"
 serde_json = "1.0.79"
 jsonwebtoken = "8.1.0"
 rs-auth = { git = "https://github.com/MSOStream/rs-auth"}
-uuid = "0.8.2"
+uuid = { version = "0.8.2", features= ["v4"] }
+chrono = "0.4.19"
 
 [build-dependencies]
 tonic-build = "0.7"

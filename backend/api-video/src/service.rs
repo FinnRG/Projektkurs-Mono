@@ -12,11 +12,10 @@ use videos::v1::video_service_server::{VideoService, VideoServiceServer};
 use videos::v1::Video;
 use videos::v1::{
     CreateVideoRequest, CreateVideoResponse, GetVideoRequest, GetVideoResponse, UpdateVideoRequest,
-    UpdateVideoResponse,
+    UpdateVideoResponse, Visibility,
 };
-#[macro_use]
-extern crate rs_auth;
 extern crate r2d2;
+extern crate rs_auth;
 #[macro_use]
 extern crate lazy_static;
 
@@ -113,14 +112,33 @@ impl VideoService for Videos {
         &self,
         request: Request<CreateVideoRequest>,
     ) -> Result<Response<CreateVideoResponse>, Status> {
-        request.metadata().get("auth").unwrap().as_ref();
-        if !rs_auth::is_logged_in!(request) {
+        let author = rs_auth::user_id!(request);
+        if !author.is_some() {
             return Err(Status::unauthenticated("User is not logged in"));
         }
 
         let mut conn = get_conn()?;
+        let create_request = request.into_inner();
 
-        Err(Status::aborted("T"))
+        if create_request.title.is_empty() {
+            return Err(Status::invalid_argument("Title can't be an empty string"));
+        }
+
+        let id = uuid::Uuid::new_v4();
+        let video = serde_json::to_string(&Video {
+            id: id.to_string(),
+            title: create_request.title,
+            description: create_request.description,
+            author: author.unwrap(),
+            date: chrono::offset::Local::now().to_string(),
+            visibility: Visibility::Draft as i32,
+        })
+        .unwrap();
+
+        match conn.set::<_, _, ()>(id.to_string(), video) {
+            Ok(_) => Ok(Response::new(CreateVideoResponse { id: id.to_string() })),
+            Err(_) => Err(Status::internal("Internal Redis error")),
+        }
     }
 }
 
