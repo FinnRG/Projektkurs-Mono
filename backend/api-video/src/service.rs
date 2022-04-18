@@ -1,4 +1,4 @@
-use log::{warn, error};
+use log::{error, warn};
 use r2d2::PooledConnection;
 use redis::{Client, Commands, RedisError};
 use std::env;
@@ -114,19 +114,16 @@ impl VideoService for Videos {
         let video_str = serde_json::to_string(&video).expect("Unable to stringify Video object");
 
         // Emit VideoChanged event
-        if kafka::emit_video(
-            &video_str,
-            &id,
-        )
-        .await
-        .is_err()
-        {
+        if kafka::emit_video(&video_str, &id).await.is_err() {
             return Err(Status::internal("Internal kafka error"));
         }
 
         // Change video in redis
         if let Err(e) = conn.set::<_, _, ()>(&id, &video_str) {
-            warn!("Unable to update {} with {:?} because of {:?}", &id, &video_str, e);
+            warn!(
+                "Unable to update {} with {:?} because of {:?}",
+                &id, &video_str, e
+            );
         }
 
         Ok(Response::new(UpdateVideoResponse { video: Some(video) }))
@@ -164,7 +161,12 @@ impl VideoService for Videos {
         }
 
         if let Err(e) = conn.set::<_, _, ()>(id.to_string(), &video) {
-            warn!("Unable to create {} with {:?} because of {:?}", id.to_string(), &video, e);
+            warn!(
+                "Unable to create {} with {:?} because of {:?}",
+                id.to_string(),
+                &video,
+                e
+            );
         }
 
         Ok(Response::new(CreateVideoResponse { id: id.to_string() }))
