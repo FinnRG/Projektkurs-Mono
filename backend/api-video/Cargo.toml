@@ -21,6 +21,10 @@ serde = "1.0"
 lazy_static = "1.4.0"
 redis = { version = "0.21.5", features = ["r2d2"] }
 r2d2 = "0.8.9"
+serde_json = "1.0.79"
+jsonwebtoken = "8.1.0"
+rs-auth = { git = "https://github.com/MSOStream/rs-auth"}
+uuid = "0.8.2"
 
 [build-dependencies]
 tonic-build = "0.7"
