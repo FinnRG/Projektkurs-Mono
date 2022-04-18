@@ -8,7 +8,6 @@ edition = "2021"
 [[bin]]
 name = "auth_service"
 path = "src/service.rs"
-required-features = ["build-binary"]
 
 [dependencies]
 chrono = { version = "0.4.19", default-features = false, features = [ "clock", "std" ] }
@@ -17,14 +16,10 @@ lazy_static = "1.4.0"
 serde = "1.0.136"
 tokio = { version = "1.17.0", features = ["macros", "rt-multi-thread"] }
 uuid = { version = "0.8.2", features = ["v4"] }
-actix = "0.13.0"
-actix-cors = "0.6.1"
-actix-web = "4"
-actix-web-httpauth = "0.6.0"
-diesel = { version = "1.4.8", features = ["postgres", "chrono"], optional = true }
-diesel_migrations = { version = "1.4.0", optional = true }
-futures = "0.3"
 bcrypt = "0.12.0"
+rs-auth = { git = "https://github.com/MSOStream/rs-auth" }
+prost = "0.10"
+tonic = { version = "0.7", features = ["compression"] }
 
-[features]
-build-binary = ["diesel", "diesel_migrations"]
+[build-dependencies]
+tonic-build = "0.7"

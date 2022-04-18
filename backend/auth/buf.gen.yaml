@@ -1,0 +1,22 @@
+version: v1
+plugins:
+  # generate tonic code for protocol buffer defination
+  - remote: buf.build/prost/plugins/prost:v0.1.3-2
+    out: gen
+    opt:
+      - bytes=.
+      - compile_well_known_types
+      - extern_path=.google.protobuf=::pbjson_types
+      - file_descriptor_set
+  - remote: buf.build/prost/plugins/serde:v0.1.0-3
+    out: gen
+  - remote: buf.build/prost/plugins/tonic:v0.1.0-2
+    out: gen
+    opt:
+      - compile_well_known_types
+      - extern_path=.google.protobuf=::pbjson_types
+      - no_client
+  - remote: buf.build/prost/plugins/crate:v0.1.5-2
+    out: gen
+    opt:
+      - no_features
