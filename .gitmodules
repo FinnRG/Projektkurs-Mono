@@ -10,3 +10,6 @@
 [submodule "backend/upload/proto"]
 	path = backend/upload/proto
 	url = https://github.com/MSOStream/Spec
+[submodule "backend/auth/proto"]
+	path = backend/auth/proto
+	url = https://github.com/MSOStream/Spec
