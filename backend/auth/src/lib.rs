@@ -1,4 +1,4 @@
-use jsonwebtoken::{encode, EncodingKey, Header as JWTHeader, TokenData};
+use jsonwebtoken::{encode, EncodingKey, Header as JWTHeader};
 use lazy_static::lazy_static;
 use rs_auth::Claims;
 

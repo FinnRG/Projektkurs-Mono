@@ -1,37 +1,19 @@
-# Rust as the base image
-FROM rust:1.57.0-slim-buster as build
+FROM bufbuild/buf:1.3.1 as buf
+FROM rust:1.60.0-buster as build
 
-# Create a new empty shell project
-RUN USER=root cargo new --bin auth
-WORKDIR /auth
-RUN apt-get update
-RUN apt-get install -y pkg-config libssl-dev libpq-dev
+ENV PKG_CONFIG_ALLOW_CROSS=1
 
-# Copy relevant files
-COPY ./Cargo.lock ./Cargo.lock
-COPY ./Cargo.toml ./Cargo.toml
-COPY ./migrations/ ./migrations/
-RUN mv src/main.rs src/service.rs
+WORKDIR /usr/src/auth_service
+COPY --from=buf /usr/local/bin/buf /usr/local/bin/buf
+COPY . .
 
-# Build only the dependencies to cache them
-RUN cargo build --release --bin auth_service --features build-binary
-RUN rm src/*.rs
+RUN apt update && apt upgrade -y && apt install -y cmake
+RUN cargo install --bin auth_service --path .
 
-# Copy the source code
-COPY ./src ./src
 
-# Build for release.
-RUN rm ./target/release/deps/auth*
-RUN cargo build --release --bin auth_service --features build-binary
+FROM gcr.io/distroless/cc-debian10
 
-# The final base image
-FROM debian:buster-slim
+COPY --from=build /usr/src/auth_service /usr/local/bin/auth_service
 
-# Copy from the previous build
-RUN apt-get update
-RUN apt-get install -y libpq-dev libssl-dev
-COPY --from=build /auth/target/release/auth_service /usr/src/auth_service
-
-# Run the binary
-EXPOSE 8000
-CMD ["/usr/src/auth_service"]
+EXPOSE 8080
+CMD [ "auth_service" ]

@@ -3,7 +3,7 @@ use std::error::Error;
 use std::process::{exit, Command};
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let buf_enabled = env::var("RUN_BUF").map(|v| v == "1").unwrap_or(false);
+    let buf_enabled = env::var("RUN_BUF").map(|v| v == "1").unwrap_or(true);
     if buf_enabled {
         return run_buf();
     }
@@ -23,4 +23,3 @@ fn run_buf() -> Result<(), Box<dyn Error>> {
 
     Ok(())
 }
-
