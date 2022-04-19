@@ -16,8 +16,8 @@ pub enum UserEvents {
 pub async fn emit_user(id: &str, user: &str, event: UserEvents) -> OwnedDeliveryResult {
     let producer: &FutureProducer = &ClientConfig::new()
         .set(
-            "bootstrap.server",
-            "http://kafka-headless.default.svc.cluster.local:9092",
+            "bootstrap.servers",
+            "kafka:9092",
         )
         .set("message.timeout.ms", "5000")
         .create()

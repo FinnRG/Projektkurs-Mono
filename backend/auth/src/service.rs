@@ -2,6 +2,8 @@ use argon2::{self, Config};
 use auth::create_jwt;
 use kafka::emit_user;
 use log::error;
+use log::info;
+use log::trace;
 use log::warn;
 use rdkafka::message::ToBytes;
 use redis::Commands;
@@ -12,6 +14,7 @@ use tonic::{Request, Response, Status};
 use users::v1::user_service_server::UserService;
 use users::v1::{register_response::Result as RegisterResult, *};
 use users::v1::user_service_server::UserServiceServer;
+use users::v1::FILE_DESCRIPTOR_SET;
 
 #[macro_use]
 extern crate lazy_static;
@@ -41,7 +44,7 @@ fn get_conn() -> Result<r2d2::PooledConnection<redis::Client>, Status> {
     }
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 struct User {
     id: String,
     name: String,
@@ -58,6 +61,7 @@ impl UserService for Users {
         &self,
         request: Request<RegisterRequest>,
     ) -> Result<Response<RegisterResponse>, Status> {
+        info!("New register request: {:?}", request);
         // Validate the request
         let request = request.into_inner();
         if request.name.is_empty() || request.email.is_empty() || request.password.is_empty() {
@@ -65,9 +69,11 @@ impl UserService for Users {
                 "name, email and password must be specified",
             ));
         }
+        info!("Register request validated");
 
         let mut conn = get_conn()?;
         let id = uuid::Uuid::new_v4();
+        trace!("Id generated: {}", id);
 
         // Generate the hash using Argon2 and a random salt using openssl
         let mut buf = [0u8; 128];
@@ -84,12 +90,14 @@ impl UserService for Users {
             password: hash,
         })
         .expect("Unable to stringify the user struct");
+        trace!("User struct created: {:?}", user);
 
         // Emit UserRegistered event
         if emit_user(&id.to_string(), &user, kafka::UserEvents::Registered)
             .await
             .is_err()
         {
+            warn!("Failed to emit UserRegistered event");
             return Err(Status::internal("Internal kafka error"));
         }
 
@@ -102,12 +110,13 @@ impl UserService for Users {
             res: RegisterResult::Accepted as i32,
         });
         response.metadata_mut().insert(
-            "auth",
+            "authorization",
             create_jwt(id.to_string())
                 .parse()
                 .expect("Unable to convert id to Metadata value"),
         );
 
+        info!("Register request successful");
         return Ok(response);
     }
     async fn login(&self, _request: Request<LoginRequest>) -> Result<Response<LoginResponse>, Status> {
@@ -117,10 +126,19 @@ impl UserService for Users {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    pretty_env_logger::init();
+
     let addr = "0.0.0.0:8080".parse()?;
     let users = Users::default();
 
+    // let reflection = tonic_reflection::server::Builder::configure()
+    //     .register_encoded_file_descriptor_set(FILE_DESCRIPTOR_SET)
+    //     .build()
+    //     .expect("Unable to build reflection service using FILE_DESCRIPTOR_SET");
+
+    info!("Serving gRPC on port: {}", "8080");
     Server::builder()
+        // .add_service(reflection)
         .add_service(UserServiceServer::new(users))
         .serve(addr)
         .await?;
