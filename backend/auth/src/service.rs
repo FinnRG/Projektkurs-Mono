@@ -1,5 +1,5 @@
 use argon2::{self, Config};
-use auth_lib::create_jwt;
+use auth::create_jwt;
 use kafka::emit_user;
 use log::error;
 use log::warn;

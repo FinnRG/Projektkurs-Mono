@@ -38,8 +38,10 @@ spec:
     tier: backend
   ports:
   - protocol: TCP
+    name: rpc
     port: 50051
     targetPort: rpc
   - protocol: TCP
+    name: http
     port: 8080
     targetPort: http

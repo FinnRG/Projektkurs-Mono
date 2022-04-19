@@ -1,25 +1,25 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: auth
+  name: api-video
 spec:
   selector:
     matchLabels:
-      name: auth
+      name: api-video
       tier: backend
       track: stable
   replicas: 1
   template:
     metadata:
       labels:
-        app: auth
-        name: auth
+        app: videos
+        name: api-video
         tier: backend
         track: stable
     spec:
       containers:
       - name: auth
-        image: finnrg/msostream-auth:latest
+        image: finnrg/msostream-api-video:latest
         imagePullPolicy: Always
         env:
         - name: JWT_SECRET
@@ -31,11 +31,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: auth
+  name: api-video
 spec:
   selector:
-    name: auth
-    app: auth
+    name: api-video
+    app: videos
     tier: backend
   ports:
   - protocol: TCP

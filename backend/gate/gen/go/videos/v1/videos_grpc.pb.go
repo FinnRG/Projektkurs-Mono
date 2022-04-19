@@ -18,6 +18,8 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type VideoServiceClient interface {
+	CreateVideo(ctx context.Context, in *CreateVideoRequest, opts ...grpc.CallOption) (*CreateVideoResponse, error)
+	UpdateVideo(ctx context.Context, in *UpdateVideoRequest, opts ...grpc.CallOption) (*UpdateVideoResponse, error)
 	GetVideo(ctx context.Context, in *GetVideoRequest, opts ...grpc.CallOption) (*GetVideoResponse, error)
 }
 
@@ -27,6 +29,24 @@ type videoServiceClient struct {
 
 func NewVideoServiceClient(cc grpc.ClientConnInterface) VideoServiceClient {
 	return &videoServiceClient{cc}
+}
+
+func (c *videoServiceClient) CreateVideo(ctx context.Context, in *CreateVideoRequest, opts ...grpc.CallOption) (*CreateVideoResponse, error) {
+	out := new(CreateVideoResponse)
+	err := c.cc.Invoke(ctx, "/videos.v1.VideoService/CreateVideo", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *videoServiceClient) UpdateVideo(ctx context.Context, in *UpdateVideoRequest, opts ...grpc.CallOption) (*UpdateVideoResponse, error) {
+	out := new(UpdateVideoResponse)
+	err := c.cc.Invoke(ctx, "/videos.v1.VideoService/UpdateVideo", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *videoServiceClient) GetVideo(ctx context.Context, in *GetVideoRequest, opts ...grpc.CallOption) (*GetVideoResponse, error) {
@@ -42,6 +62,8 @@ func (c *videoServiceClient) GetVideo(ctx context.Context, in *GetVideoRequest, 
 // All implementations must embed UnimplementedVideoServiceServer
 // for forward compatibility
 type VideoServiceServer interface {
+	CreateVideo(context.Context, *CreateVideoRequest) (*CreateVideoResponse, error)
+	UpdateVideo(context.Context, *UpdateVideoRequest) (*UpdateVideoResponse, error)
 	GetVideo(context.Context, *GetVideoRequest) (*GetVideoResponse, error)
 	mustEmbedUnimplementedVideoServiceServer()
 }
@@ -50,6 +72,12 @@ type VideoServiceServer interface {
 type UnimplementedVideoServiceServer struct {
 }
 
+func (UnimplementedVideoServiceServer) CreateVideo(context.Context, *CreateVideoRequest) (*CreateVideoResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateVideo not implemented")
+}
+func (UnimplementedVideoServiceServer) UpdateVideo(context.Context, *UpdateVideoRequest) (*UpdateVideoResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateVideo not implemented")
+}
 func (UnimplementedVideoServiceServer) GetVideo(context.Context, *GetVideoRequest) (*GetVideoResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetVideo not implemented")
 }
@@ -64,6 +92,42 @@ type UnsafeVideoServiceServer interface {
 
 func RegisterVideoServiceServer(s grpc.ServiceRegistrar, srv VideoServiceServer) {
 	s.RegisterService(&VideoService_ServiceDesc, srv)
+}
+
+func _VideoService_CreateVideo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateVideoRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(VideoServiceServer).CreateVideo(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/videos.v1.VideoService/CreateVideo",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(VideoServiceServer).CreateVideo(ctx, req.(*CreateVideoRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _VideoService_UpdateVideo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateVideoRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(VideoServiceServer).UpdateVideo(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/videos.v1.VideoService/UpdateVideo",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(VideoServiceServer).UpdateVideo(ctx, req.(*UpdateVideoRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _VideoService_GetVideo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -91,6 +155,14 @@ var VideoService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "videos.v1.VideoService",
 	HandlerType: (*VideoServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "CreateVideo",
+			Handler:    _VideoService_CreateVideo_Handler,
+		},
+		{
+			MethodName: "UpdateVideo",
+			Handler:    _VideoService_UpdateVideo_Handler,
+		},
 		{
 			MethodName: "GetVideo",
 			Handler:    _VideoService_GetVideo_Handler,

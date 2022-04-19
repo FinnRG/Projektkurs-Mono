@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	uploadv1 "msostream/gate/gen/go/upload/v1"
+	usersv1 "msostream/gate/gen/go/users/v1"
 	videosv1 "msostream/gate/gen/go/videos/v1"
 
 	"github.com/felixge/httpsnoop"
@@ -62,6 +63,9 @@ func main() {
 		log.Fatal(err)
 	}
 	if err := uploadv1.RegisterUploadServiceHandlerFromEndpoint(context.Background(), mux, "upload:50051", []grpc.DialOption{grpc.WithInsecure()}); err != nil {
+		log.Fatal(err)
+	}
+	if err := usersv1.RegisterUserServiceHandlerFromEndpoint(context.Background(), mux, "auth:8080", []grpc.DialOption{grpc.WithInsecure()}); err != nil {
 		log.Fatal(err)
 	}
 	// Creating a normal HTTP server

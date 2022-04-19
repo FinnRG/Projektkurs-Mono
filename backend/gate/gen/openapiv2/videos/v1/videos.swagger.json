@@ -16,7 +16,29 @@
     "application/json"
   ],
   "paths": {
-    "/v1/video/{id}": {
+    "/v1/videos": {
+      "post": {
+        "operationId": "VideoService_CreateVideo",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1CreateVideoResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "VideoService"
+        ]
+      }
+    },
+    "/v1/videos/{id}": {
       "get": {
         "operationId": "VideoService_GetVideo",
         "responses": {
@@ -36,6 +58,36 @@
         "parameters": [
           {
             "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "VideoService"
+        ]
+      }
+    },
+    "/v1/videos/{video.id}": {
+      "put": {
+        "operationId": "VideoService_UpdateVideo",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1UpdateVideoResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "video.id",
             "in": "path",
             "required": true,
             "type": "string"
@@ -75,13 +127,62 @@
         }
       }
     },
-    "v1GetVideoResponse": {
+    "v1CreateVideoResponse": {
       "type": "object",
       "properties": {
-        "message": {
+        "id": {
           "type": "string"
         }
       }
+    },
+    "v1GetVideoResponse": {
+      "type": "object",
+      "properties": {
+        "video": {
+          "$ref": "#/definitions/v1Video"
+        }
+      }
+    },
+    "v1UpdateVideoResponse": {
+      "type": "object",
+      "properties": {
+        "video": {
+          "$ref": "#/definitions/v1Video"
+        }
+      }
+    },
+    "v1Video": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "author": {
+          "type": "string"
+        },
+        "date": {
+          "type": "string"
+        },
+        "visibility": {
+          "$ref": "#/definitions/v1Visibility"
+        }
+      }
+    },
+    "v1Visibility": {
+      "type": "string",
+      "enum": [
+        "PUBLIC",
+        "PRIVATE",
+        "PROCESSING",
+        "DRAFT"
+      ],
+      "default": "PUBLIC"
     }
   }
 }
