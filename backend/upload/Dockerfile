@@ -1,11 +1,13 @@
-FROM golang:1.18-alpine
+FROM golang:1.18-alpine AS build
 
-RUN mkdir upload/
-COPY . /upload
 WORKDIR /upload
-
-RUN go build -o upload ./server/
-
-EXPOSE 8080
-
-CMD [ "/upload/upload" ]
+COPY go.mod ./
+COPY go.sum ./
+RUN go mod download
+COPY *.go ./
+RUN CGO_ENABLED=0 GOOS=linux go build -a -o upload .
+ 
+FROM redhat/ubi8-minimal:8.5
+WORKDIR /
+COPY --from=build /upload /
+CMD ["./upload"]
