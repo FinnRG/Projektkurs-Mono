@@ -22,8 +22,10 @@ spec:
         image: finnrg/msostream-api-video:latest
         imagePullPolicy: Always
         env:
-        - name: JWT_SECRET
+        - name: JWTSECRET
           value: "strongSecret"
+        - name: REDIS_URL
+          value: "redis://:strongPassword@redis-master:6379/"
         - name: RUST_LOG
           value: "debug"
         ports:

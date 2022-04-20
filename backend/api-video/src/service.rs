@@ -20,7 +20,7 @@ mod kafka;
 lazy_static! {
     static ref JWTSECRET: String = env::var("JWTSECRET").unwrap();
     static ref POOL: r2d2::Pool<redis::Client> = {
-        let client = redis::Client::open("redis://127.0.0.1/").unwrap();
+        let client = redis::Client::open(env::var("REDIS_URL").unwrap()).unwrap();
         r2d2::Pool::<redis::Client>::builder()
             .max_size(15)
             .build(client)
