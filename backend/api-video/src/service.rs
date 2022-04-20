@@ -1,4 +1,4 @@
-use log::{error, warn};
+use log::{error, warn, info};
 use r2d2::PooledConnection;
 use redis::{Client, Commands, RedisError};
 use std::env;
@@ -134,6 +134,7 @@ impl VideoService for Videos {
         &self,
         request: Request<CreateVideoRequest>,
     ) -> Result<Response<CreateVideoResponse>, Status> {
+        info!("New video creation request: {:?}", request);
         let author = rs_auth::user_id!(request);
         if author.is_none() {
             return Err(Status::unauthenticated("User is not logged in"));
@@ -176,6 +177,7 @@ impl VideoService for Videos {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    pretty_env_logger::init();
     let addr = "0.0.0.0:8080".parse()?;
     let videos = Videos::default();
 

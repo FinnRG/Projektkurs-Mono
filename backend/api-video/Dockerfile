@@ -1,5 +1,5 @@
 FROM bufbuild/buf:1.3.1 as buf
-FROM rust:1.60.0-buster as build
+FROM rust:1.60-bullseye as build
 
 # create a new empty shell project
 RUN USER=root cargo new --bin api-video
@@ -22,13 +22,14 @@ COPY buf.gen.yaml buf.gen.yaml
 COPY ./build.rs ./build.rs
 COPY ./proto ./proto
 COPY ./src ./src
+RUN buf generate
 
 # build for release
 RUN rm ./target/release/deps/video_api*
 RUN cargo build --release
 
 # our final base
-FROM gcr.io/distroless/cc-debian10
+FROM debian:bullseye-slim
 
 # copy the build artifact from the build stage
 COPY --from=build /api-video/target/release/video_api .

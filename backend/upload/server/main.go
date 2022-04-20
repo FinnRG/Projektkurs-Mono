@@ -2,73 +2,87 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
-	"time"
+	"os"
+	"os/signal"
 
-	uploadv1 "msostream/upload/gen/go/upload/v1"
-
-	"golang.org/x/sync/errgroup"
-	"google.golang.org/grpc"
-
+	sarama "github.com/Shopify/sarama"
 	"github.com/gin-gonic/gin"
 	"github.com/minio/minio-go/v7"
 )
 
+var collectedVideos map[string]string
+
 func main() {
+	collectVideos()
 	if err := run(); err != nil {
 		log.Fatal(err)
 	}
 }
 
-var (
-	g errgroup.Group
-)
+type Video struct {
+	Id          string `json:"id"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	Author      string `json:"author"`
+	Date        string `json:"date"`
+	Visbility   string `json:"visibility"`
+}
+
+func collectVideos() {
+	log.Println("Started collecting video events")
+	config := sarama.NewConfig()
+	consumer, err := sarama.NewConsumer([]string{"kafka:9092"}, config)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	defer func() {
+		if err := consumer.Close(); err != nil {
+			log.Fatalln(err)
+		}
+	}()
+
+	log.Println("Creating PartitionConsumer")
+	partitionConsumer, err := consumer.ConsumePartition("video", 0, sarama.OffsetOldest)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	defer func() {
+		if err := partitionConsumer.Close(); err != nil {
+			log.Fatalln(err)
+		}
+	}()
+
+	signals := make(chan os.Signal, 1)
+	signal.Notify(signals, os.Interrupt)
+
+	consumed := 0
+ConsumerLoop:
+	for {
+		select {
+		case msg := <-partitionConsumer.Messages():
+			var video Video
+			err := json.Unmarshal([]byte(msg.Value), video)
+			if err != nil {
+				log.Fatal(err)
+			}
+			log.Println(video)
+			consumed++
+		case <-signals:
+			break ConsumerLoop
+		}
+	}
+}
 
 func run() error {
-
-	grpc := &http.Server{
-		Addr:         ":50051",
-		Handler:      gRPCServer(),
-		ReadTimeout:  5 * time.Second,
-		WriteTimeout: 10 * time.Second,
-	}
-
-	http := &http.Server{
-		Addr:         ":8080",
-		Handler:      HTTPServer(),
-		ReadTimeout:  5 * time.Second,
-		WriteTimeout: 10 * time.Second,
-	}
-
-	g.Go(func() error {
-		return grpc.ListenAndServe()
-	})
-
-	g.Go(func() error {
-		return http.ListenAndServe()
-	})
-
-	if err := g.Wait(); err != nil {
-		log.Fatal(err)
-	}
-
-	return nil
-}
-
-func gRPCServer() http.Handler {
-	server := grpc.NewServer()
-	uploadv1.RegisterUploadServiceServer(server, &uploadServiceServer{})
-	return server
-}
-
-func HTTPServer() http.Handler {
-	r := gin.Default()
-	r.POST("/", upload)
-
-	log.Println("Listening on", 8080)
-	return r
+	router := gin.Default()
+	router.POST("/upload", upload)
+	return router.Run("0.0.0.0:8080")
 }
 
 func upload(c *gin.Context) {
@@ -89,12 +103,4 @@ func upload(c *gin.Context) {
 	})
 
 	c.String(http.StatusOK, fmt.Sprintf("'%s uploaded!", file.Filename))
-}
-
-type uploadServiceServer struct {
-	uploadv1.UnimplementedUploadServiceServer
-}
-
-func (s *uploadServiceServer) UploadURL(ctx context.Context, req *uploadv1.UploadURLRequest) (*uploadv1.UploadURLResponse, error) {
-	return &uploadv1.UploadURLResponse{}, nil
 }

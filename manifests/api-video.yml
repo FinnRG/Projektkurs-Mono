@@ -24,6 +24,8 @@ spec:
         env:
         - name: JWT_SECRET
           value: "strongSecret"
+        - name: RUST_LOG
+          value: "debug"
         ports:
         - name: rpc
           containerPort: 8080

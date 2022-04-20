@@ -6,6 +6,6 @@ WORKDIR /upload
 
 RUN go build -o upload ./server/
 
-EXPOSE 50051
+EXPOSE 8080
 
 CMD [ "/upload/upload" ]
