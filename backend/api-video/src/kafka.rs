@@ -50,7 +50,7 @@ pub async fn emit_video(id: &str, video: &str, event: VideoEvents) -> OwnedDeliv
     let producer: &FutureProducer = &ClientConfig::new()
         .set(
             "bootstrap.servers",
-            "http://kafka-headless.default.svc.cluster.local:9092",
+            "kafka-headless.default.svc.cluster.local:9092",
         )
         .set("message.timeout.ms", "5000")
         .create()
