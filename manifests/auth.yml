@@ -26,7 +26,7 @@ spec:
           value: "redis://:strongPassword@redis-master:6379/"
         - name: RUST_LOG
           value: "debug"
-        - name: JWT_SECRET
+        - name: JWTSECRET
           value: "strongSecret"
         ports:
         - name: rpc
