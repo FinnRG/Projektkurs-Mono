@@ -49,7 +49,7 @@ pub enum VideoEvents {
 pub async fn emit_video(id: &str, video: &str, event: VideoEvents) -> OwnedDeliveryResult {
     let producer: &FutureProducer = &ClientConfig::new()
         .set(
-            "bootstrap.server",
+            "bootstrap.servers",
             "http://kafka-headless.default.svc.cluster.local:9092",
         )
         .set("message.timeout.ms", "5000")

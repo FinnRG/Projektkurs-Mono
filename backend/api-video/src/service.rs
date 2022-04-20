@@ -178,9 +178,12 @@ impl VideoService for Videos {
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     pretty_env_logger::init();
+
+    info!("Redis url: {}", env::var("REDIS_URL").unwrap());
     let addr = "0.0.0.0:8080".parse()?;
     let videos = Videos::default();
 
+    info!("Starting VideoService");
     Server::builder()
         .add_service(VideoServiceServer::new(videos))
         .serve(addr)

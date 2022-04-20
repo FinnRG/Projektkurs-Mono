@@ -1164,6 +1164,7 @@ dependencies = [
 [[package]]
 name = "rs-auth"
 version = "0.1.0"
+source = "git+https://github.com/MSOStream/rs-auth#95338d453326ab828224fbcc3a05edfcca1c99d8"
 dependencies = [
  "chrono",
  "jsonwebtoken",
