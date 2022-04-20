@@ -26,6 +26,9 @@ jsonwebtoken = "8.1.0"
 rs-auth = { git = "https://github.com/MSOStream/rs-auth"}
 uuid = { version = "0.8.2", features= ["v4"] }
 chrono = "0.4.19"
+strum = { version = "0.24", features = ["derive"] }
+pretty_env_logger = "0.4.0"
+strum_macros = "0.24"
 
 [build-dependencies]
 tonic-build = "0.7"

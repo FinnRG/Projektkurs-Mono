@@ -5,6 +5,14 @@ use rdkafka::{
     producer::{future_producer::OwnedDeliveryResult, FutureProducer, FutureRecord},
     ClientConfig,
 };
+use strum::IntoStaticStr;
+
+#[derive(IntoStaticStr, PartialEq, Clone, Copy)]
+pub enum VideoEvents {
+    Created,
+    Changed,
+    Deleted
+}
 
 // let context = DefaultConsumerContext::default();
 
@@ -38,7 +46,7 @@ use rdkafka::{
 //     }
 
 // Publishes a VideoCreated event to videos
-pub async fn emit_video(video: &str, id: &str) -> OwnedDeliveryResult {
+pub async fn emit_video(id: &str, video: &str, event: VideoEvents) -> OwnedDeliveryResult {
     let producer: &FutureProducer = &ClientConfig::new()
         .set(
             "bootstrap.server",
@@ -48,12 +56,17 @@ pub async fn emit_video(video: &str, id: &str) -> OwnedDeliveryResult {
         .create()
         .expect("Producer creation error");
 
+    let mut record = FutureRecord::to("videos")
+                .key(id)
+                .headers(OwnedHeaders::new().add("type", event.into()));
+
+    if event != VideoEvents::Deleted {
+        record = record.payload(video);
+    }
+
     producer
         .send(
-            FutureRecord::to("videos")
-                .payload(video)
-                .key(id)
-                .headers(OwnedHeaders::new().add("type", "VideoChanged")),
+            record,
             Duration::from_secs(0),
         )
         .await
