@@ -18,20 +18,30 @@ static_resources:
               routes:
               # NOTE: by default, matching happens based on the gRPC route, and not on the incoming request path.
               # Reference: https://envoyproxy.io/docs/envoy/latest/configuration/http/http_filters/grpc_json_transcoder_filter#route-configs-for-transcoded-requests
-              - match: {prefix: "/"}
+              - match: {prefix: "/users"}
                 route: {cluster: sandbox, timeout: 60s}
+              - match: {prefix: "/videos"}
+                route: {cluster: api-video, timeout: 60s}
           http_filters:
           - name: envoy.filters.http.grpc_json_transcoder
             typed_config:
               "@type": type.googleapis.com/envoy.extensions.filters.http.grpc_json_transcoder.v3.GrpcJsonTranscoder
               proto_descriptor: "image.bin"
-              services: ["users.v1.UserService"]
+              services: ["users.v1.UserService", "videos.v1.VideoService"]
               print_options:
                 add_whitespace: true
                 always_print_primitive_fields: true
                 always_print_enums_as_ints: false
                 preserve_proto_field_names: false
+          - name: envoy.filters.http.grpc_web
+            typed_config:
+              "@type": type.googleapis.com/envoy.extensions.filters.http.grpc_web.v3.GrpcWeb
+          - name: envoy.filters.http.cors
+            typed_config:
+              "@type": type.googleapis.com/envoy.extensions.filters.http.cors.v3.Cors
           - name: envoy.filters.http.router
+            typed_config:
+              "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
 
   clusters:
   - name: sandbox
@@ -51,8 +61,24 @@ static_resources:
         - endpoint:
             address:
               socket_address:
-                # WARNING: "docker.for.mac.localhost" has been deprecated from Docker v18.03.0.
-                # If you're running an older version of Docker, please use "docker.for.mac.localhost" instead.
-                # Reference: https://docs.docker.com/docker-for-mac/release-notes/#docker-community-edition-18030-ce-mac59-2018-03-26
                 address: auth
+                port_value: 8080
+  - name: api-video
+    connect_timeout: 1.25s
+    type: LOGICAL_DNS
+    lb_policy: ROUND_ROBIN
+    dns_lookup_family: V4_ONLY
+    typed_extension_protocol_options:
+      envoy.extensions.upstreams.http.v3.HttpProtocolOptions:
+        "@type": type.googleapis.com/envoy.extensions.upstreams.http.v3.HttpProtocolOptions
+        explicit_http_config:
+          http2_protocol_options: {}
+    load_assignment:
+      cluster_name: api-video
+      endpoints:
+      - lb_endpoints:
+        - endpoint:
+            address:
+              socket_address:
+                address: api-video
                 port_value: 8080
