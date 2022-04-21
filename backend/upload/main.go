@@ -130,6 +130,7 @@ func upload(c *gin.Context) {
 
 	if !notUploaded(id) {
 		c.AbortWithStatus(http.StatusConflict)
+		return
 	}
 
 	// Check that the uploaded file is valid
