@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"mime/multipart"
 	"net/http"
 	"os"
 	"os/signal"
@@ -16,14 +17,17 @@ import (
 	"github.com/minio/minio-go/v7"
 )
 
-var collectedVideos map[string]string = make(map[string]string)
+var collectedVideos map[string]Video = make(map[string]Video)
 var supportedFileTypes []string = []string{"video/mp4", "video/quicktime", "video/x-troff-msvideo", "video/avi", "video/msvideo", "video/x-msvideo", "video/x-flv", "video/x-ms-wmv", "video/x-matroska"}
+var uploadedList []string
 
 func main() {
+
 	var wg sync.WaitGroup
-	wg.Add(2)
+	wg.Add(3)
 	go collectVideos(&wg)
 	go initMinio(&wg)
+	go initSyncProducer(&wg)
 
 	wg.Wait()
 	if err := run(); err != nil {
@@ -88,8 +92,12 @@ ConsumerLoop:
 			}
 
 			for _, s := range msg.Headers {
-				if string(s.Key) == "type" {
-					collectedVideos[string(msg.Key)] = string(video.Visbility)
+				if createdVideoHeader(s) && notUploaded(video.Id) {
+					collectedVideos[string(msg.Key)] = video
+				}
+				if uploadedVideoHeader(s) {
+					log.Println("New Uploaded event with id: " + string(msg.Key))
+					uploadedList = append(uploadedList, string(msg.Key))
 				}
 			}
 
@@ -113,39 +121,78 @@ func run() error {
 
 func upload(c *gin.Context) {
 
-	// Ensure that the user is authorized and an upload is registered for this id
+	// Check that the user is authorized
 	id := c.Param("id")
 	if !uploadAuthorized(id) {
 		c.AbortWithStatus(http.StatusUnauthorized)
+		return
 	}
 
+	if !notUploaded(id) {
+		c.AbortWithStatus(http.StatusConflict)
+	}
+
+	// Check that the uploaded file is valid
 	file, ferr := c.FormFile("file")
 	if ferr != nil {
 		c.AbortWithStatus(http.StatusBadRequest)
+		return
 	}
 
-	supported, fileType := supportedFileType(c)
+	// Check that the file type is supported
+	supported, fileType := supportedFileType(file)
 	if !supported {
 		c.AbortWithStatus(http.StatusUnsupportedMediaType)
+		return
 	}
 
-	client, err := MinioClient()
-	if err != nil {
-		c.AbortWithStatus(http.StatusInternalServerError)
-	}
+	client, _ := MinioClient()
 
+	// Save file to local directory
 	c.SaveUploadedFile(file, id)
 
+	// Upload file to MinIO
 	client.FPutObject(context.Background(), BUCKET, id, id, minio.PutObjectOptions{
 		ContentType: fileType,
 	})
 
+	// Emit VideoUploaded event to kafka
+	err := emitVideoUploadedEvent(id)
+	if err != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+		// Remove temp file
+		if err = os.Remove(id); err != nil {
+			log.Println(err)
+		}
+		return
+	}
+
+	uploadedList = append(uploadedList, id)
+	c.Status(http.StatusOK)
 	c.String(http.StatusOK, fmt.Sprintf("'%s uploaded!", file.Filename))
 }
 
+func createdVideoHeader(header *sarama.RecordHeader) bool {
+	return string(header.Key) == "type" && (string(header.Value) == "Created" || string(header.Value) == "Updated")
+}
+
+func uploadedVideoHeader(header *sarama.RecordHeader) bool {
+	return string(header.Key) == "type" && string(header.Value) == "Uploaded"
+}
+
+// Checks whether a video with this id was already uploaded to prevent multiple uploads
+func notUploaded(id string) bool {
+	for _, pid := range uploadedList {
+		if pid == id {
+			return false
+		}
+	}
+	return true
+}
+
 // Checks whether the supplied file is in the list of supported file types and returns the filetype
-func supportedFileType(c *gin.Context) (bool, string) {
-	filetype := c.ContentType()
+func supportedFileType(ferr *multipart.FileHeader) (bool, string) {
+	filetype := ferr.Header.Get("Content-Type")
 
 	for _, ft := range supportedFileTypes {
 		if filetype == ft {
@@ -156,5 +203,5 @@ func supportedFileType(c *gin.Context) (bool, string) {
 }
 
 func uploadAuthorized(id string) bool {
-	return collectedVideos[id] == "DRAFT"
+	return collectedVideos[id].Visbility == "DRAFT"
 }
