@@ -1,5 +1,5 @@
 FROM bufbuild/buf:1.3.1 as buf
-FROM envoyproxy/envoy-dev:d4e28efb56a79703faffc18d6af1a578770af2f1
+FROM envoyproxy/envoy-dev:latest
 
 # Generate Buf image 
 COPY buf.work.yaml buf.work.yaml

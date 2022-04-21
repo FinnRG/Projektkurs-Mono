@@ -4,26 +4,26 @@ metadata:
   name: ingress
   annotations:
     dev.okteto.com/generate-host: "true"
-    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
 spec:
   rules:
   - http:
       paths:
-      - path: /api(/|$)(.*)
+      - path: /
         pathType: Prefix
         backend:
           service:
-            name: backend
+            name: proxy
             port:
-              number: 80
-      - path: /stream(/|$)(.*)
+              number: 8080
+      - path: /upload
         pathType: Prefix
         backend:
           service:
-            name: stream
+            name: upload
             port:
-              number: 80
-      - path: /()(.*)
+              number: 8080
+      - path: /frontend
         pathType: Prefix
         backend:
           service:
