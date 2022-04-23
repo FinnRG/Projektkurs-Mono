@@ -1,35 +1,21 @@
 # Rust as the base image
-FROM rust:1.57.0-slim-buster as build
+FROM rust:1.60 as build
+ENV PKG_CONFIG_ALLOW_CROSS=1
 
-# Create a new empty shell project
-RUN USER=root cargo new --bin stream
+RUN cargo new --bin stream
 WORKDIR /stream
-RUN apt-get update && apt-get install -y pkg-config libssl-dev openssl
 
-# Copy our manifests
-COPY ./Cargo.lock ./Cargo.lock
-COPY ./Cargo.toml ./Cargo.toml
-
-# Build only the dependencies to cache them
+COPY Cargo.toml Cargo.toml
+COPY Cargo.lock Cargo.lock
 RUN cargo build --release
 RUN rm src/*.rs
-
-# Copy the source code
 COPY ./src ./src
 
-# Build for release.
 RUN rm ./target/release/deps/stream*
 RUN cargo build --release
 
-# The final base image
-FROM debian:buster-slim
+FROM gcr.io/distroless/cc-debian11
 
-# Copy from the previous build
-RUN apt-get update
-RUN apt-get install -y ca-certificates cmake musl-tools libssl-dev pkg-config openssl
-COPY --from=build /stream/target/release/stream /usr/src/stream
-COPY .env .env
+COPY --from=build /stream/target/release/stream /usr/local/bin/stream
 
-# Run the binary
-EXPOSE 80
-CMD ["/usr/src/stream"]
+CMD ["stream"]

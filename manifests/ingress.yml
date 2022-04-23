@@ -30,3 +30,10 @@ spec:
             name: frontend
             port:
               number: 80
+      - path: /stream
+        pathType: Prefix
+        backend:
+          service:
+            name: stream
+            port:
+              number: 8080

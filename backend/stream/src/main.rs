@@ -4,9 +4,7 @@ use std::env;
 
 use actix_cors::Cors;
 use actix_web::{get, web, App, HttpResponse, HttpServer, Responder};
-use regex::Regex;
 use s3::{creds::Credentials, Bucket, Region};
-use dotenv::dotenv;
 
 struct Storage {
     region: Region,
@@ -22,12 +20,12 @@ fn get_storage() -> Storage {
             endpoint,
         },
         credentials: Credentials {
-            access_key: Some("minio-admin".to_owned()),
+            access_key: Some("admin".to_owned()),
             secret_key: Some("strongPassword".to_owned()),
             security_token: None,
             session_token: None,
         },
-        bucket: "media".to_string(),
+        bucket: "videos".to_string(),
     }
 }
 
@@ -36,23 +34,21 @@ fn get_bucket() -> Bucket {
     Bucket::new_with_path_style(&minio.bucket, minio.region, minio.credentials).unwrap()
 }
 
-#[get("/get/{name}")]
-async fn stream(name: web::Path<String>) -> impl Responder {
-    let mut name = name.into_inner();
+#[get("/stream/get/{id}/{name}")]
+async fn stream(path: web::Path<(String, Option<String>)>) -> impl Responder {
+    let (id, name) = path.into_inner();
     let bucket = get_bucket();
-    let re = Regex::new(r"\d*\.(ts|m3u8)$").unwrap();
-    let id = re.replace(&name, "").into_owned();
 
-    // Reroutes the /get/name to /get/name.m3u8 request
-    if !(name.ends_with(".ts") || name.ends_with(".m3u8")) {
-        name += ".m3u8";
-    }
+    let name = name.unwrap_or("hls.m3u8".to_string());
 
-    let path = format!("media/{}/output/{}", id, name);
+    let path = format!("{}/{}", id, name);
     let resp = bucket.get_object(path).await;
     match resp {
         Ok((data, _)) => HttpResponse::Ok().body(data),
-        _ => HttpResponse::NotFound().finish(),
+        Err(e) => {
+            println!("{:?}", e);
+            HttpResponse::NotFound().finish()
+        }
     }
 }
 
@@ -60,7 +56,6 @@ async fn stream(name: web::Path<String>) -> impl Responder {
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     pretty_env_logger::init();
-    dotenv().ok();
 
     HttpServer::new(|| {
         let cors = Cors::default()
@@ -72,7 +67,7 @@ async fn main() -> std::io::Result<()> {
 
         App::new().wrap(cors).service(stream)
     })
-    .bind(("0.0.0.0", 80))?
+    .bind(("0.0.0.0", 8080))?
     .run()
     .await
 }
