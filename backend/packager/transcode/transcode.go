@@ -59,7 +59,9 @@ func createInputConfig(id string) error {
 	defer f.Close()
 	f.WriteString("inputs:")
 	f.WriteString("\n  - name: \"" + id + "/" + id + "\"")
-	f.WriteString("\n    media_type: video\n")
+	f.WriteString("\n    media_type: video")
+	f.WriteString("\n  - name: \"" + id + "/" + id + "\"")
+	f.WriteString("\n    media_type: audio\n")
 	log.Printf("Input file creation successful: %s\n", id)
 	return nil
 }
