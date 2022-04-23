@@ -4,7 +4,6 @@ import (
 	"context"
 	"log"
 	"sync"
-	"time"
 
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
@@ -49,11 +48,4 @@ func MinioClient() (*minio.Client, context.Context) {
 	}
 
 	return minioClient, ctx
-}
-
-func PresignedURL(id string) (string, error) {
-	expiry := time.Second * 60 * 60
-	minioClient, ctx := MinioClient()
-	presignedURL, err := minioClient.PresignedPutObject(ctx, BUCKET, id, expiry)
-	return presignedURL.RequestURI(), err
 }

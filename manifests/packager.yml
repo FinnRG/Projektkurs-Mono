@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: packager
+spec:
+  selector:
+    matchLabels:
+      name: packager
+      tier: backend
+      track: stable
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: upload
+        name: packager
+        tier: backend
+        track: stable
+    spec:
+      containers:
+      - name: packager
+        image: finnrg/msostream-packager:latest
+        imagePullPolicy: Always
+        env:
+        - name: S3ACCESSKEY
+          value: "strongPassword"
+        - name: REDIS_URL
+          value: "redis-master:6379"
+        - name: REDISPASSWORD
+          value: "strongPassword"
+        - name: PROCESSINGROUTINES
+          value: "1"
