@@ -18,7 +18,7 @@ import (
 )
 
 var collectedVideos map[string]Video = make(map[string]Video)
-var supportedFileTypes []string = []string{"video/mp4", "video/quicktime", "video/x-troff-msvideo", "video/avi", "video/msvideo", "video/x-msvideo", "video/x-flv", "video/x-ms-wmv", "video/x-matroska"}
+var supportedFileTypes []string = []string{"video/mp4", "video/quicktime", "video/x-troff-msvideo", "video/avi", "video/msvideo", "video/x-msvideo", "video/x-flv", "video/x-ms-wmv", "video/x-matroska", "video/webm", "video/ogg"}
 var uploadedList []string
 
 func main() {
