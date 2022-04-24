@@ -1,4 +1,11 @@
 // @generated
+pub mod search {
+    // @@protoc_insertion_point(attribute:search.v1)
+    pub mod v1 {
+        include!("search.v1.rs");
+        // @@protoc_insertion_point(search.v1)
+    }
+}
 pub mod upload {
     // @@protoc_insertion_point(attribute:upload.v1)
     pub mod v1 {

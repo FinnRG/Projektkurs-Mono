@@ -12,7 +12,7 @@ path = "src/service.rs"
 [dependencies]
 log = "0.4.16"
 chrono = { version = "0.4.19", default-features = false, features = [ "clock", "std" ] }
-rdkafka = { version = "0.28", features = ["cmake-build"] }
+rdkafka = { git = "https://github.com/fede1024/rust-rdkafka.git", features = ["cmake-build"] }
 jsonwebtoken = "8.0.1"
 lazy_static = "1.4.0"
 serde = "1.0.136"

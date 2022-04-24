@@ -9,6 +9,7 @@ use rdkafka::message::ToBytes;
 use redis::Commands;
 use serde::{Deserialize, Serialize};
 use std::env;
+use std::thread;
 use tonic::transport::Server;
 use tonic::{Request, Response, Status};
 use users::v1::user_service_server::UserService;
@@ -160,6 +161,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let addr = "0.0.0.0:8080".parse()?;
     let users = Users::default();
+
+    thread::spawn(kafka::receive_events);
 
     // let reflection = tonic_reflection::server::Builder::configure()
     //     .register_encoded_file_descriptor_set(FILE_DESCRIPTOR_SET)
