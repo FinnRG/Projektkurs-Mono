@@ -1,14 +1,11 @@
-import ReactPlayer from 'react-player';
+import ShakaPlayer from 'shaka-player-react';
+import 'shaka-player-react/dist/controls.css';
 import { useParams } from 'react-router-dom';
 
 const Player = () => {
   const params = useParams();
   return (
-    <ReactPlayer
-      url={`http://localhost:4500/get/${params.videoId}`}
-      controls={true}
-      config={{ file: { forceHLS: true } }}
-    />
+    <ShakaPlayer src={`http://msostream.io/stream/get/${params.videoId}/hls.m3u8`} />
   );
 };
 
