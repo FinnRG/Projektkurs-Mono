@@ -12,9 +12,9 @@ use std::env;
 use tonic::transport::Server;
 use tonic::{Request, Response, Status};
 use users::v1::user_service_server::UserService;
-use users::v1::{register_response::Result as RegisterResult, *};
 use users::v1::user_service_server::UserServiceServer;
 use users::v1::FILE_DESCRIPTOR_SET;
+use users::v1::{register_response::Result as RegisterResult, *};
 
 #[macro_use]
 extern crate lazy_static;
@@ -45,11 +45,11 @@ fn get_conn() -> Result<r2d2::PooledConnection<redis::Client>, Status> {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-struct User {
-    id: String,
-    name: String,
-    email: String,
-    password: String,
+struct User<'a> {
+    id: &'a str,
+    name: &'a str,
+    email: &'a str,
+    password: &'a str,
 }
 
 #[derive(Debug, Default)]
@@ -84,10 +84,10 @@ impl UserService for Users {
 
         // Stringify the user struct
         let user = serde_json::to_string(&User {
-            id: id.to_string(),
-            name: request.name,
-            email: request.email,
-            password: hash,
+            id: &id.to_string(),
+            name: &request.name,
+            email: &request.email,
+            password: &hash,
         })
         .expect("Unable to stringify the user struct");
         trace!("User struct created: {:?}", user);
@@ -101,26 +101,56 @@ impl UserService for Users {
             return Err(Status::internal("Internal kafka error"));
         }
 
-        if let Err(e) = conn.set::<_, _, ()>(id.to_string(), &user) {
-            warn!("Unable to set {} to {} because of {:?}", id, &user, e);
+        match conn.get::<_, Option<String>>(&request.email) {
+            Ok(Some(_)) => Err(Status::already_exists("Email duplicate")),
+            Err(_) => {
+                warn!("Failed to connect to redis");
+                Err(Status::internal("Failed to connect to redis"))
+            }
+            _ => {
+                if let Err(e) = conn.set::<_, _, ()>(id.to_string(), &user) {
+                    warn!("Unable to set {} to {} because of {:?}", id, &user, e);
+                }
+
+                if let Err(e) = conn.set::<_, _, ()>(&request.email, &hash) {
+                    warn!("Unable to set {} to {} because of {:?}", id, &user, e);
+                }
+
+                // Construct response with added metadata field
+                let mut response = Response::new(RegisterResponse {
+                    res: RegisterResult::Accepted as i32,
+                });
+                response.metadata_mut().insert(
+                    "authorization",
+                    create_jwt(id.to_string())
+                        .parse()
+                        .expect("Unable to convert id to Metadata value"),
+                );
+
+                info!("Register request successful");
+                return Ok(response);
+            }
         }
-
-        // Construct response with added metadata field
-        let mut response = Response::new(RegisterResponse {
-            res: RegisterResult::Accepted as i32,
-        });
-        response.metadata_mut().insert(
-            "authorization",
-            create_jwt(id.to_string())
-                .parse()
-                .expect("Unable to convert id to Metadata value"),
-        );
-
-        info!("Register request successful");
-        return Ok(response);
     }
-    async fn login(&self, _request: Request<LoginRequest>) -> Result<Response<LoginResponse>, Status> {
-        Err(Status::internal("Unimplemented"))
+    async fn login(
+        &self,
+        request: Request<LoginRequest>,
+    ) -> Result<Response<LoginResponse>, Status> {
+        info!("New register request: {:?}", request);
+        let request = request.into_inner();
+        let mut conn = get_conn()?;
+        
+        return match conn.get::<_, Option<String>>(&request.email) {
+            Err(_) => Err(Status::internal("Internal Redis error")),
+            Ok(None) => Err(Status::invalid_argument("Couldn't find email address")),
+            Ok(Some(hash)) => {
+                match argon2::verify_encoded(&hash, request.password.as_bytes()) {
+                    Ok(true) => Ok(Response::new(LoginResponse {})),
+                    Ok(false) => Err(Status::invalid_argument("Wrong password")),
+                    Err(_) => Err(Status::internal("Internal hashing error")),
+                }
+            }
+        }
     }
 }
 
