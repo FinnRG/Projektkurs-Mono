@@ -19,3 +19,6 @@
 [submodule "backend/search/Spec"]
 	path = backend/search/Spec
 	url = https://github.com/MSOStream/Spec.git
+[submodule "backend/search/proto"]
+	path = backend/search/proto
+	url = https://github.com/MSOStream/Spec.git
