@@ -9,7 +9,6 @@ use rdkafka::message::ToBytes;
 use redis::Commands;
 use serde::{Deserialize, Serialize};
 use std::env;
-use std::thread;
 use tonic::transport::Server;
 use tonic::{Request, Response, Status};
 use users::v1::user_service_server::UserService;
@@ -46,7 +45,7 @@ fn get_conn() -> Result<r2d2::PooledConnection<redis::Client>, Status> {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-struct User<'a> {
+pub struct User<'a> {
     id: &'a str,
     name: &'a str,
     email: &'a str,
@@ -72,7 +71,6 @@ impl UserService for Users {
         }
         info!("Register request validated");
 
-        let mut conn = get_conn()?;
         let id = uuid::Uuid::new_v4();
         trace!("Id generated: {}", id);
 
@@ -102,36 +100,19 @@ impl UserService for Users {
             return Err(Status::internal("Internal kafka error"));
         }
 
-        match conn.get::<_, Option<String>>(&request.email) {
-            Ok(Some(_)) => Err(Status::already_exists("Email duplicate")),
-            Err(_) => {
-                warn!("Failed to connect to redis");
-                Err(Status::internal("Failed to connect to redis"))
-            }
-            _ => {
-                if let Err(e) = conn.set::<_, _, ()>(id.to_string(), &user) {
-                    warn!("Unable to set {} to {} because of {:?}", id, &user, e);
-                }
+        // Construct response with added metadata field
+        let mut response = Response::new(RegisterResponse {
+            res: RegisterResult::Accepted as i32,
+        });
+        response.metadata_mut().insert(
+            "authorization",
+            create_jwt(id.to_string())
+                .parse()
+                .expect("Unable to convert id to Metadata value"),
+        );
 
-                if let Err(e) = conn.set::<_, _, ()>(&request.email, &hash) {
-                    warn!("Unable to set {} to {} because of {:?}", id, &user, e);
-                }
-
-                // Construct response with added metadata field
-                let mut response = Response::new(RegisterResponse {
-                    res: RegisterResult::Accepted as i32,
-                });
-                response.metadata_mut().insert(
-                    "authorization",
-                    create_jwt(id.to_string())
-                        .parse()
-                        .expect("Unable to convert id to Metadata value"),
-                );
-
-                info!("Register request successful");
-                return Ok(response);
-            }
-        }
+        info!("Register request successful");
+        return Ok(response);
     }
     async fn login(
         &self,
@@ -140,18 +121,28 @@ impl UserService for Users {
         info!("New register request: {:?}", request);
         let request = request.into_inner();
         let mut conn = get_conn()?;
-        
+
         return match conn.get::<_, Option<String>>(&request.email) {
             Err(_) => Err(Status::internal("Internal Redis error")),
             Ok(None) => Err(Status::invalid_argument("Couldn't find email address")),
-            Ok(Some(hash)) => {
-                match argon2::verify_encoded(&hash, request.password.as_bytes()) {
-                    Ok(true) => Ok(Response::new(LoginResponse {})),
+            Ok(Some(user)) => {
+                let user: User = serde_json::from_str(&user).expect("Unable to deserialize user");
+                match argon2::verify_encoded(&user.password, request.password.as_bytes()) {
+                    Ok(true) => {
+                        let mut response = Response::new(LoginResponse {});
+                        response.metadata_mut().insert(
+                            "authorization",
+                            create_jwt(user.id.to_string())
+                                .parse()
+                                .expect("Unable to convert id to Metadata value"),
+                        );
+                        Ok(response)
+                    }
                     Ok(false) => Err(Status::invalid_argument("Wrong password")),
                     Err(_) => Err(Status::internal("Internal hashing error")),
                 }
             }
-        }
+        };
     }
 }
 
@@ -162,7 +153,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let addr = "0.0.0.0:8080".parse()?;
     let users = Users::default();
 
-    thread::spawn(kafka::receive_events);
+    let _handle = tokio::spawn(kafka::receive_events());
 
     // let reflection = tonic_reflection::server::Builder::configure()
     //     .register_encoded_file_descriptor_set(FILE_DESCRIPTOR_SET)

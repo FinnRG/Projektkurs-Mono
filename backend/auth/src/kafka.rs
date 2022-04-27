@@ -1,14 +1,16 @@
-use log::warn;
+use crate::{get_conn, User};
+use log::{info, warn};
+use rdkafka::consumer::Consumer;
 use rdkafka::{
-    message::{OwnedHeaders, Headers, Header},
+    config::RDKafkaLogLevel,
+    consumer::{BaseConsumer, StreamConsumer},
+    message::{Header, Headers, OwnedHeaders},
     producer::{future_producer::OwnedDeliveryResult, FutureProducer, FutureRecord},
-    ClientConfig, consumer::StreamConsumer, Message, config::RDKafkaLogLevel,
+    ClientConfig, Message, Offset,
 };
+use redis::Commands;
 use std::time::Duration;
 use strum::IntoStaticStr;
-use rdkafka::consumer::Consumer;
-use crate::get_conn;
-use redis::Commands;
 
 #[derive(IntoStaticStr, PartialEq, Clone, Copy)]
 pub enum UserEvents {
@@ -37,28 +39,36 @@ pub async fn emit_user(id: &str, user: &str, event: UserEvents) -> OwnedDelivery
         record = record.payload(user);
     }
 
-    producer.send(record, Duration::from_secs(0)).await
+    let res = producer.send(record, Duration::from_secs(0)).await;
+    println!("{}", res.as_ref().unwrap().0);
+    res
 }
 
 pub async fn receive_events() {
+    info!("Starting to construct Stream Consumer");
     let consumer: StreamConsumer = ClientConfig::new()
         .set("group.id", "auth-consumer")
         .set("bootstrap.servers", "kafka:9092")
         .set("enable.partition.eof", "false")
         .set("session.timeout.ms", "6000")
-        .set("enable.auto.commit", "true")
+        .set("enable.auto.commit", "false")
+        .set("auto.offset.reset", "earliest")
         .set_log_level(RDKafkaLogLevel::Debug)
         .create()
         .expect("Consumer creation failed");
 
-    consumer.subscribe(&["users"])
-        .expect("Can't subscribe to users topic");
+    if let Err(e) = consumer.subscribe(&["users"]) {
+        warn!("Kafka subscription error: {}", e);
+    }
+
+    if let Err(e) = consumer.seek("users", 0, Offset::Beginning, None) {
+        warn!("Kafka playback error: {}", e);
+    }
 
     let mut conn = get_conn().expect("Unable to create redis connection");
 
     loop {
         match consumer.recv().await {
-            Err(e) => warn!("Kafka, error: {}", e),
             Ok(m) => {
                 let payload = match m.payload_view::<str>() {
                     None => "",
@@ -75,13 +85,19 @@ pub async fn receive_events() {
                                 warn!("Unable to delete {:?} because of {}", m.key(), e);
                             }
                         } else if header.key == "type" {
-                            if let Err(e) = conn.set::<_, _, ()>(m.key(), payload) {
-                                warn!("Unable to set {:?} to {} because of {}", m.key(), payload, e);
+                            let user: User = serde_json::from_str(payload)
+                                .expect("Unable to deserialize payload");
+                            if let Err(e) = conn.set::<_, _, ()>(user.email, payload) {
+                                warn!(
+                                    "Unable to set {:?} to {} because of {}",
+                                    user.email, user.password, e
+                                );
                             }
                         }
                     }
                 }
             }
+            Err(e) => warn!("Kafka, error {}", e),
         }
     }
 }
