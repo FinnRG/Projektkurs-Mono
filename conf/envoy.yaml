@@ -24,6 +24,8 @@ static_resources:
                 route: {cluster: api-video, timeout: 60s}
               - match: {prefix: "/upload"}
                 route: {cluster: upload, timeout: 60s}
+              - match: {prefix: "/search"}
+                route: {cluster: search, timeout: 60s}
               cors:
                 allow_origin_string_match:
                 - prefix: "*"
@@ -109,4 +111,23 @@ static_resources:
             address:
               socket_address:
                 address: upload
+                port_value: 8080
+  - name: search
+    connect_timeout: 1.25s
+    type: LOGICAL_DNS
+    lb_policy: ROUND_ROBIN
+    dns_lookup_family: V4_ONLY
+    typed_extension_protocol_options:
+      envoy.extensions.upstreams.http.v3.HttpProtocolOptions:
+        "@type": type.googleapis.com/envoy.extensions.upstreams.http.v3.HttpProtocolOptions
+        explicit_http_config:
+          http2_protocol_options: {}
+    load_assignment:
+      cluster_name: search
+      endpoints:
+      - lb_endpoints:
+        - endpoint:
+            address:
+              socket_address:
+                address: search
                 port_value: 8080
