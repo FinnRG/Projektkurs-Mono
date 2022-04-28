@@ -120,7 +120,7 @@ func processMessage(msg *sarama.ConsumerMessage, index *meilisearch.Index) {
 	}
 
 	switch t {
-	case "Created", "Updated":
+	case "Created", "Updated", "Processed", "Uploaded":
 		index.AddDocuments([]map[string]interface{}{obj})
 	case "Deleted":
 		index.DeleteDocument(obj["id"].(string))
