@@ -2,10 +2,11 @@ use std::time::Duration;
 
 use crate::{get_conn, Video, Visibility};
 use log::{info, warn};
+use r2d2::PooledConnection;
 use rdkafka::{
     config::RDKafkaLogLevel,
     consumer::{Consumer, StreamConsumer},
-    message::{Header, Headers, OwnedHeaders},
+    message::{BorrowedMessage, Header, Headers, OwnedHeaders},
     producer::{future_producer::OwnedDeliveryResult, FutureProducer, FutureRecord},
     ClientConfig, Message, Offset,
 };
@@ -65,42 +66,62 @@ pub async fn receive_events() {
         warn!("Kafka playback error: {}", e);
     }
 
-    let mut conn = get_conn().expect("Unable to create redis connection");
-
     loop {
         match consumer.recv().await {
             Ok(m) => {
-                let payload = match m.payload_view::<str>() {
-                    None => "",
-                    Some(Ok(s)) => s,
-                    Some(Err(_)) => {
-                        warn!("Error while deserializing message payload");
-                        ""
-                    }
-                };
-                if let Some(headers) = m.headers() {
-                    for header in headers.iter() {
-                        if header.key == "type" && header.value == Some("Deleted".as_bytes()) {
-                            if let Err(e) = conn.del::<_, ()>(m.key()) {
-                                warn!("Unable to delete {:?} because of {}", m.key(), e);
-                            }
-                        } else if header.key == "type" {
-                            let mut video: Video = serde_json::from_str(payload)
-                                .expect("Unable to deserialize payload");
-                            if header.value == Some("Processed".as_bytes()) {
-                                video.visibility = Visibility::Unspecified as i32;
-                            }
-                            if let Err(e) = conn.set::<_, _, ()>(&video.id, payload) {
-                                warn!(
-                                    "Unable to set {:?} to {} because of {}",
-                                    &video.id, payload, e
-                                )
-                            }
-                        }
-                    }
-                }
+                process_message(&m);
             }
             Err(e) => warn!("Kafka error: {}", e),
+        }
+    }
+}
+
+fn process_message(m: &BorrowedMessage) {
+    if let Some(headers) = m.headers() {
+        match headers.iter().find(|h| h.key == "type") {
+            Some(header) => process_valid_message(&m, &header),
+            None => (),
+        }
+    }
+}
+
+fn process_valid_message(m: &BorrowedMessage, header: &Header<&[u8]>) {
+    let mut conn = get_conn().expect("Unable to create redis connection");
+    if header.value == Some("Deleted".as_bytes()) {
+        redis_del_video(&mut conn, m.key())
+    } else {
+        let payload = stringify_payload(&m);
+        let mut video: Video =
+            serde_json::from_str(payload).expect("Unable to deserialize payload");
+        if header.value == Some("Processed".as_bytes()) {
+            video.visibility = Visibility::Unspecified as i32;
+        }
+        redis_set_video(&mut conn, &video, payload);
+    }
+}
+
+fn redis_del_video(conn: &mut PooledConnection<redis::Client>, id: Option<&[u8]>) {
+    if let Err(e) = conn.del::<_, ()>(id) {
+        warn!("Unable to delete {:?} because of {}", id, e);
+    }
+}
+
+fn redis_set_video(conn: &mut PooledConnection<redis::Client>, video: &Video, payload: &str) {
+    if let Err(e) = conn.set::<_, _, ()>(&video.id, payload) {
+        warn!(
+            "Unable to set {:?} to {} because of {}",
+            &video.id, payload, e
+        )
+    }
+}
+
+fn stringify_payload<'a>(m: &'a BorrowedMessage) -> &'a str {
+    match m.payload_view::<str>() {
+        None => "",
+        Some(Ok(s)) => s,
+        Some(Err(_)) => {
+            warn!("Error while deserializing message payload");
+            ""
         }
     }
 }
