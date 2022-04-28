@@ -1,4 +1,5 @@
-use log::{error, warn, info};
+use kafka::VideoEvents;
+use log::{error, info, warn};
 use r2d2::PooledConnection;
 use redis::{Client, Commands, RedisError};
 use std::env;
@@ -9,7 +10,6 @@ use videos::v1::{
     CreateVideoRequest, CreateVideoResponse, GetVideoRequest, GetVideoResponse, UpdateVideoRequest,
     UpdateVideoResponse, Visibility,
 };
-use kafka::VideoEvents;
 #[macro_use]
 extern crate lazy_static;
 
@@ -115,7 +115,10 @@ impl VideoService for Videos {
         let video_str = serde_json::to_string(&video).expect("Unable to stringify Video object");
 
         // Emit VideoChanged event
-        if kafka::emit_video(&id, &video_str, VideoEvents::Changed).await.is_err() {
+        if kafka::emit_video(&id, &video_str, VideoEvents::Changed)
+            .await
+            .is_err()
+        {
             return Err(Status::internal("Internal kafka error"));
         }
 
@@ -158,7 +161,10 @@ impl VideoService for Videos {
         })
         .expect("Unable to stringify Video object");
 
-        if kafka::emit_video(&id.to_string(), &video, VideoEvents::Created).await.is_err() {
+        if kafka::emit_video(&id.to_string(), &video, VideoEvents::Created)
+            .await
+            .is_err()
+        {
             return Err(Status::internal("Internal kafka error"));
         }
 
@@ -178,6 +184,8 @@ impl VideoService for Videos {
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     pretty_env_logger::init();
+
+    let _handle = tokio::spawn(kafka::receive_events());
 
     info!("Redis url: {}", env::var("REDIS_URL").unwrap());
     let addr = "0.0.0.0:8080".parse()?;

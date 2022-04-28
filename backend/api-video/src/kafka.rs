@@ -1,49 +1,23 @@
 use std::time::Duration;
 
+use crate::{get_conn, Video};
+use log::{info, warn};
 use rdkafka::{
-    message::OwnedHeaders,
+    config::RDKafkaLogLevel,
+    consumer::{Consumer, StreamConsumer},
+    message::{Header, Headers, OwnedHeaders},
     producer::{future_producer::OwnedDeliveryResult, FutureProducer, FutureRecord},
-    ClientConfig,
+    ClientConfig, Message, Offset,
 };
+use redis::Commands;
 use strum::IntoStaticStr;
 
 #[derive(IntoStaticStr, PartialEq, Clone, Copy)]
 pub enum VideoEvents {
     Created,
     Changed,
-    Deleted
+    Deleted,
 }
-
-// let context = DefaultConsumerContext::default();
-
-// let consumer: StreamConsumer = ClientConfig::new()
-//     .set("group.id", "video_api")
-//     .set("bootstrap.servers", "localhost:9092")
-//     .set("enable.partition.eof", "false")
-//     .set("session.timeout.ms", "6000")
-//     .set("enable.auto.commit", "true")
-//     .set_log_level(RDKafkaLogLevel::Debug)
-//     .create_with_context(context)
-//     .expect("Consumer creation failed");
-
-// consumer.subscribe(&vec!["upload"])
-//     .expect("Can't subscribe to upload");
-
-//     loop {
-//         match consumer.recv().await {
-//             Err(e) => warn!("Kafka error: {:?}", e),
-//             Ok(m) => {
-//                 let payload = match m.payload_view::<str>() {
-//                     None => "",
-//                     Some(Ok(s)) => s,
-//                     Some(Err(e)) => { warn!("Error while deserializing payload: {:?}", e); "" },
-//                 };
-//                 info!("key: '{:?}', payload: '{}', topic: {}, partition: {}, offset: {}, timestamp: {:?}",
-//                   m.key(), payload, m.topic(), m.partition(), m.offset(), m.timestamp());
-//                 consumer.commit_message(&m, CommitMode::Async).unwrap();
-//             }
-//         }
-//     }
 
 // Publishes a VideoCreated event to videos
 pub async fn emit_video(id: &str, video: &str, event: VideoEvents) -> OwnedDeliveryResult {
@@ -57,17 +31,73 @@ pub async fn emit_video(id: &str, video: &str, event: VideoEvents) -> OwnedDeliv
         .expect("Producer creation error");
 
     let mut record = FutureRecord::to("videos")
-                .key(id)
-                .headers(OwnedHeaders::new().add("type", event.into()));
+        .key(id)
+        .headers(OwnedHeaders::new().insert(Header {
+            key: "type",
+            value: Some(event.into()),
+        }));
 
     if event != VideoEvents::Deleted {
         record = record.payload(video);
     }
 
-    producer
-        .send(
-            record,
-            Duration::from_secs(0),
-        )
-        .await
+    producer.send(record, Duration::from_secs(0)).await
+}
+
+pub async fn receive_events() {
+    info!("Starting to construct Stream Consumer");
+    let consumer: StreamConsumer = ClientConfig::new()
+        .set("group.id", "api-video-consumer")
+        .set("bootstrap.servers", "kafka:9092")
+        .set("enable.partition.eof", "false")
+        .set("session.timeout.ms", "6000")
+        .set("enable.auto.commit", "false")
+        .set("auto.offset.reset", "earliest")
+        .set_log_level(RDKafkaLogLevel::Debug)
+        .create()
+        .expect("Consumer creation failed");
+
+    if let Err(e) = consumer.subscribe(&["videos"]) {
+        warn!("Kafka subscription error: {}", e);
+    }
+
+    if let Err(e) = consumer.seek("videos", 0, Offset::Beginning, None) {
+        warn!("Kafka playback error: {}", e);
+    }
+
+    let mut conn = get_conn().expect("Unable to create redis connection");
+
+    loop {
+        match consumer.recv().await {
+            Ok(m) => {
+                let payload = match m.payload_view::<str>() {
+                    None => "",
+                    Some(Ok(s)) => s,
+                    Some(Err(_)) => {
+                        warn!("Error while deserializing message payload");
+                        ""
+                    }
+                };
+                if let Some(headers) = m.headers() {
+                    for header in headers.iter() {
+                        if header.key == "type" && header.value == Some("Deleted".as_bytes()) {
+                            if let Err(e) = conn.del::<_, ()>(m.key()) {
+                                warn!("Unable to delete {:?} because of {}", m.key(), e);
+                            } else if header.key == "type" {
+                                let video: Video = serde_json::from_str(payload)
+                                    .expect("Unable to deserialize payload");
+                                if let Err(e) = conn.set::<_, _, ()>(&video.id, payload) {
+                                    warn!(
+                                        "Unable to set {:?} to {} because of {}",
+                                        &video.id, payload, e
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            Err(e) => warn!("Kafka error: {}", e),
+        }
+    }
 }

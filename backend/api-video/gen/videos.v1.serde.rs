@@ -759,10 +759,11 @@ impl serde::Serialize for Visibility {
         S: serde::Serializer,
     {
         let variant = match self {
-            Self::Public => "PUBLIC",
-            Self::Private => "PRIVATE",
-            Self::Processing => "PROCESSING",
-            Self::Draft => "DRAFT",
+            Self::Unspecified => "VISIBILITY_UNSPECIFIED",
+            Self::Public => "VISIBILITY_PUBLIC",
+            Self::Private => "VISIBILITY_PRIVATE",
+            Self::Processing => "VISIBILITY_PROCESSING",
+            Self::Draft => "VISIBILITY_DRAFT",
         };
         serializer.serialize_str(variant)
     }
@@ -774,10 +775,11 @@ impl<'de> serde::Deserialize<'de> for Visibility {
         D: serde::Deserializer<'de>,
     {
         const FIELDS: &[&str] = &[
-            "PUBLIC",
-            "PRIVATE",
-            "PROCESSING",
-            "DRAFT",
+            "VISIBILITY_UNSPECIFIED",
+            "VISIBILITY_PUBLIC",
+            "VISIBILITY_PRIVATE",
+            "VISIBILITY_PROCESSING",
+            "VISIBILITY_DRAFT",
         ];
 
         struct GeneratedVisitor;
@@ -820,10 +822,11 @@ impl<'de> serde::Deserialize<'de> for Visibility {
                 E: serde::de::Error,
             {
                 match value {
-                    "PUBLIC" => Ok(Visibility::Public),
-                    "PRIVATE" => Ok(Visibility::Private),
-                    "PROCESSING" => Ok(Visibility::Processing),
-                    "DRAFT" => Ok(Visibility::Draft),
+                    "VISIBILITY_UNSPECIFIED" => Ok(Visibility::Unspecified),
+                    "VISIBILITY_PUBLIC" => Ok(Visibility::Public),
+                    "VISIBILITY_PRIVATE" => Ok(Visibility::Private),
+                    "VISIBILITY_PROCESSING" => Ok(Visibility::Processing),
+                    "VISIBILITY_DRAFT" => Ok(Visibility::Draft),
                     _ => Err(serde::de::Error::unknown_variant(value, FIELDS)),
                 }
             }

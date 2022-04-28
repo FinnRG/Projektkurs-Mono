@@ -11,7 +11,7 @@ path = "src/service.rs"
 
 [dependencies]
 log = "0.4.16"
-rdkafka = { version = "0.28", features = ["cmake-build"] }
+rdkafka = { git = "https://github.com/fede1024/rust-rdkafka.git", features = ["cmake-build"] }
 tokio = { version = "1.17.0", features = ["rt-multi-thread", "macros"] }
 prost = "0.10"
 tonic = { version = "0.7", features = ["compression"] }

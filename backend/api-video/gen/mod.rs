@@ -6,13 +6,6 @@ pub mod search {
         // @@protoc_insertion_point(search.v1)
     }
 }
-pub mod upload {
-    // @@protoc_insertion_point(attribute:upload.v1)
-    pub mod v1 {
-        include!("upload.v1.rs");
-        // @@protoc_insertion_point(upload.v1)
-    }
-}
 pub mod users {
     // @@protoc_insertion_point(attribute:users.v1)
     pub mod v1 {
