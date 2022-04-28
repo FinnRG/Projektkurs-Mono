@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use crate::{get_conn, Video};
+use crate::{get_conn, Video, Visibility};
 use log::{info, warn};
 use rdkafka::{
     config::RDKafkaLogLevel,
@@ -83,15 +83,18 @@ pub async fn receive_events() {
                         if header.key == "type" && header.value == Some("Deleted".as_bytes()) {
                             if let Err(e) = conn.del::<_, ()>(m.key()) {
                                 warn!("Unable to delete {:?} because of {}", m.key(), e);
-                            } else if header.key == "type" {
-                                let video: Video = serde_json::from_str(payload)
-                                    .expect("Unable to deserialize payload");
-                                if let Err(e) = conn.set::<_, _, ()>(&video.id, payload) {
-                                    warn!(
-                                        "Unable to set {:?} to {} because of {}",
-                                        &video.id, payload, e
-                                    )
-                                }
+                            }
+                        } else if header.key == "type" {
+                            let mut video: Video = serde_json::from_str(payload)
+                                .expect("Unable to deserialize payload");
+                            if header.value == Some("Processed".as_bytes()) {
+                                video.visibility = Visibility::Unspecified as i32;
+                            }
+                            if let Err(e) = conn.set::<_, _, ()>(&video.id, payload) {
+                                warn!(
+                                    "Unable to set {:?} to {} because of {}",
+                                    &video.id, payload, e
+                                )
                             }
                         }
                     }
