@@ -33,7 +33,7 @@ const WrappedContext = () => {
       >
         <MantineProvider theme={{ colorScheme }} withGlobalStyles>
           <QueryClientProvider client={queryClient}>
-            <BrowserRouter>
+            <BrowserRouter basename='/frontend'>
               <Routes>
                 <Route path='/' element={<Context />}>
                   <Route path='player/:videoId' element={<Player />} />
