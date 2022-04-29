@@ -4,7 +4,7 @@ import { Video } from 'tabler-icons-react';
 
 const client = axios.create({
   withCredentials: true,
-  baseURL: import.meta.env.VITE_API_URL || 'http://msostream.io/',
+  baseURL: import.meta.env.VITE_API_URL || 'https://msostream.io/',
 });
 
 const cookie = Cookies.get('msostream-user');
@@ -30,7 +30,7 @@ const setJWT = (jwt: string) => {
 }
 
 const login = (email: string, password: string) =>
-  client.post('login', { email, password }).then((resp) => {
+  client.post('/v1/users/login', { email, password }).then((resp) => {
     return setJWT(resp.headers['authorization']);
   });
 
