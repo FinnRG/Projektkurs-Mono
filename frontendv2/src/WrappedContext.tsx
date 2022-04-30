@@ -9,6 +9,7 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import Context from './Context';
 import UserContext from './context/userContext';
+import CreateVideo from './routes/Create';
 import Login from './routes/Login';
 import Player from './routes/Player';
 import Videos from './routes/Videos';
@@ -39,6 +40,7 @@ const WrappedContext = () => {
                   <Route path='player/:videoId' element={<Player />} />
                   <Route path='videos' element={<Videos />} />
                   <Route path='login' element={<Login />} />
+                  <Route path='create' element={<CreateVideo />} />
                 </Route>
               </Routes>
             </BrowserRouter>

@@ -1,20 +1,13 @@
-import {
-  Anchor,
-  Button,
-  Checkbox,
-  Group,
-  PasswordInput,
-  TextInput,
-} from '@mantine/core';
+import { Anchor, Button, Checkbox, Group, TextInput } from '@mantine/core';
 import { useInputState } from '@mantine/hooks';
-import { useState } from 'react';
+import React from 'react';
 import { register } from '../../client';
 import PasswordStrength from './PasswordStrength';
 
 interface RegisterFormProps {
-  setLoading: Function;
-  onError: Function;
-  onSuccess: (arg0: string) => any;
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  onError: () => unknown;
+  onSuccess: (arg0: string) => unknown;
 }
 
 const RegisterForm = ({
@@ -33,7 +26,7 @@ const RegisterForm = ({
         setLoading(false);
         onSuccess(jwt);
       })
-      .catch((_) => onError());
+      .catch(() => onError());
   };
 
   return (

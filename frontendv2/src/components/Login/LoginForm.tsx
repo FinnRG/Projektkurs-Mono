@@ -7,14 +7,13 @@ import {
   TextInput,
 } from '@mantine/core';
 import { useInputState } from '@mantine/hooks';
-import Cookies from 'js-cookie';
-import { useState } from 'react';
-import client, { login } from '../../client';
+import React from 'react';
+import { login } from '../../client';
 
 interface LoginFormProps {
-  setLoading: Function;
-  onError: Function;
-  onSuccess: (arg0: string) => any;
+  setLoading: (arg0: boolean) => void;
+  onError: () => void;
+  onSuccess: (arg0: string) => unknown;
 }
 
 const LoginForm = ({ setLoading, onError, onSuccess }: LoginFormProps) => {
@@ -28,7 +27,7 @@ const LoginForm = ({ setLoading, onError, onSuccess }: LoginFormProps) => {
         setLoading(false);
         onSuccess(jwt);
       })
-      .catch((_) => onError());
+      .catch(() => onError());
   };
 
   return (

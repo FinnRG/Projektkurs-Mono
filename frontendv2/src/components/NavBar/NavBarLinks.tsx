@@ -1,14 +1,15 @@
 import { createStyles, Tooltip, UnstyledButton } from '@mantine/core';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import {
   Icon as TablerIcon,
-  Logout,
   Video,
   PlayerPlay,
   Tags,
   Playlist,
+  Upload,
 } from 'tabler-icons-react';
 import { useNavigate } from 'react-router-dom';
+import UserContext from '../../context/userContext';
 
 const useStyles = createStyles((theme) => ({
   link: {
@@ -48,6 +49,7 @@ interface NavbarLinkProps {
   label: string;
   active?: boolean;
   route?: string;
+  restricted?: boolean;
   onClick?(): void;
 }
 
@@ -69,6 +71,7 @@ const NavbarLink = ({ icon: Icon, label, onClick, route }: NavbarLinkProps) => {
 const linkData = [
   { icon: PlayerPlay, label: 'Player', route: '/player' },
   { icon: Video, label: 'Videos', route: '/videos' },
+  { icon: Upload, label: 'Upload', route: '/create', restricted: true },
   { icon: Playlist, label: 'Playlists', route: '/playlists' },
   { icon: Tags, label: 'Tags', route: '/tags' },
 ];
@@ -76,17 +79,25 @@ const linkData = [
 const NavBarLinks = () => {
   const [active, setActive] = useState(2);
   const navigate = useNavigate();
-  const links = linkData.map((link, index) => (
-    <NavbarLink
-      {...link}
-      key={link.label}
-      active={index === active}
-      onClick={() => {
-        setActive(index);
-        navigate(link.route);
-      }}
-    />
-  ));
+  const { user } = useContext(UserContext);
+  const links = linkData
+    .filter((link) => {
+      if (user == null) {
+        return !(link.restricted != null && link.restricted);
+      }
+      return true;
+    })
+    .map((link, index) => (
+      <NavbarLink
+        {...link}
+        key={link.label}
+        active={index === active}
+        onClick={() => {
+          setActive(index);
+          navigate(link.route);
+        }}
+      />
+    ));
   return <>{links}</>;
 };
 

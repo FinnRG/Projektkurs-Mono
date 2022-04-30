@@ -204,5 +204,5 @@ func supportedFileType(ferr *multipart.FileHeader) (bool, string) {
 }
 
 func uploadAuthorized(id string) bool {
-	return collectedVideos[id].Visbility == "DRAFT"
+	return collectedVideos[id].Visbility == "VISIBILITY_DRAFT"
 }

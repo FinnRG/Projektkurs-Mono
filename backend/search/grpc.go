@@ -80,13 +80,13 @@ func decodeVideo(arg interface{}) *searchv1.Video {
 		var vis v1.Visibility
 		if to == reflect.TypeOf(vis) {
 			switch v.(string) {
-			case "DRAFT":
+			case "VISIBILITY_DRAFT":
 				return v1.Visibility_VISIBILITY_DRAFT, nil
-			case "PROCESSING":
+			case "VISIBILITY_PROCESSING":
 				return v1.Visibility_VISIBILITY_PROCESSING, nil
-			case "PRIVATE":
+			case "VISIBILITY_PRIVATE":
 				return v1.Visibility_VISIBILITY_PRIVATE, nil
-			case "PUBLIC":
+			case "VISIBILITY_PUBLIC":
 				return v1.Visibility_VISIBILITY_PUBLIC, nil
 			default:
 				return v1.Visibility_VISIBILITY_UNSPECIFIED, nil

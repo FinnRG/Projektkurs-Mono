@@ -1,4 +1,3 @@
-import Cookies from 'js-cookie';
 import React from 'react';
 import client from '../client';
 

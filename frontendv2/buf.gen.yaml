@@ -1,0 +1,7 @@
+version: v1
+plugins:
+  # generate tonic code for protocol buffer defination
+  - remote: buf.build/timostamm/plugins/protobuf-ts:v2.5.0-1
+    out: src/gen
+    opt:
+    - optimize_code_size

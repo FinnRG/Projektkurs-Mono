@@ -3,10 +3,8 @@ import {
   Autocomplete,
   Card,
   createStyles,
-  Grid,
   Group,
   Text,
-  TextInput,
 } from '@mantine/core';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';

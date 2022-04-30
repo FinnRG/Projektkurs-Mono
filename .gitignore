@@ -5,3 +5,4 @@ minikube.log
 redis-stable.tar.gz
 redis-stable/
 gen/
+.eslintcache

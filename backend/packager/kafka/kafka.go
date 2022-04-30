@@ -112,7 +112,7 @@ func collectVideo(msg *sarama.ConsumerMessage) {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	if video.Visbility != "PROCESSING" {
+	if video.Visbility != "VISIBILITY_PROCESSING" {
 		log.Printf("Video visibility is: %s. Can't process\n", video.Visbility)
 		return
 	}
