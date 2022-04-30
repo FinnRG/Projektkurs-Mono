@@ -2,9 +2,11 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 import { Video } from 'tabler-icons-react';
 
+const BASE = import.meta.env.VITE_API_URL || 'https://msostream.io/';
+
 const client = axios.create({
   withCredentials: true,
-  baseURL: import.meta.env.VITE_API_URL || 'https://msostream.io/',
+  baseURL: BASE,
 });
 
 const cookie = Cookies.get('msostream-user');
@@ -34,7 +36,7 @@ const login = (email: string, password: string) =>
     return setJWT(resp.headers['authorization']);
   });
 
-const register = (email: string, password: string) =>
+const register = (name: string, email: string, password: string) =>
   client.post('/v1/users/register', { name, email, password}).then((resp) => {
     return setJWT(resp.headers['authorization']);
   })

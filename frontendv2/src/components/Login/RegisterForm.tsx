@@ -24,12 +24,13 @@ const RegisterForm = ({ setLoading, onSuccess, onError }: RegisterFormProps) => 
 
   const onSubmit = () => {
     setLoading(true);    
-    register(email, password)
-      .then((jwt) => {
-        setLoading(false);
-        onSuccess(jwt);
-      })
-      .catch((_) => onError());
+    register(name, email, password)
+      // .then((resp) => {
+      //   resp
+      //   setLoading(false);
+      //   onSuccess();
+      // })
+      // .catch((_) => onError());
   };
 
   return (
