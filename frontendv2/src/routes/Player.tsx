@@ -5,7 +5,9 @@ import { useParams } from 'react-router-dom';
 const Player = () => {
   const params = useParams();
   return (
-    <ShakaPlayer src={`http://msostream.io/stream/get/${params.videoId}/hls.m3u8`} />
+    <ShakaPlayer
+      src={`http://msostream.io/stream/get/${params.videoId}/hls.m3u8`}
+    />
   );
 };
 

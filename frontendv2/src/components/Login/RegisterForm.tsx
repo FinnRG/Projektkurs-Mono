@@ -6,10 +6,10 @@ import {
   PasswordInput,
   TextInput,
 } from '@mantine/core';
-import { useInputState } from "@mantine/hooks";
+import { useInputState } from '@mantine/hooks';
 import { useState } from 'react';
-import { register } from "../../client";
-import PasswordStrength from "./PasswordStrength";
+import { register } from '../../client';
+import PasswordStrength from './PasswordStrength';
 
 interface RegisterFormProps {
   setLoading: Function;
@@ -17,13 +17,17 @@ interface RegisterFormProps {
   onSuccess: (arg0: string) => any;
 }
 
-const RegisterForm = ({ setLoading, onSuccess, onError }: RegisterFormProps) => {
+const RegisterForm = ({
+  setLoading,
+  onSuccess,
+  onError,
+}: RegisterFormProps) => {
   const [name, setName] = useInputState('');
   const [email, setEmail] = useInputState('');
   const [password, setPassword] = useInputState('');
 
   const onSubmit = () => {
-    setLoading(true);    
+    setLoading(true);
     register(name, email, password)
       .then((jwt) => {
         setLoading(false);
@@ -49,7 +53,7 @@ const RegisterForm = ({ setLoading, onSuccess, onError }: RegisterFormProps) => 
         mt='md'
         required
       />
-      <PasswordStrength mt="md" value={password} setValue={setPassword} />
+      <PasswordStrength mt='md' value={password} setValue={setPassword} />
       <Group position='apart' mt='md'>
         <Checkbox label='Remember me' />
         <Anchor<'a'>

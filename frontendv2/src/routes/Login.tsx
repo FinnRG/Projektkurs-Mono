@@ -58,9 +58,11 @@ const Login = () => {
             onError={onError}
           />
         ) : (
-          <RegisterForm setLoading={setLoading} onError={onError}
+          <RegisterForm
+            setLoading={setLoading}
+            onError={onError}
             onSuccess={(jwt) => setUser && setUser(jwt)}
-           />
+          />
         )}
       </Paper>
     </Container>

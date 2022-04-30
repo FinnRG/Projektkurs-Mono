@@ -23,13 +23,13 @@ export interface Video {
 }
 
 const getVideos = (callback: (arg0: Video[]) => any) =>
-  client.get('video/list').then((resp) => callback(resp.data));
+  client.get('/v1/search/videos').then((resp) => callback(resp.data));
 
 const setJWT = (jwt: string) => {
-    localStorage.setItem('msostream-user', jwt);
-    client.defaults.headers.common['authorization'] = jwt;
-    return jwt;
-}
+  localStorage.setItem('msostream-user', jwt);
+  client.defaults.headers.common['authorization'] = jwt;
+  return jwt;
+};
 
 const login = (email: string, password: string) =>
   client.post('/v1/users/login', { email, password }).then((resp) => {
@@ -37,9 +37,9 @@ const login = (email: string, password: string) =>
   });
 
 const register = (name: string, email: string, password: string) =>
-  client.post('/v1/users/register', { name, email, password}).then((resp) => {
+  client.post('/v1/users/register', { name, email, password }).then((resp) => {
     return setJWT(resp.headers['authorization']);
-  })
+  });
 
 export default client;
 export { getVideos, login, register };

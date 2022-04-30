@@ -6,7 +6,7 @@ import {
   PasswordInput,
   TextInput,
 } from '@mantine/core';
-import { useInputState } from "@mantine/hooks";
+import { useInputState } from '@mantine/hooks';
 import Cookies from 'js-cookie';
 import { useState } from 'react';
 import client, { login } from '../../client';

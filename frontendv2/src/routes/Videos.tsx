@@ -1,6 +1,16 @@
-import { Card, createStyles, Group, Text } from '@mantine/core';
+import {
+  ActionIcon,
+  Autocomplete,
+  Card,
+  createStyles,
+  Grid,
+  Group,
+  Text,
+  TextInput,
+} from '@mantine/core';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { ArrowRight, Search } from 'tabler-icons-react';
 import { getVideos, Video } from '../client';
 
 const useStyles = createStyles((theme) => ({
@@ -17,6 +27,12 @@ const useStyles = createStyles((theme) => ({
 
   body: {
     padding: theme.spacing.md,
+  },
+
+  searchbar: {
+    maxWidth: '320px',
+    marginLeft: 'auto',
+    marginRight: 'auto',
   },
 }));
 
@@ -59,13 +75,31 @@ const VideoCard = ({ video }: VideoCardProps) => {
 
 const Videos = () => {
   const [videos, setVideos] = useState<Video[]>([]);
+  const { classes } = useStyles();
 
   useEffect(() => {
-    getVideos(setVideos);
+    getVideos((videos) => {
+      setVideos(videos);
+    });
   }, []);
 
   return (
     <>
+      <Autocomplete
+        icon={<Search size={18} />}
+        className={classes.searchbar}
+        data={['Test']}
+        radius='xl'
+        size='md'
+        style={{ maxWidth: '320px' }}
+        rightSection={
+          <ActionIcon size={32} radius='xl' variant='filled'>
+            <ArrowRight size={18} />
+          </ActionIcon>
+        }
+        placeholder='Search videos'
+        rightSectionWidth={42}
+      />
       {videos.map((video, index) => (
         <VideoCard video={video} key={index} />
       ))}
