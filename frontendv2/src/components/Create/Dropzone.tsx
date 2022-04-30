@@ -1,4 +1,5 @@
-import React, { useRef } from 'react';
+// @ts-nocheck
+import { useRef } from 'react';
 import {
   Text,
   Group,
@@ -111,7 +112,11 @@ const DropzoneWithButton = ({
         className={classes.control}
         size='md'
         radius='xl'
-        onClick={() => openRef.current()}
+        onClick={() => {
+          if (openRef !== undefined) {
+            openRef.current()
+          }
+        }}
         fullWidth
       >
         <div className={classes.label}>

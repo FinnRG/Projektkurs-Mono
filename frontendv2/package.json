@@ -10,9 +10,9 @@
     "format": "prettier --write --parser typescript --jsx-single-quote --single-quote \"src/**/*.tsx\" \".eslintrc.js\""
   },
   "dependencies": {
-    "@mantine/core": "^4.0.8",
+    "@mantine/core": "^4.2.1",
     "@mantine/dropzone": "^4.2.1",
-    "@mantine/hooks": "^4.0.8",
+    "@mantine/hooks": "^4.2.1",
     "@protobuf-ts/grpcweb-transport": "^2.5.0",
     "@protobuf-ts/plugin": "^2.5.0",
     "axios": "^0.26.1",
