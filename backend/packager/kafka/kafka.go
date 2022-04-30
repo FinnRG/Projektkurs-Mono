@@ -76,6 +76,9 @@ func CollectVideos(wg *sync.WaitGroup) {
 	if err != nil {
 		log.Fatalln(err)
 	}
+	if lastOffset == 0 {
+		wg.Done()
+	}
 
 ConsumerLoop:
 	for {
