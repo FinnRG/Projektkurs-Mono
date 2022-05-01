@@ -37,13 +37,6 @@ spec:
             name: frontend
             port:
               number: 80
-      - path: /assets
-        pathType: Prefix
-        backend:
-          service:
-            name: frontend
-            port:
-              number: 80
       - path: /stream
         pathType: Prefix
         backend:
