@@ -1,6 +1,7 @@
 import { Anchor, Button, Checkbox, Group, TextInput } from '@mantine/core';
 import { useInputState } from '@mantine/hooks';
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { register } from '../../client';
 import PasswordStrength from './PasswordStrength';
 
@@ -18,6 +19,7 @@ const RegisterForm = ({
   const [name, setName] = useInputState('');
   const [email, setEmail] = useInputState('');
   const [password, setPassword] = useInputState('');
+  const navigate = useNavigate();
 
   const onSubmit = () => {
     setLoading(true);
@@ -25,6 +27,7 @@ const RegisterForm = ({
       .then((jwt) => {
         setLoading(false);
         onSuccess(jwt);
+        navigate('/videos');
       })
       .catch(() => onError());
   };

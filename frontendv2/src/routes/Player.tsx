@@ -1,10 +1,15 @@
 import ShakaPlayer from 'shaka-player-react';
 import 'shaka-player-react/dist/controls.css';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Container } from '@mantine/core';
 
 const Player = () => {
   const params = useParams();
+  if (params.videoId == undefined) {
+    const navigate = useNavigate();
+    navigate('/videos');
+  }
+
   return (
     <Container size={'md'}>
       <ShakaPlayer

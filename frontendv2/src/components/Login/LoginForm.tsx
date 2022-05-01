@@ -8,6 +8,7 @@ import {
 } from '@mantine/core';
 import { useInputState } from '@mantine/hooks';
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { login } from '../../client';
 
 interface LoginFormProps {
@@ -19,6 +20,7 @@ interface LoginFormProps {
 const LoginForm = ({ setLoading, onError, onSuccess }: LoginFormProps) => {
   const [email, setEmail] = useInputState('');
   const [password, setPassword] = useInputState('');
+  const navigate = useNavigate();
 
   const onSubmit = () => {
     setLoading(true);
@@ -26,6 +28,7 @@ const LoginForm = ({ setLoading, onError, onSuccess }: LoginFormProps) => {
       .then((jwt) => {
         setLoading(false);
         onSuccess(jwt);
+        navigate('/videos');
       })
       .catch(() => onError());
   };

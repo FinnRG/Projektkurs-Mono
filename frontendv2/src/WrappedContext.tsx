@@ -37,7 +37,9 @@ const WrappedContext = () => {
             <BrowserRouter basename='/frontend'>
               <Routes>
                 <Route path='/' element={<Context />}>
-                  <Route path='player/:videoId' element={<Player />} />
+                  <Route path='player' element={<Player />}>
+                    <Route path=':videoId' element={<Player />} />
+                  </Route>
                   <Route path='videos' element={<Videos />} />
                   <Route path='login' element={<Login />} />
                   <Route path='create' element={<CreateVideo />} />
