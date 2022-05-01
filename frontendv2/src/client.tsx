@@ -1,6 +1,9 @@
 import axios from 'axios';
 import { Video } from 'tabler-icons-react';
-import { GrpcWebFetchTransport } from '@protobuf-ts/grpcweb-transport';
+import {
+  GrpcWebFetchTransport,
+  GrpcWebOptions,
+} from '@protobuf-ts/grpcweb-transport';
 import { VideoServiceClient } from './gen/videos/v1/videos.client';
 import { CreateVideoRequest } from './gen/videos/v1/videos';
 import { SearchServiceClient } from './gen/search/v1/search.client';
@@ -19,6 +22,18 @@ if (storedJWT) {
   client.defaults.headers.common['authorization'] = storedJWT;
 }
 
+const transport = () => {
+  const jwt = localStorage.getItem('msostream-user');
+  let conf: GrpcWebOptions = { baseUrl: BASE };
+  if (jwt != null) {
+    conf.meta = {
+      authorization: jwt,
+    };
+  }
+
+  return new GrpcWebFetchTransport(conf);
+};
+
 export interface Video {
   id: string;
   title: string;
@@ -27,10 +42,6 @@ export interface Video {
 }
 
 const getVideos = (callback: (arg0: Video[]) => unknown) => {
-  const transport = new GrpcWebFetchTransport({
-    baseUrl: BASE,
-  });
-
   const req: SearchVideosRequest = {
     query: '',
     offset: BigInt(0),
@@ -64,19 +75,7 @@ const register = (name: string, email: string, password: string) =>
   });
 
 const createVideo = (req: CreateVideoRequest) => {
-  const jwt = localStorage.getItem('msostream-user');
-  if (jwt == null) {
-    return;
-  }
-
-  const transport = new GrpcWebFetchTransport({
-    baseUrl: BASE,
-    meta: {
-      authorization: jwt,
-    },
-  });
-
-  const client = new VideoServiceClient(transport);
+  const client = new VideoServiceClient(transport());
   return client.createVideo(req);
 };
 
@@ -91,4 +90,4 @@ const uploadVideo = (id: string, file: File) => {
 };
 
 export default client;
-export { getVideos, login, register, createVideo, uploadVideo };
+export { getVideos, login, register, createVideo, uploadVideo, transport };

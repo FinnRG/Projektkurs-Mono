@@ -13,6 +13,7 @@ import CreateVideo from './routes/Create';
 import Login from './routes/Login';
 import Player from './routes/Player';
 import Videos from './routes/Videos';
+import {ReactQueryDevtools} from 'react-query/devtools'
 
 const WrappedContext = () => {
   const preferredColorScheme = useColorScheme();
@@ -46,6 +47,7 @@ const WrappedContext = () => {
                 </Route>
               </Routes>
             </BrowserRouter>
+          <ReactQueryDevtools initialIsOpen={false} />
           </QueryClientProvider>
         </MantineProvider>
       </ColorSchemeProvider>
