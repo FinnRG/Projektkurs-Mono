@@ -114,7 +114,7 @@ const DropzoneWithButton = ({
         radius='xl'
         onClick={() => {
           if (openRef !== undefined) {
-            openRef.current()
+            openRef.current();
           }
         }}
         fullWidth

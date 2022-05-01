@@ -37,13 +37,15 @@ const getVideos = (callback: (arg0: Video[]) => unknown) => {
     limit: BigInt(10),
     filter: [],
     sort: [],
-  }
+  };
 
-  return client.get('/v1/search/videos', {
-    data: JSON.stringify({query: ''}),
-    withCredentials: false
-  }).then((resp) => callback(resp.data.videos))
-}
+  return client
+    .get('/v1/search/videos', {
+      data: JSON.stringify({ query: '' }),
+      withCredentials: false,
+    })
+    .then((resp) => callback(resp.data.videos));
+};
 
 const setJWT = (jwt: string) => {
   localStorage.setItem('msostream-user', jwt);
