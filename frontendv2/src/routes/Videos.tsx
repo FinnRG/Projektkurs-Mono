@@ -57,7 +57,7 @@ const VideoCard = ({ video }: VideoCardProps) => {
             {video.title}
           </Text>
           <Group noWrap spacing='xs'>
-            <Text size='xs'>{video.user_id}</Text>
+            <Text size='xs'>{video.author}</Text>
             <Text size='xs' color='dimmed'>
               •
             </Text>

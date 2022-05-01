@@ -3,6 +3,8 @@ import { Video } from 'tabler-icons-react';
 import { GrpcWebFetchTransport } from '@protobuf-ts/grpcweb-transport';
 import { VideoServiceClient } from './gen/videos/v1/videos.client';
 import { CreateVideoRequest } from './gen/videos/v1/videos';
+import { SearchServiceClient } from './gen/search/v1/search.client';
+import { SearchVideosRequest } from './gen/search/v1/search';
 
 const BASE = import.meta.env.VITE_API_URL || 'https://msostream.io/';
 
@@ -21,11 +23,27 @@ export interface Video {
   id: string;
   title: string;
   description: string;
-  user_id: string;
+  author: string;
 }
 
-const getVideos = (callback: (arg0: Video[]) => unknown) =>
-  client.get('/v1/search/videos').then((resp) => callback(resp.data));
+const getVideos = (callback: (arg0: Video[]) => unknown) => {
+  const transport = new GrpcWebFetchTransport({
+    baseUrl: BASE,
+  });
+
+  const req: SearchVideosRequest = {
+    query: '',
+    offset: BigInt(0),
+    limit: BigInt(10),
+    filter: [],
+    sort: [],
+  }
+
+  return client.get('/v1/search/videos', {
+    data: JSON.stringify({query: ''}),
+    withCredentials: false
+  }).then((resp) => callback(resp.data.videos))
+}
 
 const setJWT = (jwt: string) => {
   localStorage.setItem('msostream-user', jwt);
