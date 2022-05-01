@@ -1,15 +1,20 @@
 import {
   ActionIcon,
-  Autocomplete,
   Card,
   createStyles,
   Group,
+  Stack,
   Text,
+  TextInput,
 } from '@mantine/core';
+import { useDebouncedValue } from '@mantine/hooks';
 import { useEffect, useState } from 'react';
+import { useQuery } from 'react-query';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Search } from 'tabler-icons-react';
-import { getVideos, Video } from '../client';
+import { getVideos, transport, Video } from '../client';
+import { SearchVideosRequest } from '../gen/search/v1/search';
+import { SearchServiceClient } from '../gen/search/v1/search.client';
 
 const useStyles = createStyles((theme) => ({
   card: {
@@ -72,35 +77,38 @@ const VideoCard = ({ video }: VideoCardProps) => {
 };
 
 const Videos = () => {
-  const [videos, setVideos] = useState<Video[]>([]);
   const { classes } = useStyles();
+  const [videos, setVideos] = useState<Video[]>([]);
+  const [query, setQuery] = useState('');
+  const [debounced] = useDebouncedValue(query, 200);
 
-  useEffect(() => {
-    getVideos((videos) => {
-      setVideos(videos);
-    });
-  }, []);
+  const { data, isLoading } = useQuery(['videos', debounced], () => {
+    const searchService = new SearchServiceClient(transport());
+    return searchService.searchVideos(SearchVideosRequest.create({query: debounced})).response;
+  })
 
   return (
     <>
-      <Autocomplete
-        icon={<Search size={18} />}
-        className={classes.searchbar}
-        data={['Test']}
-        radius='xl'
-        size='md'
-        style={{ maxWidth: '320px' }}
-        rightSection={
-          <ActionIcon size={32} radius='xl' variant='filled'>
-            <ArrowRight size={18} />
-          </ActionIcon>
-        }
-        placeholder='Search videos'
-        rightSectionWidth={42}
-      />
-      {videos.map((video, index) => (
-        <VideoCard video={video} key={index} />
-      ))}
+      <Stack>
+        <TextInput
+          icon={<Search size={18} />}
+          className={classes.searchbar}
+          radius='xl'
+          size='md'
+          style={{ maxWidth: '320px' }}
+          rightSection={
+            <ActionIcon size={32} radius='xl' variant='filled'>
+              <ArrowRight size={18} />
+            </ActionIcon>
+          }
+          onChange={(val) => setQuery(val.target.value)}
+          placeholder='Search videos'
+          rightSectionWidth={42}
+        />
+        {data?.videos.map((video, index) => (
+          <VideoCard video={video} key={index} />
+        ))}
+      </Stack>
     </>
   );
 };
