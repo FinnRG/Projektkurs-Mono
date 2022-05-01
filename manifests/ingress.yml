@@ -9,7 +9,7 @@ metadata:
     nginx.ingress.kubernetes.io/cors-max-age: "600"
     nginx.ingress.kubernetes.io/cors-allow-origin: "http://localhost:3000, http://msostream.io, https://msostream.io/"
     nginx.ingress.kubernetes.io/cors-allow-credentials: "true"
-    nginx.ingress.kubernetes.io/cors-allow-headers: "Content-Type,authorization,x-grpc-web,grpc-timeout,keep-alive,user-agent,content-transfer-encoding,x-accept-content-transfer-encoding,x-accept-response-streaming,x-user-agent"
+    nginx.ingress.kubernetes.io/cors-allow-headers: "Content-Type,authorization,x-grpc-web,grpc-timeout,keep-alive,user-agent,content-transfer-encoding,x-accept-content-transfer-encoding,x-accept-response-streaming,x-user-agent, range"
     nginx.ingress.kubernetes.io/cors-expose-headers: "Content-Type,authorization,grpc-encoding,grpc-message,grpc-status"
     nginx.ingress.kubernetes.io/proxy-body-size: "0"
 spec:
