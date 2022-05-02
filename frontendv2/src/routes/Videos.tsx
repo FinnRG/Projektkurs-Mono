@@ -82,7 +82,7 @@ const Videos = () => {
   const [query, setQuery] = useState('');
   const [debounced] = useDebouncedValue(query, 200);
 
-  const { data, isLoading } = useQuery(['videos', debounced], () => {
+  const { data } = useQuery(['videos', debounced], () => {
     const searchService = new SearchServiceClient(transport());
     return searchService.searchVideos(SearchVideosRequest.create({query: debounced})).response;
   })
