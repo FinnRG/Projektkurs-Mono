@@ -10,4 +10,5 @@ RUN CGO_ENABLED=0 GOOS=linux GIN_MODE=release go build -a -o upload .
 FROM redhat/ubi8-minimal:8.5
 WORKDIR /
 COPY --from=build /upload /
+ENV GIN_MODE=release
 CMD ["./upload"]
