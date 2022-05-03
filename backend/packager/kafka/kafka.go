@@ -76,6 +76,9 @@ func CollectVideos(wg *sync.WaitGroup) {
 	if err != nil {
 		log.Fatalln(err)
 	}
+	if lastOffset == 0 {
+		wg.Done();
+	}
 
 ConsumerLoop:
 	for {
@@ -84,7 +87,7 @@ ConsumerLoop:
 			log.Printf("%d\n", msg.Offset)
 			checkHeaders(msg)
 
-			if msg.Offset == lastOffset-1 {
+			if msg.Offset == lastOffset-1 && lastOffset != 0 {
 				// Start transcoding
 				fmt.Println("Finished traversing old events")
 				wg.Done()
@@ -111,10 +114,6 @@ func collectVideo(msg *sarama.ConsumerMessage) {
 	err := json.Unmarshal(msg.Value, &video)
 	if err != nil {
 		log.Fatalln(err)
-	}
-	if video.Visbility != "VISIBILITY_PROCESSING" {
-		log.Printf("Video visibility is: %s. Can't process\n", video.Visbility)
-		return
 	}
 	collectedVideos[video.Id] = video
 	WorkChan <- video
