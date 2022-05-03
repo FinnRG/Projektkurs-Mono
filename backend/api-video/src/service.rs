@@ -16,6 +16,7 @@ extern crate lazy_static;
 include!("../gen/mod.rs");
 
 mod kafka;
+mod scylla;
 
 lazy_static! {
     static ref JWTSECRET: String = env::var("JWTSECRET").unwrap();
@@ -184,6 +185,7 @@ impl VideoService for Videos {
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     pretty_env_logger::init();
+    scylla::init_scylla().await?;
 
     let _handle = tokio::spawn(kafka::receive_events());
 
