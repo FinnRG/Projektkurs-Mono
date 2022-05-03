@@ -22,3 +22,6 @@
 [submodule "backend/search/proto"]
 	path = backend/search/proto
 	url = https://github.com/MSOStream/Spec.git
+[submodule "frontendv2/proto"]
+	path = frontendv2/proto
+	url = https://github.com/MSOStream/Spec
