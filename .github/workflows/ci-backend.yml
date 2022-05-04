@@ -20,5 +20,5 @@ jobs:
         with:
           name: finnrg/msostream-api-video
           context: ./backend/api-video
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_TOKEN }}
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
