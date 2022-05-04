@@ -6,7 +6,15 @@ on:
       - 'main'
 
 jobs:
-  docker:
+  checkout:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: 'true'
+  api-video:
     runs-on: ubuntu-latest
     steps:
       -
@@ -22,3 +30,83 @@ jobs:
           context: ./backend/api-video
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+  auth:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: 'true'
+      - 
+        name: Publish to Registry
+        uses: elgohr/Publish-Docker-Github-Action@v4
+        with:
+          name: finnrg/msostream-auth
+          context: ./backend/auth
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+  packager:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: 'true'
+      - 
+        name: Publish to Registry
+        uses: elgohr/Publish-Docker-Github-Action@v4
+        with:
+          name: finnrg/msostream-packager
+          context: ./backend/packager
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+  upload:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: 'true'
+      - 
+        name: Publish to Registry
+        uses: elgohr/Publish-Docker-Github-Action@v4
+        with:
+          name: finnrg/msostream-upload
+          context: ./backend/upload
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+  stream:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: 'true'
+      - 
+        name: Publish to Registry
+        uses: elgohr/Publish-Docker-Github-Action@v4
+        with:
+          name: finnrg/msostream-stream
+          context: ./backend/stream
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+  search:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: 'true'
+      - 
+        name: Publish to Registry
+        uses: elgohr/Publish-Docker-Github-Action@v4
+        with:
+          name: finnrg/msostream-search
+          context: ./backend/search
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}        
