@@ -1,4 +1,4 @@
-FROM bufbuild/buf:1.3.1 as buf
+FROM bufbuild/buf:1.4.0 as buf
 FROM golang:1.18-alpine AS build
 
 WORKDIR /search

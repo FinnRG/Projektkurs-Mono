@@ -1,4 +1,4 @@
-FROM bufbuild/buf:1.3.1 as buf
+FROM bufbuild/buf:1.4.0 as buf
 FROM rust:1.60.0-buster as build
 
 # create a new empty shell project

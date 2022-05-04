@@ -109,4 +109,20 @@ jobs:
           name: finnrg/msostream-search
           context: ./backend/search
           username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}        
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+  proxy:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: 'true'
+      - 
+        name: Publish to Registry
+        uses: elgohr/Publish-Docker-Github-Action@v4
+        with:
+          name: finnrg/msostream-search
+          context: ./conf/
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}    
