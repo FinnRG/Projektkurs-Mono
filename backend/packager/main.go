@@ -17,13 +17,12 @@ var REDIS_URL string = os.Getenv("REDIS_URL")
 var REDISPASSWORD string = os.Getenv("REDISPASSWORD")
 
 func main() {
+	initEnv()
 	go runAsynqClient()
 	runAsynqWorker()
 }
 
 func runAsynqClient() {
-
-	initEnv()
 	client := asynq.NewClient(asynq.RedisClientOpt{Addr: REDIS_URL, Password: REDISPASSWORD, DB: 0})
 	defer client.Close()
 
