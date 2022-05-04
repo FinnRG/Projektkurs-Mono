@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use crate::{get_conn, Video, Visibility};
+use crate::{get_conn, Video};
 use log::{info, warn};
 use r2d2::PooledConnection;
 use rdkafka::{
@@ -79,7 +79,7 @@ pub async fn receive_events() {
 fn process_message(m: &BorrowedMessage) {
     if let Some(headers) = m.headers() {
         match headers.iter().find(|h| h.key == "type") {
-            Some(header) => process_valid_message(&m, &header),
+            Some(header) => process_valid_message(m, &header),
             None => (),
         }
     }
@@ -90,12 +90,8 @@ fn process_valid_message(m: &BorrowedMessage, header: &Header<&[u8]>) {
     if header.value == Some("Deleted".as_bytes()) {
         redis_del_video(&mut conn, m.key())
     } else {
-        let payload = stringify_payload(&m);
-        let mut video: Video =
-            serde_json::from_str(payload).expect("Unable to deserialize payload");
-        if header.value == Some("Processed".as_bytes()) {
-            video.visibility = Visibility::Unspecified as i32;
-        }
+        let payload = stringify_payload(m);
+        let video: Video = serde_json::from_str(payload).expect("Unable to deserialize payload");
         redis_set_video(&mut conn, &video, payload);
     }
 }

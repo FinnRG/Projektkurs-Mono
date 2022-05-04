@@ -5,10 +5,9 @@ use redis::{Client, Commands, RedisError};
 use std::env;
 use tonic::{transport::Server, Request, Response, Status};
 use videos::v1::video_service_server::{VideoService, VideoServiceServer};
-use videos::v1::Video;
 use videos::v1::{
-    CreateVideoRequest, CreateVideoResponse, GetVideoRequest, GetVideoResponse, UpdateVideoRequest,
-    UpdateVideoResponse, Visibility,
+    CreateVideoRequest, CreateVideoResponse, GetVideoRequest, GetVideoResponse,
+    Status as VideoStatus, UpdateVideoRequest, UpdateVideoResponse, Video,
 };
 #[macro_use]
 extern crate lazy_static;
@@ -157,7 +156,8 @@ impl VideoService for Videos {
             description: create_request.description,
             author: author.unwrap(),
             date: chrono::offset::Local::now().to_string(),
-            visibility: Visibility::Draft as i32,
+            visibility: create_request.visibility as i32,
+            status: VideoStatus::Draft as i32,
         })
         .expect("Unable to stringify Video object");
 
