@@ -72,6 +72,6 @@ func transcode(id string) error {
 	cmd := exec.Command("/bin/shaka-streamer", "-i", "/"+id+"/input.yaml", "-p", "/conf/pipeline.yaml", "-o", "/"+id+"/output/")
 	cmd.Env = os.Environ()
 	out, err := cmd.Output()
-	log.Print(out)
+	log.Print(string(out))
 	return err
 }
