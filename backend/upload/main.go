@@ -42,6 +42,7 @@ type Video struct {
 	Author      string `json:"author"`
 	Date        string `json:"date"`
 	Visbility   string `json:"visibility"`
+	Status      string `json:"status"`
 }
 
 func collectVideos(wg *sync.WaitGroup) {
@@ -206,6 +207,7 @@ func supportedFileType(ferr *multipart.FileHeader) (bool, string) {
 	return false, ""
 }
 
+// Checks whether the video with this id has the DRAFT status
 func uploadAuthorized(id string) bool {
-	return collectedVideos[id].Visbility == "VISIBILITY_DRAFT"
+	return collectedVideos[id].Status == "STATUS_DRAFT"
 }

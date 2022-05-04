@@ -27,7 +27,7 @@ func initSyncProducer(wg *sync.WaitGroup) {
 
 func emitVideoUploadedEvent(id string) error {
 	video := collectedVideos[id]
-	video.Visbility = "PROCESSING"
+	video.Status = "STATUS_PROCESSED"
 	m, err := json.Marshal(video)
 	if err != nil {
 		return err
