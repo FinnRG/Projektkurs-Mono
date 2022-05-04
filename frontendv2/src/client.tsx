@@ -24,7 +24,7 @@ if (storedJWT) {
 
 const transport = () => {
   const jwt = localStorage.getItem('msostream-user');
-  let conf: GrpcWebOptions = { baseUrl: BASE };
+  const conf: GrpcWebOptions = { baseUrl: BASE };
   if (jwt != null) {
     conf.meta = {
       authorization: jwt,

@@ -1,20 +1,12 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: ingress
+  name: ingress-frontend
   annotations:
     dev.okteto.com/generate-host: "true"
-    nginx.ingress.kubernetes.io/enable-cors: "true"
-    nginx.ingress.kubernetes.io/cors-allow-methods: "PUT, GET, POST, OPTIONS, PATCH"
-    nginx.ingress.kubernetes.io/cors-max-age: "600"
-    nginx.ingress.kubernetes.io/cors-allow-origin: "http://localhost:3000, https://msostream.io/, https://api.msostream.io/, http://api.msostream.io"
-    nginx.ingress.kubernetes.io/cors-allow-credentials: "true"
-    nginx.ingress.kubernetes.io/cors-allow-headers: "Content-Type,authorization,x-grpc-web,grpc-timeout,keep-alive,user-agent,content-transfer-encoding,x-accept-content-transfer-encoding,x-accept-response-streaming,x-user-agent, range"
-    nginx.ingress.kubernetes.io/cors-expose-headers: "Content-Type,authorization,grpc-encoding,grpc-message,grpc-status"
-    nginx.ingress.kubernetes.io/proxy-body-size: "0"
 spec:
   rules:
-  - host: "msostream.io"
+  - host: msostream.io
     http:
       paths:
       - path: /
@@ -24,9 +16,31 @@ spec:
             name: frontend
             port:
               number: 80
-  - host: "api.msostream.io"
+  ingressClassName: nginx
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-backend
+  annotations:
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "http://msostream.io, http://localhost:3000"
+    nginx.ingress.kubernetes.io/cors-allow-credentials: "true"
+    nginx.ingress.kubernetes.io/cors-allow-headers: "Content-Type,authorization,x-grpc-web,grpc-timeout,keep-alive,user-agent,content-transfer-encoding,x-accept-content-transfer-encoding,x-accept-response-streaming,x-user-agent,range"
+    nginx.ingress.kubernetes.io/cors-expose-headers: "Content-Type,authorization,grpc-encoding,grpc-message,grpc-status"
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
+spec:
+  rules:
+  - host: api.msostream.io
     http:
       paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: proxy
+            port:
+              number: 8080
       - path: /upload
         pathType: Prefix
         backend:
@@ -34,13 +48,6 @@ spec:
             name: upload
             port:
               number: 8080
-      - path: /frontend
-        pathType: Prefix
-        backend:
-          service:
-            name: frontend
-            port:
-              number: 80
       - path: /stream
         pathType: Prefix
         backend:
@@ -48,3 +55,4 @@ spec:
             name: stream
             port:
               number: 8080
+  ingressClassName: nginx
