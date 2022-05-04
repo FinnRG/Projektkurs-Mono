@@ -161,17 +161,3 @@ func IsProcessed(id string) bool {
 	}
 	return false
 }
-
-func EmitVideoEvent(id string, eventType string) error {
-	log.Println("Started emitting VideoProcessed event")
-
-	typeHeader := sarama.RecordHeader{Key: []byte("type"), Value: []byte("Processed")}
-	headers := []sarama.RecordHeader{typeHeader}
-	msg := &sarama.ProducerMessage{Topic: "videos", Key: sarama.StringEncoder(id), Headers: headers}
-
-	_, _, err := sp.SendMessage(msg)
-	if err != nil {
-		return err
-	}
-	return nil
-}

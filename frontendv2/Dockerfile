@@ -10,9 +10,6 @@ COPY . .
 
 # Generate proto definitions
 COPY --from=buf /usr/local/bin/buf /usr/local/bin/buf
-COPY ./proto ./proto
-COPY buf.work.yaml buf.work.yaml
-COPY buf.gen.yaml buf.gen.yaml
 RUN buf generate
 
 RUN npm run build
