@@ -11,7 +11,6 @@ export default defineConfig(({ command, mode }) => {
         host: '0.0.0.0',
         port: 80,
       },
-      base: '/frontend/',
       plugins: [react()]
     }
   }

@@ -35,7 +35,7 @@ const WrappedContext = () => {
       >
         <MantineProvider theme={{ colorScheme }} withGlobalStyles>
           <QueryClientProvider client={queryClient}>
-            <BrowserRouter basename='/frontend'>
+            <BrowserRouter>
               <Routes>
                 <Route path='/' element={<Context />}>
                   <Route path='player' element={<Player />}>
