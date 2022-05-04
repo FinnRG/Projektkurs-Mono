@@ -1,4 +1,4 @@
-name: ci-auth
+name: ci-api-video
 
 on:
   push:
@@ -33,6 +33,7 @@ jobs:
         name: Build and push
         uses: docker/build-push-action@v2
         with:
-          context: backend/auth/
+          context: backend/api-video/
           push: true
-          tags: finnrg/msostream-auth:latest
+          tags: finnrg/msostream-api-video:latest
+
