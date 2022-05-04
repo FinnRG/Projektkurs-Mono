@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use crate::{get_conn, Video};
+use crate::{get_conn, Video, videos::v1::Status as VideoStatus};
 use log::{info, warn};
 use r2d2::PooledConnection;
 use rdkafka::{
@@ -89,6 +89,8 @@ fn process_valid_message(m: &BorrowedMessage, header: &Header<&[u8]>) {
     let mut conn = get_conn().expect("Unable to create redis connection");
     if header.value == Some("Deleted".as_bytes()) {
         redis_del_video(&mut conn, m.key())
+    } else if header.value == Some("Processed".as_bytes()) {
+        publicize_video(&mut conn, m.key());
     } else {
         let payload = stringify_payload(m);
         let video: Video = serde_json::from_str(payload).expect("Unable to deserialize payload");
@@ -108,6 +110,17 @@ fn redis_set_video(conn: &mut PooledConnection<redis::Client>, video: &Video, pa
             "Unable to set {:?} to {} because of {}",
             &video.id, payload, e
         )
+    }
+}
+
+fn publicize_video(conn: &mut PooledConnection<redis::Client>, id: Option<&[u8]>) {
+    match conn.get::<_, String>(id) {
+        Ok(video) => {
+            let mut video: Video = serde_json::from_str(&video).expect("Unable to deserialize video");
+            video.set_status(VideoStatus::Finished);
+            redis_set_video(conn, &video, &serde_json::to_string(&video).unwrap());
+        }
+        Err(e) => warn!("Unable to get {:?} because of {:?}", id, e),
     }
 }
 
