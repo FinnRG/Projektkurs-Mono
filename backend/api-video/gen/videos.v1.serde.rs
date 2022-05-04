@@ -404,7 +404,8 @@ impl serde::Serialize for Status {
         let variant = match self {
             Self::Unspecified => "STATUS_UNSPECIFIED",
             Self::Finished => "STATUS_FINISHED",
-            Self::Processing => "STATUS_PROCESSING",
+            Self::Processed => "STATUS_PROCESSED",
+            Self::Uploaded => "STATUS_UPLOADED",
             Self::Draft => "STATUS_DRAFT",
         };
         serializer.serialize_str(variant)
@@ -419,7 +420,8 @@ impl<'de> serde::Deserialize<'de> for Status {
         const FIELDS: &[&str] = &[
             "STATUS_UNSPECIFIED",
             "STATUS_FINISHED",
-            "STATUS_PROCESSING",
+            "STATUS_PROCESSED",
+            "STATUS_UPLOADED",
             "STATUS_DRAFT",
         ];
 
@@ -465,7 +467,8 @@ impl<'de> serde::Deserialize<'de> for Status {
                 match value {
                     "STATUS_UNSPECIFIED" => Ok(Status::Unspecified),
                     "STATUS_FINISHED" => Ok(Status::Finished),
-                    "STATUS_PROCESSING" => Ok(Status::Processing),
+                    "STATUS_PROCESSED" => Ok(Status::Processed),
+                    "STATUS_UPLOADED" => Ok(Status::Uploaded),
                     "STATUS_DRAFT" => Ok(Status::Draft),
                     _ => Err(serde::de::Error::unknown_variant(value, FIELDS)),
                 }

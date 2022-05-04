@@ -89,8 +89,8 @@ fn process_valid_message(m: &BorrowedMessage, header: &Header<&[u8]>) {
     let mut conn = get_conn().expect("Unable to create redis connection");
     if header.value == Some("Deleted".as_bytes()) {
         redis_del_video(&mut conn, m.key())
-    } else if header.value == Some("Processed".as_bytes()) {
-        publicize_video(&mut conn, m.key());
+    } else if header.value == Some("Processed".as_bytes()) || header.value == Some("Uploaded".as_bytes()) {
+        update_status(&mut conn, m.key(), std::str::from_utf8(header.value.unwrap()).unwrap());
     } else {
         let payload = stringify_payload(m);
         let video: Video = serde_json::from_str(payload).expect("Unable to deserialize payload");
@@ -113,14 +113,27 @@ fn redis_set_video(conn: &mut PooledConnection<redis::Client>, video: &Video, pa
     }
 }
 
-fn publicize_video(conn: &mut PooledConnection<redis::Client>, id: Option<&[u8]>) {
+fn update_status(conn: &mut PooledConnection<redis::Client>, id: Option<&[u8]>, status: &str) {
     match conn.get::<_, String>(id) {
         Ok(video) => {
             let mut video: Video = serde_json::from_str(&video).expect("Unable to deserialize video");
-            video.set_status(VideoStatus::Finished);
+            let status = VideoStatus::from_str(status);
+            video.set_status(status);
             redis_set_video(conn, &video, &serde_json::to_string(&video).unwrap());
         }
         Err(e) => warn!("Unable to get {:?} because of {:?}", id, e),
+    }
+}
+
+impl VideoStatus {
+    fn from_str(str: &str) -> VideoStatus {
+        return match str {
+            "STATUS_FINISHED" => VideoStatus::Finished,
+            "STATUS_UPLOADED" => VideoStatus::Uploaded,
+            "STATUS_PROCESSED" => VideoStatus::Processed,
+            "STATUS_DRAFT" => VideoStatus::Draft,
+            _ => VideoStatus::Unspecified,
+        }
     }
 }
 
