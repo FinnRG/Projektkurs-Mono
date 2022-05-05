@@ -1,3 +1,4 @@
+use crate::storage::Store;
 use log::{error, info, warn};
 use r2d2::PooledConnection;
 use redis::{Client, Commands, RedisError};
@@ -5,8 +6,8 @@ use std::env;
 use tonic::{transport::Server, Request, Response, Status};
 use videos::v1::video_service_server::{VideoService, VideoServiceServer};
 use videos::v1::{
-    CreateVideoRequest, CreateVideoResponse, GetVideoRequest, GetVideoResponse,
-    UpdateVideoRequest, UpdateVideoResponse, Video,
+    CreateVideoRequest, CreateVideoResponse, GetVideoRequest, GetVideoResponse, UpdateVideoRequest,
+    UpdateVideoResponse, Video,
 };
 #[macro_use]
 extern crate lazy_static;
@@ -29,25 +30,6 @@ lazy_static! {
     };
 }
 
-#[deprecated]
-fn get_conn() -> Result<r2d2::PooledConnection<redis::Client>, Status> {
-    match POOL.get() {
-        Ok(conn) => Ok(conn),
-        Err(e) => {
-            error!("{:?}", e);
-            Err(Status::internal("Failed to connect to Redis"))
-        }
-    }
-}
-
-#[deprecated]
-fn get_video_from_redis(
-    conn: &mut PooledConnection<Client>,
-    id: &str,
-) -> Result<Option<String>, RedisError> {
-    conn.get::<_, Option<String>>(&id)
-}
-
 #[derive(Debug, Default)]
 pub struct Videos {}
 
@@ -59,21 +41,12 @@ impl VideoService for Videos {
     ) -> Result<Response<GetVideoResponse>, Status> {
         let id = request.into_inner().id;
 
-        let mut conn = get_conn()?;
+        let mut store = Store::new();
 
-        return match get_video_from_redis(&mut conn, &id) {
-            Ok(Some(video)) => {
-                let parsed: Video = serde_json::from_str(video.as_ref()).unwrap();
-                Ok(Response::new(GetVideoResponse {
-                    video: Some(parsed),
-                }))
-            }
-            Ok(None) => Err(Status::not_found(format!(
-                "Couldn't find video with id: {}",
-                id
-            ))),
-            Err(_) => Err(Status::internal("Internal Redis error")),
-        };
+        match store.get_video(&id) {
+            Ok(video) => Ok(Response::new(GetVideoResponse { video: Some(video) })),
+            Err(e) => Err(e.to_status()),
+        }
     }
 
     async fn update_video(

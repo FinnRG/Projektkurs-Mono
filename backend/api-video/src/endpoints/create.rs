@@ -1,12 +1,13 @@
-use crate::storage::{Store, StoreError};
+use crate::storage::Store;
 use crate::{
     kafka::{self, VideoEvents},
-    videos::v1::{CreateVideoRequest, CreateVideoResponse, Video, Visibility, Status as VideoStatus},
+    videos::v1::{CreateVideoRequest, CreateVideoResponse, Status as VideoStatus, Video},
 };
 use tonic::{Response, Status};
 
 pub async fn handle_create_request(
-    req: CreateVideoRequest, author: &str
+    req: CreateVideoRequest,
+    author: &str,
 ) -> Result<Response<CreateVideoResponse>, Status> {
     let mut store = Store::new();
 
