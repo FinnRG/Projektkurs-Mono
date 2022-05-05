@@ -12,7 +12,7 @@ use rdkafka::{
 use strum::IntoStaticStr;
 
 #[derive(IntoStaticStr, PartialEq, Clone, Copy)]
-pub enum VideoEvents {
+pub enum VideoEvent {
     Created,
     Deleted,
     TitleChanged,
@@ -24,7 +24,7 @@ pub enum VideoEvents {
 }
 
 // Publishes a VideoCreated event to videos
-pub async fn emit_video_event(id: &str, video: &str, event: VideoEvents) -> OwnedDeliveryResult {
+pub async fn emit_video_event(id: &str, video: &str, event: VideoEvent) -> OwnedDeliveryResult {
     let producer: &FutureProducer = &ClientConfig::new()
         .set(
             "bootstrap.servers",
@@ -41,7 +41,7 @@ pub async fn emit_video_event(id: &str, video: &str, event: VideoEvents) -> Owne
             value: Some(event.into()),
         }));
 
-    if event != VideoEvents::Deleted {
+    if event != VideoEvent::Deleted {
         record = record.payload(video);
     }
 
@@ -97,7 +97,10 @@ fn process_valid_message(m: &BorrowedMessage, header: &Header<&[u8]>) {
         store.del_video(key);
     } else if header == "Processed" || header == "Uploaded" {
         update_status(&mut store, key, header);
-    } else {
+    } else if header == "TitleChanged"
+        || header == "DescriptionChanged"
+        || header == "VisibilityChanged"
+    {
         let payload = stringify_payload(m);
         let video: Video = Video::from(payload);
         store.set_video(&video);

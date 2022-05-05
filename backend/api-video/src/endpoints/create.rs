@@ -1,6 +1,6 @@
 use crate::storage::Store;
 use crate::{
-    kafka::{self, VideoEvents},
+    kafka::{self, VideoEvent},
     videos::v1::{CreateVideoRequest, CreateVideoResponse, Status as VideoStatus, Video},
 };
 use tonic::{Response, Status};
@@ -28,7 +28,7 @@ pub async fn handle_create_request(
 
     let video_str = serde_json::to_string(video).expect("Unable to deserialize video");
 
-    if kafka::emit_video_event(&id.to_string(), &video_str, VideoEvents::Created)
+    if kafka::emit_video_event(&id.to_string(), &video_str, VideoEvent::Created)
         .await
         .is_err()
     {
