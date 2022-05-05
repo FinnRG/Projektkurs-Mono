@@ -178,7 +178,7 @@ func upload(c *gin.Context) {
 }
 
 func createdVideoHeader(header *sarama.RecordHeader) bool {
-	return string(header.Key) == "type" && (string(header.Value) == "Created" || string(header.Value) == "Updated")
+	return string(header.Key) == "type" && string(header.Value) == "Created"
 }
 
 func uploadedVideoHeader(header *sarama.RecordHeader) bool {
