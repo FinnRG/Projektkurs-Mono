@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use crate::{get_conn, Video, videos::v1::Status as VideoStatus};
+use crate::{get_conn, videos::v1::Status as VideoStatus, Video};
 use log::{info, warn};
 use r2d2::PooledConnection;
 use rdkafka::{
@@ -16,12 +16,17 @@ use strum::IntoStaticStr;
 #[derive(IntoStaticStr, PartialEq, Clone, Copy)]
 pub enum VideoEvents {
     Created,
-    Changed,
     Deleted,
+    TitleChanged,
+    DescriptionChanged,
+    VisibilityChanged,
+    Uploaded,
+    Processed,
+    Finished,
 }
 
 // Publishes a VideoCreated event to videos
-pub async fn emit_video(id: &str, video: &str, event: VideoEvents) -> OwnedDeliveryResult {
+pub async fn emit_video_event(id: &str, video: &str, event: VideoEvents) -> OwnedDeliveryResult {
     let producer: &FutureProducer = &ClientConfig::new()
         .set(
             "bootstrap.servers",
@@ -89,8 +94,14 @@ fn process_valid_message(m: &BorrowedMessage, header: &Header<&[u8]>) {
     let mut conn = get_conn().expect("Unable to create redis connection");
     if header.value == Some("Deleted".as_bytes()) {
         redis_del_video(&mut conn, m.key())
-    } else if header.value == Some("Processed".as_bytes()) || header.value == Some("Uploaded".as_bytes()) {
-        update_status(&mut conn, m.key(), std::str::from_utf8(header.value.unwrap()).unwrap());
+    } else if header.value == Some("Processed".as_bytes())
+        || header.value == Some("Uploaded".as_bytes())
+    {
+        update_status(
+            &mut conn,
+            m.key(),
+            std::str::from_utf8(header.value.unwrap()).unwrap(),
+        );
     } else {
         let payload = stringify_payload(m);
         let video: Video = serde_json::from_str(payload).expect("Unable to deserialize payload");
@@ -116,7 +127,8 @@ fn redis_set_video(conn: &mut PooledConnection<redis::Client>, video: &Video, pa
 fn update_status(conn: &mut PooledConnection<redis::Client>, id: Option<&[u8]>, status: &str) {
     match conn.get::<_, String>(id) {
         Ok(video) => {
-            let mut video: Video = serde_json::from_str(&video).expect("Unable to deserialize video");
+            let mut video: Video =
+                serde_json::from_str(&video).expect("Unable to deserialize video");
             let status = VideoStatus::from_str(status);
             video.set_status(status);
             redis_set_video(conn, &video, &serde_json::to_string(&video).unwrap());
@@ -127,7 +139,7 @@ fn update_status(conn: &mut PooledConnection<redis::Client>, id: Option<&[u8]>, 
 
 impl VideoStatus {
     fn from_str(str: &str) -> VideoStatus {
-        return match str {
+        match str {
             "STATUS_FINISHED" => VideoStatus::Finished,
             "STATUS_UPLOADED" => VideoStatus::Uploaded,
             "STATUS_PROCESSED" => VideoStatus::Processed,

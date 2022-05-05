@@ -14,7 +14,10 @@ extern crate lazy_static;
 
 include!("../gen/mod.rs");
 
+mod endpoints;
 mod kafka;
+mod storage;
+mod video;
 
 lazy_static! {
     static ref JWTSECRET: String = env::var("JWTSECRET").unwrap();
@@ -27,6 +30,7 @@ lazy_static! {
     };
 }
 
+#[deprecated]
 fn get_conn() -> Result<r2d2::PooledConnection<redis::Client>, Status> {
     match POOL.get() {
         Ok(conn) => Ok(conn),
@@ -37,6 +41,7 @@ fn get_conn() -> Result<r2d2::PooledConnection<redis::Client>, Status> {
     }
 }
 
+#[deprecated]
 fn get_video_from_redis(
     conn: &mut PooledConnection<Client>,
     id: &str,
@@ -80,56 +85,7 @@ impl VideoService for Videos {
         if rs_auth::user_id!(request).is_none() {
             return Err(Status::unauthenticated("User is not logged in"));
         }
-
-        let mut conn = get_conn()?;
-        let update_request = request.into_inner().video;
-
-        // Checks that the video id is specified
-        if update_request.is_none() || update_request.as_ref().unwrap().id.is_empty() {
-            return Err(Status::invalid_argument("Video id not specified"));
-        }
-
-        let update_request = update_request.unwrap();
-        let id = update_request.id;
-
-        // Get current video from redis
-        let video_str = match get_video_from_redis(&mut conn, &id) {
-            Ok(r) => match r {
-                Some(v) => v,
-                None => return Err(Status::not_found("Video with id not found")),
-            },
-            Err(_) => return Err(Status::internal("Internal Redis error")),
-        };
-
-        // Update video with new values
-        let mut video: Video =
-            serde_json::from_str(&video_str).expect("Unable to parse stored json");
-        if !update_request.title.is_empty() {
-            video.title = update_request.title;
-        }
-        if !update_request.description.is_empty() {
-            video.description = update_request.description;
-        }
-
-        let video_str = serde_json::to_string(&video).expect("Unable to stringify Video object");
-
-        // Emit VideoChanged event
-        if kafka::emit_video(&id, &video_str, VideoEvents::Changed)
-            .await
-            .is_err()
-        {
-            return Err(Status::internal("Internal kafka error"));
-        }
-
-        // Change video in redis
-        if let Err(e) = conn.set::<_, _, ()>(&id, &video_str) {
-            warn!(
-                "Unable to update {} with {:?} because of {:?}",
-                &id, &video_str, e
-            );
-        }
-
-        Ok(Response::new(UpdateVideoResponse { video: Some(video) }))
+        endpoints::update::handle_update_request(request.into_inner()).await
     }
 
     async fn create_video(
@@ -161,7 +117,7 @@ impl VideoService for Videos {
         })
         .expect("Unable to stringify Video object");
 
-        if kafka::emit_video(&id.to_string(), &video, VideoEvents::Created)
+        if kafka::emit_video_event(&id.to_string(), &video, VideoEvents::Created)
             .await
             .is_err()
         {
