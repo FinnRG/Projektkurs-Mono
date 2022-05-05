@@ -20,7 +20,7 @@ impl StoreError {
         StoreError::Internal(RedisError::from((ErrorKind::ClientError, "Clienterror")))
     }
 
-    pub fn to_status(self) -> Status {
+    pub fn to_status(&self) -> Status {
         match self {
             StoreError::Internal(_) => Status::internal("Internal redis error"),
             StoreError::NotFound => Status::not_found("Ressource not found"),

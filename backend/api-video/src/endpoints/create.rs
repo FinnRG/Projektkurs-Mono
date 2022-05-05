@@ -35,7 +35,7 @@ pub async fn handle_create_request(
         return Err(Status::internal("Internal kafka error"));
     }
 
-    store.set_video(&video);
+    store.set_video(video);
 
     Ok(Response::new(CreateVideoResponse { id: id.to_string() }))
 }

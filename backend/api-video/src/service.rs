@@ -1,7 +1,5 @@
 use crate::storage::Store;
-use log::{error, info, warn};
-use r2d2::PooledConnection;
-use redis::{Client, Commands, RedisError};
+use log::{info, warn};
 use std::env;
 use tonic::{transport::Server, Request, Response, Status};
 use videos::v1::video_service_server::{VideoService, VideoServiceServer};

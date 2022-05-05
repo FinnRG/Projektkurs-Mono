@@ -99,7 +99,7 @@ fn process_valid_message(m: &BorrowedMessage, header: &Header<&[u8]>) {
         update_status(&mut store, key, header);
     } else {
         let payload = stringify_payload(m);
-        let video: Video = serde_json::from_str(payload).expect("Unable to deserialize payload");
+        let video: Video = Video::from(payload);
         store.set_video(&video);
     }
 }
