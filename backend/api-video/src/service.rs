@@ -1,4 +1,3 @@
-use kafka::VideoEvents;
 use log::{error, info, warn};
 use r2d2::PooledConnection;
 use redis::{Client, Commands, RedisError};
@@ -7,7 +6,7 @@ use tonic::{transport::Server, Request, Response, Status};
 use videos::v1::video_service_server::{VideoService, VideoServiceServer};
 use videos::v1::{
     CreateVideoRequest, CreateVideoResponse, GetVideoRequest, GetVideoResponse,
-    Status as VideoStatus, UpdateVideoRequest, UpdateVideoResponse, Video,
+    UpdateVideoRequest, UpdateVideoResponse, Video,
 };
 #[macro_use]
 extern crate lazy_static;
@@ -92,48 +91,12 @@ impl VideoService for Videos {
         &self,
         request: Request<CreateVideoRequest>,
     ) -> Result<Response<CreateVideoResponse>, Status> {
-        info!("New video creation request: {:?}", request);
         let author = rs_auth::user_id!(request);
         if author.is_none() {
             return Err(Status::unauthenticated("User is not logged in"));
         }
 
-        let mut conn = get_conn()?;
-        let create_request = request.into_inner();
-
-        if create_request.title.is_empty() {
-            return Err(Status::invalid_argument("Title can't be an empty string"));
-        }
-
-        let id = uuid::Uuid::new_v4();
-        let video = serde_json::to_string(&Video {
-            id: id.to_string(),
-            title: create_request.title,
-            description: create_request.description,
-            author: author.unwrap(),
-            date: chrono::offset::Local::now().to_string(),
-            visibility: create_request.visibility as i32,
-            status: VideoStatus::Draft as i32,
-        })
-        .expect("Unable to stringify Video object");
-
-        if kafka::emit_video_event(&id.to_string(), &video, VideoEvents::Created)
-            .await
-            .is_err()
-        {
-            return Err(Status::internal("Internal kafka error"));
-        }
-
-        if let Err(e) = conn.set::<_, _, ()>(id.to_string(), &video) {
-            warn!(
-                "Unable to create {} with {:?} because of {:?}",
-                id.to_string(),
-                &video,
-                e
-            );
-        }
-
-        Ok(Response::new(CreateVideoResponse { id: id.to_string() }))
+        endpoints::create::handle_create_request(request.into_inner(), &author.unwrap()).await
     }
 }
 
