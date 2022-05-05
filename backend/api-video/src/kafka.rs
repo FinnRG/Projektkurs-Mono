@@ -10,6 +10,7 @@ use rdkafka::{
     ClientConfig, Message, Offset,
 };
 use strum::IntoStaticStr;
+use tokio::runtime::Runtime;
 
 #[derive(IntoStaticStr, PartialEq, Clone, Copy)]
 pub enum VideoEvent {
@@ -93,18 +94,25 @@ fn process_valid_message(m: &BorrowedMessage, header: &Header<&[u8]>) {
     let header =
         std::str::from_utf8(header.value.expect("Type header should have a value")).unwrap();
     let key = std::str::from_utf8(m.key().expect("Message should have a key")).unwrap();
-    if header == "Deleted" {
-        store.del_video(key);
-    } else if header == "Processed" || header == "Uploaded" {
-        update_status(&mut store, key, header);
-    } else if header == "TitleChanged"
-        || header == "DescriptionChanged"
-        || header == "VisibilityChanged"
-    {
-        let payload = stringify_payload(m);
-        let video: Video = Video::from(payload);
-        store.set_video(&video);
-    }
+    match header {
+        "Deleted" => {
+            store.del_video(key);
+        }
+        "Processed" => {
+            let payload = stringify_payload(m);
+            update_status(&mut store, key, "Finished");
+            let rt = Runtime::new().unwrap();
+            rt.block_on(emit_video_event(key, payload, VideoEvent::Finished))
+                .expect("Unable to create video event");
+        }
+        "Uploaded" => update_status(&mut store, key, header),
+        "TitleChanged" | "DescriptionChanged" | "VisibilityChanged" => {
+            let payload = stringify_payload(m);
+            let video: Video = Video::from(payload);
+            store.set_video(&video);
+        }
+        _ => {}
+    };
 }
 
 fn update_status(store: &mut Store, id: &str, status: &str) {
