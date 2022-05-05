@@ -1,8 +1,7 @@
 use std::time::Duration;
 
-use crate::{get_conn, Video, videos::v1::Status as VideoStatus};
+use crate::{storage::Store, videos::v1::Status as VideoStatus, Video};
 use log::{info, warn};
-use r2d2::PooledConnection;
 use rdkafka::{
     config::RDKafkaLogLevel,
     consumer::{Consumer, StreamConsumer},
@@ -10,18 +9,23 @@ use rdkafka::{
     producer::{future_producer::OwnedDeliveryResult, FutureProducer, FutureRecord},
     ClientConfig, Message, Offset,
 };
-use redis::Commands;
 use strum::IntoStaticStr;
+use tokio::runtime::Runtime;
 
 #[derive(IntoStaticStr, PartialEq, Clone, Copy)]
-pub enum VideoEvents {
+pub enum VideoEvent {
     Created,
-    Changed,
     Deleted,
+    TitleChanged,
+    DescriptionChanged,
+    VisibilityChanged,
+    Uploaded,
+    Processed,
+    Finished,
 }
 
 // Publishes a VideoCreated event to videos
-pub async fn emit_video(id: &str, video: &str, event: VideoEvents) -> OwnedDeliveryResult {
+pub async fn emit_video_event(id: &str, video: &str, event: VideoEvent) -> OwnedDeliveryResult {
     let producer: &FutureProducer = &ClientConfig::new()
         .set(
             "bootstrap.servers",
@@ -38,7 +42,7 @@ pub async fn emit_video(id: &str, video: &str, event: VideoEvents) -> OwnedDeliv
             value: Some(event.into()),
         }));
 
-    if event != VideoEvents::Deleted {
+    if event != VideoEvent::Deleted {
         record = record.payload(video);
     }
 
@@ -86,54 +90,38 @@ fn process_message(m: &BorrowedMessage) {
 }
 
 fn process_valid_message(m: &BorrowedMessage, header: &Header<&[u8]>) {
-    let mut conn = get_conn().expect("Unable to create redis connection");
-    if header.value == Some("Deleted".as_bytes()) {
-        redis_del_video(&mut conn, m.key())
-    } else if header.value == Some("Processed".as_bytes()) || header.value == Some("Uploaded".as_bytes()) {
-        update_status(&mut conn, m.key(), std::str::from_utf8(header.value.unwrap()).unwrap());
-    } else {
-        let payload = stringify_payload(m);
-        let video: Video = serde_json::from_str(payload).expect("Unable to deserialize payload");
-        redis_set_video(&mut conn, &video, payload);
-    }
+    let mut store = Store::new();
+    let header =
+        std::str::from_utf8(header.value.expect("Type header should have a value")).unwrap();
+    let key = std::str::from_utf8(m.key().expect("Message should have a key")).unwrap();
+    match header {
+        "Deleted" => {
+            store.del_video(key);
+        }
+        "Processed" => {
+            let payload = stringify_payload(m);
+            update_status(&mut store, key, "Finished");
+            let rt = Runtime::new().unwrap();
+            rt.block_on(emit_video_event(key, payload, VideoEvent::Finished))
+                .expect("Unable to create video event");
+        }
+        "Uploaded" => update_status(&mut store, key, header),
+        "TitleChanged" | "DescriptionChanged" | "VisibilityChanged" => {
+            let payload = stringify_payload(m);
+            let video: Video = Video::from(payload);
+            store.set_video(&video);
+        }
+        _ => {}
+    };
 }
 
-fn redis_del_video(conn: &mut PooledConnection<redis::Client>, id: Option<&[u8]>) {
-    if let Err(e) = conn.del::<_, ()>(id) {
-        warn!("Unable to delete {:?} because of {}", id, e);
-    }
-}
-
-fn redis_set_video(conn: &mut PooledConnection<redis::Client>, video: &Video, payload: &str) {
-    if let Err(e) = conn.set::<_, _, ()>(&video.id, payload) {
-        warn!(
-            "Unable to set {:?} to {} because of {}",
-            &video.id, payload, e
-        )
-    }
-}
-
-fn update_status(conn: &mut PooledConnection<redis::Client>, id: Option<&[u8]>, status: &str) {
-    match conn.get::<_, String>(id) {
-        Ok(video) => {
-            let mut video: Video = serde_json::from_str(&video).expect("Unable to deserialize video");
-            let status = VideoStatus::from_str(status);
-            video.set_status(status);
-            redis_set_video(conn, &video, &serde_json::to_string(&video).unwrap());
+fn update_status(store: &mut Store, id: &str, status: &str) {
+    match store.get_video(id) {
+        Ok(mut video) => {
+            video.set_status(VideoStatus::from(status));
+            store.set_video(&video);
         }
         Err(e) => warn!("Unable to get {:?} because of {:?}", id, e),
-    }
-}
-
-impl VideoStatus {
-    fn from_str(str: &str) -> VideoStatus {
-        return match str {
-            "STATUS_FINISHED" => VideoStatus::Finished,
-            "STATUS_UPLOADED" => VideoStatus::Uploaded,
-            "STATUS_PROCESSED" => VideoStatus::Processed,
-            "STATUS_DRAFT" => VideoStatus::Draft,
-            _ => VideoStatus::Unspecified,
-        }
     }
 }
 

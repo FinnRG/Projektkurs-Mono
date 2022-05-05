@@ -130,7 +130,7 @@ func processedVideoHeader(header *sarama.RecordHeader) bool {
 
 func uploadedVideoHeader(header *sarama.RecordHeader) bool {
 	log.Printf("Header: %s = %s\n", string(header.Key), string(header.Value))
-	return string(header.Key) == "type" && (string(header.Value) == "Uploaded" || string(header.Value) == "Updated")
+	return string(header.Key) == "type" && string(header.Value) == "Uploaded"
 }
 
 // Emits an event with the header type=Processed onto the video topic
