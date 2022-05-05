@@ -61,6 +61,7 @@ pub async fn receive_events() {
         .set_log_level(RDKafkaLogLevel::Debug)
         .create()
         .expect("Consumer creation failed");
+    warn!("Partition assignment: {:?}", consumer.assignment());
 
     if let Err(e) = consumer.subscribe(&["videos"]) {
         warn!("Kafka subscription error: {}", e);
@@ -73,7 +74,8 @@ pub async fn receive_events() {
     loop {
         match consumer.recv().await {
             Ok(m) => {
-                process_message(&m);
+                warn!("New message: {:?}", m.offset());
+                process_message(&m).await;
             }
             Err(e) => warn!("Kafka error: {}", e),
         }
@@ -101,10 +103,10 @@ async fn process_valid_message(m: &BorrowedMessage<'_>, header: &Header<'_, &[u8
         "Processed" => {
             let payload = stringify_payload(m);
             update_status(&mut store, key, "Finished");
-            emit_video_event(key, payload, VideoEvent::Finished).await;
+            info!("Emitting finished event: {:?}", emit_video_event(key, payload, VideoEvent::Finished).await);
         }
-        "Uploaded" => update_status(&mut store, key, header),
-        "TitleChanged" | "DescriptionChanged" | "VisibilityChanged" => {
+        "Uploaded" | "Finished" => update_status(&mut store, key, header),
+        "Created" | "TitleChanged" | "DescriptionChanged" | "VisibilityChanged" => {
             let payload = stringify_payload(m);
             let video: Video = Video::from(payload);
             store.set_video(&video);
