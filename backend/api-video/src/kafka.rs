@@ -109,12 +109,14 @@ fn process_valid_message(m: &BorrowedMessage, header: &Header<&[u8]>) {
     }
 }
 
+#[deprecated]
 fn redis_del_video(conn: &mut PooledConnection<redis::Client>, id: Option<&[u8]>) {
     if let Err(e) = conn.del::<_, ()>(id) {
         warn!("Unable to delete {:?} because of {}", id, e);
     }
 }
 
+#[deprecated]
 fn redis_set_video(conn: &mut PooledConnection<redis::Client>, video: &Video, payload: &str) {
     if let Err(e) = conn.set::<_, _, ()>(&video.id, payload) {
         warn!(
@@ -134,18 +136,6 @@ fn update_status(conn: &mut PooledConnection<redis::Client>, id: Option<&[u8]>, 
             redis_set_video(conn, &video, &serde_json::to_string(&video).unwrap());
         }
         Err(e) => warn!("Unable to get {:?} because of {:?}", id, e),
-    }
-}
-
-impl VideoStatus {
-    fn from_str(str: &str) -> VideoStatus {
-        match str {
-            "STATUS_FINISHED" => VideoStatus::Finished,
-            "STATUS_UPLOADED" => VideoStatus::Uploaded,
-            "STATUS_PROCESSED" => VideoStatus::Processed,
-            "STATUS_DRAFT" => VideoStatus::Draft,
-            _ => VideoStatus::Unspecified,
-        }
     }
 }
 

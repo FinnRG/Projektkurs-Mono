@@ -1,4 +1,4 @@
-use crate::storage::{GetVideoError, Store};
+use crate::storage::{Store, StoreError};
 use crate::{
     kafka::{self, VideoEvents},
     videos::v1::{UpdateVideoRequest, UpdateVideoResponse, Video, Visibility},
@@ -22,8 +22,8 @@ pub async fn handle_update_request(
     // Get current video from redis
     let mut curr_video = match store.get_video(id) {
         Ok(video) => video,
-        Err(GetVideoError::NotFound) => return Err(Status::not_found("Video with id not found")),
-        Err(GetVideoError::Internal(_)) => return Err(Status::internal("Internal Redis error")),
+        Err(StoreError::NotFound) => return Err(Status::not_found("Video with id not found")),
+        Err(StoreError::Internal(_)) => return Err(Status::internal("Internal Redis error")),
     };
 
     if let Err(e) = handle_changed_video(&mut store, &mut curr_video, changed_video).await {
@@ -46,7 +46,6 @@ async fn handle_changed_video(
     curr_video: &mut Video,
     changed_video: Video,
 ) -> Result<(), Status> {
-
     let events = update_video(curr_video, changed_video);
 
     let video_str = curr_video.to_json();
