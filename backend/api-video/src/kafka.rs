@@ -80,16 +80,16 @@ pub async fn receive_events() {
     }
 }
 
-fn process_message(m: &BorrowedMessage) {
+async fn process_message(m: &BorrowedMessage<'_>) {
     if let Some(headers) = m.headers() {
         match headers.iter().find(|h| h.key == "type") {
-            Some(header) => process_valid_message(m, &header),
+            Some(header) => process_valid_message(m, &header).await,
             None => (),
         }
     }
 }
 
-fn process_valid_message(m: &BorrowedMessage, header: &Header<&[u8]>) {
+async fn process_valid_message(m: &BorrowedMessage<'_>, header: &Header<'_, &[u8]>) {
     let mut store = Store::new();
     let header =
         std::str::from_utf8(header.value.expect("Type header should have a value")).unwrap();
@@ -101,9 +101,7 @@ fn process_valid_message(m: &BorrowedMessage, header: &Header<&[u8]>) {
         "Processed" => {
             let payload = stringify_payload(m);
             update_status(&mut store, key, "Finished");
-            let rt = Runtime::new().unwrap();
-            rt.block_on(emit_video_event(key, payload, VideoEvent::Finished))
-                .expect("Unable to create video event");
+            emit_video_event(key, payload, VideoEvent::Finished).await;
         }
         "Uploaded" => update_status(&mut store, key, header),
         "TitleChanged" | "DescriptionChanged" | "VisibilityChanged" => {
