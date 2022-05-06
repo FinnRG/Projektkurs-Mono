@@ -41,23 +41,6 @@ export interface Video {
   author: string;
 }
 
-const getVideos = (callback: (arg0: Video[]) => unknown) => {
-  const req: SearchVideosRequest = {
-    query: '',
-    offset: BigInt(0),
-    limit: BigInt(10),
-    filter: [],
-    sort: [],
-  };
-
-  return client
-    .get('/v1/search/videos', {
-      data: JSON.stringify({ query: '' }),
-      withCredentials: false,
-    })
-    .then((resp) => callback(resp.data.videos));
-};
-
 const setJWT = (jwt: string) => {
   localStorage.setItem('msostream-user', jwt);
   client.defaults.headers.common['authorization'] = jwt;
@@ -90,4 +73,4 @@ const uploadVideo = (id: string, file: File) => {
 };
 
 export default client;
-export { getVideos, login, register, createVideo, uploadVideo, transport };
+export { login, register, createVideo, uploadVideo, transport };

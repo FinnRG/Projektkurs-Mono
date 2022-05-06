@@ -8,11 +8,11 @@ import {
   TextInput,
 } from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useQuery } from 'react-query';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Search } from 'tabler-icons-react';
-import { getVideos, transport, Video } from '../client';
+import { transport, Video } from '../client';
 import { SearchVideosRequest } from '../gen/search/v1/search';
 import { SearchServiceClient } from '../gen/search/v1/search.client';
 
@@ -40,12 +40,16 @@ const useStyles = createStyles((theme) => ({
 }));
 
 interface VideoCardProps {
-  video: Video;
+  video?: Video;
 }
 
 // TODO: Add Avatar + Thumbnail + swap video.id to video.created_at
 const VideoCard = ({ video }: VideoCardProps) => {
   const { classes } = useStyles();
+
+  if (video == undefined) {
+    return <></>
+  }
 
   return (
     <Card<typeof Link>
@@ -78,7 +82,6 @@ const VideoCard = ({ video }: VideoCardProps) => {
 
 const Videos = () => {
   const { classes } = useStyles();
-  const [videos, setVideos] = useState<Video[]>([]);
   const [query, setQuery] = useState('');
   const [debounced] = useDebouncedValue(query, 200);
 
@@ -105,7 +108,7 @@ const Videos = () => {
           placeholder='Search videos'
           rightSectionWidth={42}
         />
-        {data?.videos.map((video, index) => (
+        {data?.videos.map(({video}, index) => (
           <VideoCard video={video} key={index} />
         ))}
       </Stack>
