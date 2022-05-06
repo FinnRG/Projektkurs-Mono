@@ -21,7 +21,6 @@ const Login = () => {
     event.preventDefault();
   };
 
-  // TODO: Properly implement schema checking using zod
   // TODO: Error fetching
   const onError = () => {};
 

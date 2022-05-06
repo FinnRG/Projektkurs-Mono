@@ -1,6 +1,12 @@
 package collectors
 
-import "github.com/Shopify/sarama"
+import (
+	"encoding/json"
+	"log"
+
+	"github.com/Shopify/sarama"
+	"github.com/meilisearch/meilisearch-go"
+)
 
 func getLastOffset(topic string) (int64, error) {
 	client, err := sarama.NewClient([]string{KAFKA_URL}, sarama.NewConfig())
@@ -20,4 +26,18 @@ func getMessageType(msg *sarama.ConsumerMessage) (string, error) {
 		}
 	}
 	return "", nil
+}
+
+func unsafeDeserialize(str []byte) map[string]interface{} {
+	var obj map[string]interface{}
+	err := json.Unmarshal(str, &obj)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	return obj
+}
+
+func updateDocumentString(index *meilisearch.Index, str []byte) {
+	obj := unsafeDeserialize(str)
+	index.AddDocuments([]map[string]interface{}{obj})
 }

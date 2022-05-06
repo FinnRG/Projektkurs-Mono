@@ -1,7 +1,6 @@
 package collectors
 
 import (
-	"encoding/json"
 	"log"
 	"os"
 	"sync"
@@ -46,7 +45,7 @@ CollectLoop:
 	for {
 		select {
 		case msg := <-partitionConsumer.Messages():
-			processMessage(msg, index)
+			processVideoEvent(msg, index)
 			if msg.Offset == lOff-1 && lOff != 0 {
 				wg.Done()
 			}
@@ -58,24 +57,19 @@ CollectLoop:
 	return nil
 }
 
-func processMessage(msg *sarama.ConsumerMessage, index *meilisearch.Index) {
+// TODO: Grab the video with the id to check for visibility, etc.
+func processVideoEvent(msg *sarama.ConsumerMessage, index *meilisearch.Index) {
 	t, err := getMessageType(msg)
 	// Not necessarily a critical error
 	if err != nil {
 		return
 	}
 
-	var obj map[string]interface{}
-	err = json.Unmarshal(msg.Value, &obj)
-	if err != nil {
-		log.Fatalln(err)
-	}
-
 	switch t {
 	case "TitleChanged", "DescriptionChanged", "VisibilityChanged", "Finished":
-		index.AddDocuments([]map[string]interface{}{obj})
+		updateDocumentString(index, msg.Value)
 	case "Deleted":
-		index.DeleteDocument(obj["id"].(string))
+		index.DeleteDocument(string(msg.Key))
 	}
 
 }
