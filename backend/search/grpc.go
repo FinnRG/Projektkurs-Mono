@@ -13,10 +13,12 @@ import (
 	"github.com/meilisearch/meilisearch-go"
 	"github.com/mitchellh/mapstructure"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/health"
+	"google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/reflection"
 )
 
-func initGrpc() {
+func InitGrpc() {
 	if err := runGrpc(); err != nil {
 		log.Fatal(err)
 	}
@@ -32,6 +34,7 @@ func runGrpc() error {
 	server := grpc.NewServer()
 	searchv1.RegisterSearchServiceServer(server, &searchServiceServer{})
 	reflection.Register(server)
+	grpc_health_v1.RegisterHealthServer(server, health.NewServer())
 	log.Println("Listening on", listenOn)
 	if err := server.Serve(listener); err != nil {
 		return fmt.Errorf("failed to serve gRPC server: %w", err)
@@ -57,10 +60,13 @@ func (s *searchServiceServer) SearchVideos(ctx context.Context, req *searchv1.Se
 		return &searchv1.SearchVideosResponse{}, err
 	}
 
-	videos := make([]*searchv1.Video, len(res.Hits))
+	videos := make([]*searchv1.ExtendedVideo, len(res.Hits))
 	for i, arg := range res.Hits {
 
-		videos[i] = decodeVideo(arg)
+		videos[i] = &searchv1.ExtendedVideo{
+			Video:  decodeVideo(arg),
+			Author: &searchv1.PublicUserInfo{},
+		}
 	}
 
 	log.Println("Successful query")

@@ -6,6 +6,7 @@ COPY go.mod ./
 COPY go.sum ./
 RUN go mod download
 COPY *.go ./
+COPY ./collectors ./collectors
 
 COPY --from=buf /usr/local/bin/buf /usr/local/bin/buf
 COPY buf.work.yaml buf.work.yaml

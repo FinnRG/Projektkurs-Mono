@@ -1,6 +1,7 @@
 package main
 
 import (
+	"msostream/search/collectors"
 	"os"
 	"os/signal"
 	"sync"
@@ -9,31 +10,19 @@ import (
 )
 
 var CLIENT meilisearch.Client
-var TOPICS []string = []string{"videos"}
 
 func main() {
 
-	initEnv()
-	InitKafka()
+	client := InitMeilisearch()
+	initResult := collectors.InitCollectors(client)
 
 	var wg sync.WaitGroup
-	wg.Add(len(TOPICS))
-	CollectTopics(&wg, TOPICS)
+	wg.Add(len(initResult.Topics))
+	collectors.CollectTopics(&wg, initResult.Topics)
 	wg.Wait()
-	initGrpc()
+	InitGrpc()
 
 	signals := make(chan os.Signal, 1)
 	signal.Notify(signals, os.Interrupt)
 	<-signals
-}
-
-func initEnv() {
-	host := os.Getenv("MEILISEARCH_URL")
-	if len(host) == 0 {
-		host = "http://meilisearch:7700"
-	}
-
-	CLIENT = *meilisearch.NewClient(meilisearch.ClientConfig{
-		Host: host,
-	})
 }
