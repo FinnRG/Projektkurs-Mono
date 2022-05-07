@@ -41,7 +41,6 @@ pub async fn emit_user(id: &str, user: &str, event: UserEvents) -> OwnedDelivery
     }
 
     let res = producer.send(record, Duration::from_secs(0)).await;
-    println!("{}", res.as_ref().unwrap().0);
     res
 }
 

@@ -1,7 +1,7 @@
+use crate::construct_response;
 use crate::storage::{Store, StoreError};
 use crate::user::User;
 use crate::users::v1::{LoginRequest, LoginResponse};
-use crate::construct_response;
 use tonic::{Response, Status};
 
 pub async fn handle_login_request(req: LoginRequest) -> Result<Response<LoginResponse>, Status> {
