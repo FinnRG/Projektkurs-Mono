@@ -1,6 +1,6 @@
-use strum::IntoStaticStr;
 use crate::videos::v1::*;
 use prost::Message;
+use strum::IntoStaticStr;
 
 #[derive(IntoStaticStr, PartialEq, Clone)]
 pub enum VideoEvent {

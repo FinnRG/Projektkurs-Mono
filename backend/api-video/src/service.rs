@@ -26,7 +26,8 @@ lazy_static! {
             .build(client)
             .unwrap()
     };
-    static ref SCYLLA_URL: String = env::var("SCYLLA_URL").unwrap_or("scylla-video:9042".to_string());
+    static ref SCYLLA_URL: String =
+        env::var("SCYLLA_URL").unwrap_or("scylla-video:9042".to_string());
 }
 
 #[derive(Debug, Default)]

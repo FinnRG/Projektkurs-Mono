@@ -1,6 +1,8 @@
 use std::time::Duration;
 
-use crate::{storage::Store, videos::v1::Status as VideoStatus, Video, videos::v1::VideoFinishedEvent};
+use crate::{
+    storage::Store, videos::v1::Status as VideoStatus, videos::v1::VideoFinishedEvent, Video,
+};
 use log::{info, warn};
 use rdkafka::{
     config::RDKafkaLogLevel,
@@ -95,9 +97,12 @@ async fn process_valid_message(m: &BorrowedMessage<'_>, header: &Header<'_, &[u8
             let payload = stringify_payload(m);
             update_status(&mut store, key, "Finished");
             let event = VideoFinishedEvent {
-                id: key.to_string()
+                id: key.to_string(),
             };
-            info!("Emitting finished event: {:?}", emit_video_event(key, VideoEvent::Finished(event)).await);
+            info!(
+                "Emitting finished event: {:?}",
+                emit_video_event(key, VideoEvent::Finished(event)).await
+            );
         }
         "Uploaded" | "Finished" => update_status(&mut store, key, header),
         "Created" | "TitleChanged" | "DescriptionChanged" | "VisibilityChanged" => {

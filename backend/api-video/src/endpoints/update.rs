@@ -1,7 +1,10 @@
 use crate::storage::{Store, StoreError};
 use crate::{
     kafka::{self, events::VideoEvent},
-    videos::v1::{UpdateVideoRequest, UpdateVideoResponse, Video, Visibility, VideoTitleChangedEvent, VideoDescriptionChangedEvent, VideoVisibilityChangedEvent},
+    videos::v1::{
+        UpdateVideoRequest, UpdateVideoResponse, Video, VideoDescriptionChangedEvent,
+        VideoTitleChangedEvent, VideoVisibilityChangedEvent, Visibility,
+    },
 };
 use tonic::{Response, Status};
 

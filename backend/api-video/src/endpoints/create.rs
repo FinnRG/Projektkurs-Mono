@@ -1,7 +1,9 @@
 use crate::storage::Store;
 use crate::{
     kafka::{self, events::VideoEvent},
-    videos::v1::{CreateVideoRequest, CreateVideoResponse, Status as VideoStatus, Video, VideoCreatedEvent},
+    videos::v1::{
+        CreateVideoRequest, CreateVideoResponse, Status as VideoStatus, Video, VideoCreatedEvent,
+    },
 };
 use tonic::{Response, Status};
 
@@ -26,7 +28,7 @@ pub async fn handle_create_request(
         visibility: req.visibility as i32,
     };
 
-    if kafka::emit_video_event(&id.to_string(),VideoEvent::Created(event))
+    if kafka::emit_video_event(&id.to_string(), VideoEvent::Created(event))
         .await
         .is_err()
     {
