@@ -1,6 +1,10 @@
 use crate::storage::Store;
+use crate::users::v1::{
+    UserEmailChangedEvent, UserNameChangedEvent, UserPasswordChanged, UserRegisteredEvent,
+};
 use crate::User;
 use log::{info, warn};
+use prost::Message as ProstMessage;
 use rdkafka::consumer::Consumer;
 use rdkafka::message::BorrowedMessage;
 use rdkafka::{
@@ -8,19 +12,33 @@ use rdkafka::{
     consumer::StreamConsumer,
     message::{Header, Headers, OwnedHeaders},
     producer::{future_producer::OwnedDeliveryResult, FutureProducer, FutureRecord},
-    ClientConfig, Message, Offset,
+    ClientConfig, Offset, Message
 };
 use std::time::Duration;
 use strum::IntoStaticStr;
 
-#[derive(IntoStaticStr, PartialEq, Clone, Copy)]
-pub enum UserEvents {
-    Registered,
-    Changed,
+#[derive(IntoStaticStr, PartialEq, Clone)]
+pub enum UserEvent {
+    Registered(UserRegisteredEvent),
+    EmailChanged(UserEmailChangedEvent),
+    PasswordChanged(UserPasswordChanged),
+    NameChanged(UserNameChangedEvent),
     Deleted,
 }
 
-pub async fn emit_user(id: &str, user: &str, event: UserEvents) -> OwnedDeliveryResult {
+impl UserEvent {
+    fn as_bytes(&self) -> Option<Vec<u8>> {
+        match self {
+            UserEvent::Registered(e) => Some(e.encode_to_vec()),
+            UserEvent::EmailChanged(e) => Some(e.encode_to_vec()),
+            UserEvent::NameChanged(e) => Some(e.encode_to_vec()),
+            UserEvent::PasswordChanged(e) => Some(e.encode_to_vec()),
+            UserEvent::Deleted => None,
+        }
+    }
+}
+
+pub async fn emit_user(id: &str, event: &UserEvent) -> OwnedDeliveryResult {
     let producer: &FutureProducer = &ClientConfig::new()
         .set("bootstrap.servers", "kafka:9092")
         .set("message.timeout.ms", "5000")
@@ -35,9 +53,11 @@ pub async fn emit_user(id: &str, user: &str, event: UserEvents) -> OwnedDelivery
             key: "type",
             value: Some(event_str),
         }));
+    
+    let bytes = event.as_bytes();
 
-    if event != UserEvents::Deleted {
-        record = record.payload(user);
+    if bytes.is_some() {
+        record = record.payload(bytes.as_ref().unwrap());
     }
 
     let res = producer.send(record, Duration::from_secs(0)).await;
@@ -73,9 +93,9 @@ pub async fn receive_events() {
     }
 }
 
+
 async fn process_event(msg: &BorrowedMessage<'_>) {
     let mut store = Store::new();
-    let payload = extract_payload(msg);
     let t = extract_event_type(msg);
     let key = extract_key(msg);
 
@@ -83,24 +103,34 @@ async fn process_event(msg: &BorrowedMessage<'_>) {
         return;
     }
 
-    match (t, payload) {
+    match (t, msg.payload()) {
         (Some("Deleted"), None) => {
             //TODO: Fix this
             store.del_user(key.unwrap());
         }
-        (Some("Registered"), Some(p)) | (Some("Changed"), Some(p)) => {
-            store.set_user(&User::from_json(p));
+        // TODO: Handle other events
+        (Some("Registered"), Some(p)) => {
+            handle_registered(&mut store, p);
         }
         _ => {}
     };
 }
 
-// TODO: Error logging here
-fn extract_payload<'a>(msg: &'a BorrowedMessage) -> Option<&'a str> {
-    match msg.payload_view::<str>() {
-        Some(Ok(s)) => Some(s),
-        _ => None,
-    }
+fn handle_registered(store: &mut Store, payload: &[u8]) {
+    let event = match UserRegisteredEvent::decode(payload) {
+        Ok(e) => e,
+        Err(_) => return,
+    };
+
+    let user = User {
+        id: event.id,
+        email: event.email,
+        name: event.name,
+        password: event.password,
+    };
+
+    store.set_user(&user);
+
 }
 
 // TODO: Error logging here

@@ -22,7 +22,6 @@ COPY buf.gen.yaml buf.gen.yaml
 COPY ./build.rs ./build.rs
 COPY ./proto ./proto
 COPY ./src ./src
-RUN buf generate
 
 # build for release
 RUN rm ./target/release/deps/video_api*
