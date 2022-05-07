@@ -1,7 +1,7 @@
 use crate::storage::{Store, StoreError};
 use crate::{
-    kafka::{self, VideoEvent},
-    videos::v1::{UpdateVideoRequest, UpdateVideoResponse, Video, Visibility},
+    kafka::{self, events::VideoEvent},
+    videos::v1::{UpdateVideoRequest, UpdateVideoResponse, Video, Visibility, VideoTitleChangedEvent, VideoDescriptionChangedEvent, VideoVisibilityChangedEvent},
 };
 use tonic::{Response, Status};
 
@@ -18,7 +18,7 @@ pub async fn handle_update_request(
     let changed_video = changed_video.unwrap();
 
     // Get current video from redis
-    let mut store = Store::new();
+    let mut store = Store::new().await;
     let curr_video = match update_video(&mut store, changed_video).await {
         Ok(v) => v,
         Err(status) => return Err(status),
@@ -42,10 +42,8 @@ async fn handle_changed_video(
 ) -> Result<(), Status> {
     let events = update_video_object(curr_video, changed_video);
 
-    let video_str = curr_video.to_json();
-
     for event in events {
-        if kafka::emit_video_event(&curr_video.id, &video_str, event)
+        if kafka::emit_video_event(&curr_video.id, event)
             .await
             .is_err()
         {
@@ -78,17 +76,26 @@ fn update_video_object(curr_video: &mut Video, changed_video: Video) -> Vec<Vide
 
     if !changed_video.title.is_empty() {
         curr_video.title = changed_video.title;
-        events.push(VideoEvent::TitleChanged);
+        let event = VideoTitleChangedEvent {
+            title: curr_video.title.clone(),
+        };
+        events.push(VideoEvent::TitleChanged(event));
     }
 
     if !changed_video.description.is_empty() {
         curr_video.description = changed_video.description;
-        events.push(VideoEvent::DescriptionChanged);
+        let event = VideoDescriptionChangedEvent {
+            description: curr_video.description.clone(),
+        };
+        events.push(VideoEvent::DescriptionChanged(event));
     }
 
     if changed_video.visibility != Visibility::Unspecified as i32 {
         curr_video.visibility = changed_video.visibility;
-        events.push(VideoEvent::VisibilityChanged);
+        let event = VideoVisibilityChangedEvent {
+            visibility: curr_video.visibility,
+        };
+        events.push(VideoEvent::VisibilityChanged(event));
     }
 
     events

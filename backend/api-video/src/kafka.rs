@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use crate::{storage::Store, videos::v1::Status as VideoStatus, Video};
+use crate::{storage::Store, videos::v1::Status as VideoStatus, Video, videos::v1::VideoFinishedEvent};
 use log::{info, warn};
 use rdkafka::{
     config::RDKafkaLogLevel,
@@ -9,23 +9,13 @@ use rdkafka::{
     producer::{future_producer::OwnedDeliveryResult, FutureProducer, FutureRecord},
     ClientConfig, Message, Offset,
 };
-use strum::IntoStaticStr;
-use tokio::runtime::Runtime;
 
-#[derive(IntoStaticStr, PartialEq, Clone, Copy)]
-pub enum VideoEvent {
-    Created,
-    Deleted,
-    TitleChanged,
-    DescriptionChanged,
-    VisibilityChanged,
-    Uploaded,
-    Processed,
-    Finished,
-}
+use self::events::VideoEvent;
+
+pub mod events;
 
 // Publishes a VideoCreated event to videos
-pub async fn emit_video_event(id: &str, video: &str, event: VideoEvent) -> OwnedDeliveryResult {
+pub async fn emit_video_event(id: &str, event: VideoEvent) -> OwnedDeliveryResult {
     let producer: &FutureProducer = &ClientConfig::new()
         .set(
             "bootstrap.servers",
@@ -35,16 +25,17 @@ pub async fn emit_video_event(id: &str, video: &str, event: VideoEvent) -> Owned
         .create()
         .expect("Producer creation error");
 
+    let bytes = event.as_bytes();
+    let event_str: &'static str = event.into();
+
     let mut record = FutureRecord::to("videos")
         .key(id)
         .headers(OwnedHeaders::new().insert(Header {
             key: "type",
-            value: Some(event.into()),
+            value: Some(event_str),
         }));
 
-    if event != VideoEvent::Deleted {
-        record = record.payload(video);
-    }
+    record = record.payload(&bytes);
 
     producer.send(record, Duration::from_secs(0)).await
 }
@@ -92,7 +83,7 @@ async fn process_message(m: &BorrowedMessage<'_>) {
 }
 
 async fn process_valid_message(m: &BorrowedMessage<'_>, header: &Header<'_, &[u8]>) {
-    let mut store = Store::new();
+    let mut store = Store::new().await;
     let header =
         std::str::from_utf8(header.value.expect("Type header should have a value")).unwrap();
     let key = std::str::from_utf8(m.key().expect("Message should have a key")).unwrap();
@@ -103,13 +94,17 @@ async fn process_valid_message(m: &BorrowedMessage<'_>, header: &Header<'_, &[u8
         "Processed" => {
             let payload = stringify_payload(m);
             update_status(&mut store, key, "Finished");
-            info!("Emitting finished event: {:?}", emit_video_event(key, payload, VideoEvent::Finished).await);
+            let event = VideoFinishedEvent {
+                id: key.to_string()
+            };
+            info!("Emitting finished event: {:?}", emit_video_event(key, VideoEvent::Finished(event)).await);
         }
         "Uploaded" | "Finished" => update_status(&mut store, key, header),
         "Created" | "TitleChanged" | "DescriptionChanged" | "VisibilityChanged" => {
-            let payload = stringify_payload(m);
-            let video: Video = Video::from(payload);
-            store.set_video(&video);
+            // let payload = stringify_payload(m);
+            // let video: Video = Video::from(payload);
+            // store.set_video(&video);
+            todo!()
         }
         _ => {}
     };

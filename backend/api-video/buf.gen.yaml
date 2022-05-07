@@ -8,8 +8,6 @@ plugins:
       - compile_well_known_types
       - extern_path=.google.protobuf=::pbjson_types
       - file_descriptor_set
-  - remote: buf.build/prost/plugins/serde:v0.1.0-3
-    out: gen
   - remote: buf.build/prost/plugins/tonic:v0.1.0-2
     out: gen
     opt:

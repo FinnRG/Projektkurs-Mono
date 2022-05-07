@@ -26,6 +26,7 @@ lazy_static! {
             .build(client)
             .unwrap()
     };
+    static ref SCYLLA_URL: String = env::var("SCYLLA_URL").unwrap_or("scylla-video:9042".to_string());
 }
 
 #[derive(Debug, Default)]
@@ -39,7 +40,7 @@ impl VideoService for Videos {
     ) -> Result<Response<GetVideoResponse>, Status> {
         let id = request.into_inner().id;
 
-        let mut store = Store::new();
+        let mut store = Store::new().await;
 
         match store.get_video(&id) {
             Ok(video) => Ok(Response::new(GetVideoResponse { video: Some(video) })),
