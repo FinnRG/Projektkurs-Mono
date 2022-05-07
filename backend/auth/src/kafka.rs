@@ -1,14 +1,15 @@
-use crate::{get_conn, User};
+use crate::storage::Store;
+use crate::User;
 use log::{info, warn};
 use rdkafka::consumer::Consumer;
+use rdkafka::message::BorrowedMessage;
 use rdkafka::{
     config::RDKafkaLogLevel,
-    consumer::{BaseConsumer, StreamConsumer},
+    consumer::StreamConsumer,
     message::{Header, Headers, OwnedHeaders},
     producer::{future_producer::OwnedDeliveryResult, FutureProducer, FutureRecord},
     ClientConfig, Message, Offset,
 };
-use redis::Commands;
 use std::time::Duration;
 use strum::IntoStaticStr;
 
@@ -65,39 +66,59 @@ pub async fn receive_events() {
         warn!("Kafka playback error: {}", e);
     }
 
-    let mut conn = get_conn().expect("Unable to create redis connection");
-
     loop {
         match consumer.recv().await {
-            Ok(m) => {
-                let payload = match m.payload_view::<str>() {
-                    None => "",
-                    Some(Ok(s)) => s,
-                    Some(Err(_)) => {
-                        warn!("Error while deserializing message payload");
-                        ""
-                    }
-                };
-                if let Some(headers) = m.headers() {
-                    for header in headers.iter() {
-                        if header.key == "type" && header.value == Some("Deleted".as_bytes()) {
-                            if let Err(e) = conn.del::<_, ()>(m.key()) {
-                                warn!("Unable to delete {:?} because of {}", m.key(), e);
-                            }
-                        } else if header.key == "type" {
-                            let user: User = serde_json::from_str(payload)
-                                .expect("Unable to deserialize payload");
-                            if let Err(e) = conn.set::<_, _, ()>(user.email, payload) {
-                                warn!(
-                                    "Unable to set {:?} to {} because of {}",
-                                    user.email, user.password, e
-                                );
-                            }
-                        }
-                    }
-                }
-            }
+            Ok(m) => process_event(&m).await,
             Err(e) => warn!("Kafka, error {}", e),
         }
     }
+}
+
+async fn process_event(msg: &BorrowedMessage<'_>) {
+    let mut store = Store::new();
+    let payload = extract_payload(msg);
+    let t = extract_event_type(msg);
+    let key = extract_key(msg);
+
+    if key.is_none() {
+        return;
+    }
+
+    match (t, payload) {
+        (Some("Deleted"), None) => {
+            //TODO: Fix this
+            store.del_user(key.unwrap());
+        }
+        (Some("Registered"), Some(p)) | (Some("Changed"), Some(p)) => {
+            store.set_user(&User::from_json(p));
+        }
+        _ => {}
+    };
+}
+
+// TODO: Error logging here
+fn extract_payload<'a>(msg: &'a BorrowedMessage) -> Option<&'a str> {
+    match msg.payload_view::<str>() {
+        Some(Ok(s)) => Some(s),
+        _ => None,
+    }
+}
+
+// TODO: Error logging here
+fn extract_key<'a>(msg: &'a BorrowedMessage) -> Option<&'a str> {
+    match msg.key_view::<str>() {
+        Some(Ok(s)) => Some(s),
+        _ => None,
+    }
+}
+
+fn extract_event_type<'a>(msg: &'a BorrowedMessage) -> Option<&'a str> {
+    if let Some(headers) = msg.headers() {
+        for header in headers.iter() {
+            if header.key == "type" && header.value.is_some() {
+                return std::str::from_utf8(header.value.unwrap()).ok();
+            }
+        }
+    }
+    None
 }

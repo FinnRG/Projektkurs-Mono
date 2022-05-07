@@ -1,20 +1,15 @@
-use argon2::{self, Config};
+use crate::{
+    user::User,
+    users::v1::{RegisterRequest, RegisterResponse},
+};
 use auth::create_jwt;
-use kafka::emit_user;
-use log::error;
 use log::info;
-use log::trace;
-use log::warn;
-use rdkafka::message::ToBytes;
-use redis::Commands;
-use serde::{Deserialize, Serialize};
 use std::env;
 use tonic::transport::Server;
 use tonic::{Request, Response, Status};
 use users::v1::user_service_server::UserService;
 use users::v1::user_service_server::UserServiceServer;
-use users::v1::FILE_DESCRIPTOR_SET;
-use users::v1::{register_response::Result as RegisterResult, *};
+use users::v1::{LoginRequest, LoginResponse};
 
 #[macro_use]
 extern crate lazy_static;
@@ -22,6 +17,9 @@ extern crate lazy_static;
 include!("../gen/mod.rs");
 
 mod kafka;
+mod routes;
+mod storage;
+mod user;
 
 lazy_static! {
     static ref JWTSECRET: String = env::var("JWTSECRET").unwrap();
@@ -34,22 +32,14 @@ lazy_static! {
     };
 }
 
-fn get_conn() -> Result<r2d2::PooledConnection<redis::Client>, Status> {
-    match POOL.get() {
-        Ok(conn) => Ok(conn),
-        Err(e) => {
-            error!("{:?}", e);
-            Err(Status::internal("Failed to connect to Redis"))
-        }
-    }
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-pub struct User<'a> {
-    id: &'a str,
-    name: &'a str,
-    email: &'a str,
-    password: &'a str,
+fn construct_response<'a, T>(resp: &'a mut Response<T>, id: &str) -> &'a Response<T> {
+    resp.metadata_mut().insert(
+        "authorization",
+        create_jwt(id.to_string())
+            .parse()
+            .expect("Unable to convert id to Metadata value"),
+    );
+    resp
 }
 
 #[derive(Debug, Default)]
@@ -61,7 +51,6 @@ impl UserService for Users {
         &self,
         request: Request<RegisterRequest>,
     ) -> Result<Response<RegisterResponse>, Status> {
-        info!("New register request: {:?}", request);
         // Validate the request
         let request = request.into_inner();
         if request.name.is_empty() || request.email.is_empty() || request.password.is_empty() {
@@ -69,80 +58,14 @@ impl UserService for Users {
                 "name, email and password must be specified",
             ));
         }
-        info!("Register request validated");
-
-        let id = uuid::Uuid::new_v4();
-        trace!("Id generated: {}", id);
-
-        // Generate the hash using Argon2 and a random salt using openssl
-        let mut buf = [0u8; 128];
-        openssl::rand::rand_bytes(&mut buf).expect("Unable to generate random salt");
-        let config = Config::default();
-        let hash = argon2::hash_encoded(request.password.to_bytes(), &buf, &config)
-            .expect("Unable to hash password");
-
-        // Stringify the user struct
-        let user = serde_json::to_string(&User {
-            id: &id.to_string(),
-            name: &request.name,
-            email: &request.email,
-            password: &hash,
-        })
-        .expect("Unable to stringify the user struct");
-        trace!("User struct created: {:?}", user);
-
-        // Emit UserRegistered event
-        if emit_user(&id.to_string(), &user, kafka::UserEvents::Registered)
-            .await
-            .is_err()
-        {
-            warn!("Failed to emit UserRegistered event");
-            return Err(Status::internal("Internal kafka error"));
-        }
-
-        // Construct response with added metadata field
-        let mut response = Response::new(RegisterResponse {
-            res: RegisterResult::Accepted as i32,
-        });
-        response.metadata_mut().insert(
-            "authorization",
-            create_jwt(id.to_string())
-                .parse()
-                .expect("Unable to convert id to Metadata value"),
-        );
-
-        info!("Register request successful");
-        return Ok(response);
+        return routes::register::handle_register_request(request).await;
     }
     async fn login(
         &self,
         request: Request<LoginRequest>,
     ) -> Result<Response<LoginResponse>, Status> {
-        info!("New register request: {:?}", request);
         let request = request.into_inner();
-        let mut conn = get_conn()?;
-
-        return match conn.get::<_, Option<String>>(&request.email) {
-            Err(_) => Err(Status::internal("Internal Redis error")),
-            Ok(None) => Err(Status::invalid_argument("Couldn't find email address")),
-            Ok(Some(user)) => {
-                let user: User = serde_json::from_str(&user).expect("Unable to deserialize user");
-                match argon2::verify_encoded(&user.password, request.password.as_bytes()) {
-                    Ok(true) => {
-                        let mut response = Response::new(LoginResponse {});
-                        response.metadata_mut().insert(
-                            "authorization",
-                            create_jwt(user.id.to_string())
-                                .parse()
-                                .expect("Unable to convert id to Metadata value"),
-                        );
-                        Ok(response)
-                    }
-                    Ok(false) => Err(Status::invalid_argument("Wrong password")),
-                    Err(_) => Err(Status::internal("Internal hashing error")),
-                }
-            }
-        };
+        return routes::login::handle_login_request(request).await;
     }
 }
 
