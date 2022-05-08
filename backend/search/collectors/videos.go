@@ -6,7 +6,12 @@ import (
 	"sync"
 
 	"github.com/Shopify/sarama"
+	"github.com/golang/protobuf/proto"
 	"github.com/meilisearch/meilisearch-go"
+
+	searchv1 "msostream/search/gen/search/v1"
+	usersv1 "msostream/search/gen/users/v1"
+	videosv1 "msostream/search/gen/videos/v1"
 )
 
 func CollectVideos(consumer sarama.Consumer, topic string, signals chan os.Signal, wg *sync.WaitGroup) error {
@@ -66,10 +71,59 @@ func processVideoEvent(msg *sarama.ConsumerMessage, index *meilisearch.Index) {
 	}
 
 	switch t {
-	case "TitleChanged", "DescriptionChanged", "VisibilityChanged", "Finished":
+	case "Finished":
+		processVideoFinished(msg, index)
+	case "Created":
+		processVideoCreated(msg, index)
+	case "TitleChanged", "DescriptionChanged", "VisibilityChanged":
 		updateDocumentString(index, msg.Value)
 	case "Deleted":
 		index.DeleteDocument(string(msg.Key))
 	}
 
+}
+
+func processVideoFinished(msg *sarama.ConsumerMessage, index *meilisearch.Index) {
+	var video searchv1.ExtendedVideo
+	err := index.GetDocument(string(msg.Key), &video)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	userIndex := CLIENT.Index("users")
+
+	var user usersv1.PublicUserInfo
+	userIndex.GetDocument(video.AuthorId, user)
+
+	index.UpdateDocuments([]searchv1.ExtendedVideo{{
+		Status: videosv1.Status_STATUS_FINISHED,
+		Id:     video.Id,
+	}})
+}
+
+func processVideoCreated(msg *sarama.ConsumerMessage, index *meilisearch.Index) {
+	var event videosv1.VideoCreatedEvent
+	err := proto.Unmarshal(msg.Value, &event)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	log.Println("Title: %v", event.Title)
+	log.Println("Title: %v", event.Id)
+	log.Println("Title: %v", event.Visibility)
+
+	userIndex := CLIENT.Index("users")
+
+	var user usersv1.PublicUserInfo
+	userIndex.GetDocument(event.Author, &user)
+
+	index.AddDocuments([]searchv1.ExtendedVideo{{
+		Id:          event.Id,
+		Title:       event.Title,
+		Description: event.Description,
+		Date:        event.Date,
+		Visibility:  event.Visibility,
+		Status:      searchv1.Status_STATUS_DRAFT,
+		AuthorId:    event.Author,
+		AuthorName:  user.Name,
+	}})
 }

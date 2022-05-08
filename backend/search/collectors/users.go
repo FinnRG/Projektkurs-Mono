@@ -6,8 +6,12 @@ import (
 	"sync"
 
 	"github.com/Shopify/sarama"
+	"github.com/golang/protobuf/proto"
 	"github.com/meilisearch/meilisearch-go"
 	"github.com/tidwall/gjson"
+
+	searchv1 "msostream/search/gen/search/v1"
+	usersv1 "msostream/search/gen/users/v1"
 )
 
 func CollectUsers(consumer sarama.Consumer, topic string, signals chan os.Signal, wg *sync.WaitGroup) error {
@@ -60,26 +64,57 @@ func processUserEvent(msg *sarama.ConsumerMessage, index *meilisearch.Index, top
 	if err != nil {
 		return
 	}
+	log.Println("New user event of type %v", t)
 
 	switch t {
-	case "Registered", "Changed":
-		updateDocumentString(index, msg.Key)
+	case "Registered":
+		processUserRegistered(msg, index)
 	case "NameChanged":
-		// TODO: Implement this
-		// videos := getVideosForUser(topic, string(msg.Key), msg.Offset)
+		processUserNameChanged(msg, index)
 	case "Deleted":
 		id := gjson.Get(string(msg.Value), "id")
 		index.DeleteDocument(id.String())
 	}
 }
 
-func getVideosForUser(videoTopic string, userId string, offset int64) []string {
+func processUserRegistered(msg *sarama.ConsumerMessage, index *meilisearch.Index) {
+	var event usersv1.UserRegisteredEvent
+	err := proto.Unmarshal(msg.Value, &event)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	index.AddDocuments([]usersv1.UserRegisteredEvent{event})
+}
+
+func processUserNameChanged(msg *sarama.ConsumerMessage, index *meilisearch.Index) {
+	videos := getVideosForUser(string(msg.Key), msg.Offset)
+	var event usersv1.UserNameChangedEvent
+	err := proto.Unmarshal(msg.Value, &event)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	var res []searchv1.ExtendedVideo
+
+	for i, videoId := range videos {
+		res[i] = searchv1.ExtendedVideo{
+			Id:         videoId,
+			AuthorName: event.Name,
+		}
+	}
+
+	index.UpdateDocuments(res)
+}
+
+// TODO: Don't use json
+func getVideosForUser(userId string, offset int64) []string {
 	config := sarama.NewConfig()
 	consumer, err := sarama.NewConsumer([]string{KAFKA_URL}, config)
 	if err != nil {
 		log.Fatalln(err)
 	}
-	partitionConsumer, err := consumer.ConsumePartition(videoTopic, 0, sarama.OffsetOldest)
+	partitionConsumer, err := consumer.ConsumePartition("videos", 0, sarama.OffsetOldest)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -100,7 +135,7 @@ func getVideosForUser(videoTopic string, userId string, offset int64) []string {
 		}
 
 		if t == "Finished" {
-			author := gjson.Get(string(msg.Value), "title")
+			author := gjson.Get(string(msg.Value), "author")
 			if author.Exists() && author.String() == userId {
 				videos = append(videos, string(msg.Key))
 			}

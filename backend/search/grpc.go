@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"log"
 	"net"
-	"reflect"
+	"regexp"
+	"strings"
 
 	searchv1 "msostream/search/gen/search/v1"
-	v1 "msostream/search/gen/search/v1"
 
 	"github.com/meilisearch/meilisearch-go"
 	"github.com/mitchellh/mapstructure"
@@ -52,7 +52,7 @@ func (s *searchServiceServer) SearchVideos(ctx context.Context, req *searchv1.Se
 	res, err := CLIENT.Index("videos").Search(req.Query, &meilisearch.SearchRequest{
 		Offset: int64(req.Offset),
 		Limit:  int64(req.Limit),
-		Filter: req.Filter,
+		Filter: append(req.Filter, ""),
 		Sort:   req.Sort,
 	})
 	if err != nil {
@@ -62,11 +62,20 @@ func (s *searchServiceServer) SearchVideos(ctx context.Context, req *searchv1.Se
 
 	videos := make([]*searchv1.ExtendedVideo, len(res.Hits))
 	for i, arg := range res.Hits {
-
-		videos[i] = &searchv1.ExtendedVideo{
-			Video:  decodeVideo(arg),
-			Author: &searchv1.PublicUserInfo{},
+		log.Printf("Video: %v", arg)
+		var video *searchv1.ExtendedVideo
+		config := &mapstructure.DecoderConfig{
+			MatchName: matchName,
+			Result:    &video,
 		}
+
+		decoder, err := mapstructure.NewDecoder(config)
+		if err != nil {
+			log.Fatalln(err)
+		}
+		decoder.Decode(arg)
+
+		videos[i] = video
 	}
 
 	log.Println("Successful query")
@@ -79,52 +88,16 @@ func (s *searchServiceServer) SearchVideos(ctx context.Context, req *searchv1.Se
 	}, nil
 }
 
-func decodeVideo(arg interface{}) *searchv1.Video {
-	var video searchv1.Video
+func matchName(mapKey, fieldName string) bool {
+	return strings.EqualFold(ToSnakeCase(mapKey), ToSnakeCase(fieldName))
+}
 
-	decodeHook := func(from reflect.Type, to reflect.Type, v interface{}) (interface{}, error) {
-		var vis v1.Visibility
-		if to == reflect.TypeOf(vis) {
-			switch v.(string) {
-			case "VISIBILITY_PRIVATE":
-				return v1.Visibility_VISIBILITY_PRIVATE, nil
-			case "VISIBILITY_PUBLIC":
-				return v1.Visibility_VISIBILITY_PUBLIC, nil
-			default:
-				return v1.Visibility_VISIBILITY_UNSPECIFIED, nil
-			}
-		}
-		var status v1.Status
-		if to == reflect.TypeOf(status) {
-			switch v.(string) {
-			case "STATUS_DRAFT":
-				return v1.Status_STATUS_DRAFT, nil
-			case "STATUS_UPLOADED":
-				return v1.Status_STATUS_UPLOADED, nil
-			case "STATUS_PROCESSED":
-				return v1.Status_STATUS_PROCESSED, nil
-			case "STATUS_FINISHED":
-				return v1.Status_STATUS_FINISHED, nil
-			default:
-				return v1.Status_STATUS_UNSPECIFIED, nil
-			}
-		}
-		return v, nil
-	}
+// Source: https://stackoverflow.com/questions/56616196/how-to-convert-camel-case-string-to-snake-case
+var matchFirstCap = regexp.MustCompile("(.)([A-Z][a-z]+)")
+var matchAllCap = regexp.MustCompile("([a-z0-9])([A-Z])")
 
-	config := &mapstructure.DecoderConfig{
-		DecodeHook: decodeHook,
-		Result:     &video,
-	}
-
-	decoder, err := mapstructure.NewDecoder(config)
-	if err != nil {
-		log.Fatalf("decoder config error: %v\n", err)
-	}
-
-	err = decoder.Decode(arg)
-	if err != nil {
-		log.Fatalf("decoding error: %s", err)
-	}
-	return &video
+func ToSnakeCase(str string) string {
+	snake := matchFirstCap.ReplaceAllString(str, "${1}_${2}")
+	snake = matchAllCap.ReplaceAllString(snake, "${1}_${2}")
+	return strings.ToLower(snake)
 }

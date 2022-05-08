@@ -15,6 +15,9 @@ var CLIENT *meilisearch.Client
 var TOPICS []TopicCallbackTuple = []TopicCallbackTuple{{
 	topic:    "videos",
 	callback: CollectVideos,
+}, {
+	topic:    "users",
+	callback: CollectUsers,
 }}
 
 type TopicCallbackTuple struct {
@@ -52,6 +55,7 @@ func CollectTopics(wg *sync.WaitGroup, topics []TopicCallbackTuple) {
 
 	log.Println("Creating PartitionConsumer")
 	for _, t := range topics {
+		log.Printf("Starting consumer for %v", t)
 		go t.callback(consumer, t.topic, signals, wg)
 	}
 }

@@ -3,6 +3,7 @@ package collectors
 import (
 	"encoding/json"
 	"log"
+	searchv1 "msostream/search/gen/search/v1"
 
 	"github.com/Shopify/sarama"
 	"github.com/meilisearch/meilisearch-go"
@@ -40,4 +41,17 @@ func unsafeDeserialize(str []byte) map[string]interface{} {
 func updateDocumentString(index *meilisearch.Index, str []byte) {
 	obj := unsafeDeserialize(str)
 	index.AddDocuments([]map[string]interface{}{obj})
+}
+
+func createExtendedVideo(video searchv1.Video, authorName string) *searchv1.ExtendedVideo {
+	return &searchv1.ExtendedVideo{
+		Id:          video.Id,
+		Title:       video.Title,
+		Description: video.Description,
+		Date:        video.Date,
+		Visibility:  video.Visibility,
+		Status:      video.Status,
+		AuthorId:    video.Author,
+		AuthorName:  authorName,
+	}
 }
