@@ -1,4 +1,5 @@
 use crate::storage::Store;
+use diesel::PgConnection;
 use log::{info, warn};
 use std::env;
 use tonic::{transport::Server, Request, Response, Status};
@@ -9,6 +10,10 @@ use videos::v1::{
 };
 #[macro_use]
 extern crate lazy_static;
+#[macro_use]
+extern crate diesel;
+#[macro_use]
+extern crate diesel_migrations;
 
 include!("../gen/mod.rs");
 
@@ -26,8 +31,8 @@ lazy_static! {
             .build(client)
             .unwrap()
     };
-    static ref SCYLLA_URL: String =
-        env::var("SCYLLA_URL").unwrap_or("scylla-video:9042".to_string());
+    static ref DATABASE_URL: String =
+        env::var("DATABASE_URL").unwrap();
 }
 
 #[derive(Debug, Default)]
@@ -41,12 +46,10 @@ impl VideoService for Videos {
     ) -> Result<Response<GetVideoResponse>, Status> {
         let id = request.into_inner().id;
 
-        let mut store = Store::new().await;
+        let mut store = Store::new();
 
-        match store.get_video(&id) {
-            Ok(video) => Ok(Response::new(GetVideoResponse { video: Some(video) })),
-            Err(e) => Err(e.to_status()),
-        }
+        let video = Video::from(store.get_video(&id));
+        Ok(Response::new(GetVideoResponse { video: Some(video) }))
     }
 
     async fn update_video(
@@ -73,13 +76,15 @@ impl VideoService for Videos {
     }
 }
 
+embed_migrations!();
+
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     pretty_env_logger::init();
+    init();
 
     let _handle = tokio::spawn(kafka::receive_events());
 
-    info!("Redis url: {}", env::var("REDIS_URL").unwrap());
     let addr = "0.0.0.0:8080".parse()?;
     let videos = Videos::default();
 
@@ -90,4 +95,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .await?;
 
     Ok(())
+}
+
+fn init() {
+    use diesel::prelude::*;
+    embedded_migrations::run(&PgConnection::establish(&DATABASE_URL).expect("Unable to establish DB connection")).expect("Unable to run DB migrations");
 }

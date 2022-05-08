@@ -1,4 +1,4 @@
-use crate::storage::{Store, StoreError};
+use crate::storage::Store;
 use crate::{
     kafka::{self, events::VideoEvent},
     videos::v1::{
@@ -20,8 +20,8 @@ pub async fn handle_update_request(
 
     let changed_video = changed_video.unwrap();
 
-    // Get current video from redis
-    let mut store = Store::new().await;
+    // Get current video from database
+    let mut store = Store::new();
     let curr_video = match update_video(&mut store, changed_video).await {
         Ok(v) => v,
         Err(status) => return Err(status),
@@ -35,6 +35,16 @@ pub async fn handle_update_request(
 // Checks if the video has an id attribute
 fn video_id_present(video: &Option<Video>) -> bool {
     video.is_none() || video.as_ref().unwrap().id.is_empty()
+}
+
+async fn update_video(store: &mut Store, changed_video: Video) -> Result<Video, Status> {
+    let id = &changed_video.id;
+    let mut curr_video = Video::from(store.get_video(id));
+
+    if let Err(e) = handle_changed_video(store, &mut curr_video, changed_video).await {
+        return Err(e);
+    }
+    Ok(curr_video)
 }
 
 // Emits new events based on the changes to the video. Doesn't check if the curr_video and changed_video are correct
@@ -54,23 +64,9 @@ async fn handle_changed_video(
         }
     }
 
-    store.set_video(curr_video);
+    store.set_video(curr_video.clone());
 
     Ok(())
-}
-
-async fn update_video(store: &mut Store, changed_video: Video) -> Result<Video, Status> {
-    let id = &changed_video.id;
-    let mut curr_video = match store.get_video(id) {
-        Ok(video) => video,
-        Err(StoreError::NotFound) => return Err(Status::not_found("Video with id not found")),
-        Err(StoreError::Internal(_)) => return Err(Status::internal("Internal Redis error")),
-    };
-
-    if let Err(e) = handle_changed_video(store, &mut curr_video, changed_video).await {
-        return Err(e);
-    }
-    Ok(curr_video)
 }
 
 // Updates the current video with new values from the changed video and returns a list of events that should be published

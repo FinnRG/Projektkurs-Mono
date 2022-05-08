@@ -22,8 +22,8 @@ spec:
         image: finnrg/msostream-api-video:latest
         imagePullPolicy: Always
         env:
-        - name: REDIS_URL
-          value: "redis://:strongPassword@redis-master:6379/"
+        - name: DATABASE_URL
+          value: "postgres://postgres:strongPassword@postgres-postgresql/projekt"
         - name: RUST_LOG
           value: "debug"
         - name: JWTSECRET

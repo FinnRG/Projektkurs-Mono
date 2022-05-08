@@ -12,9 +12,10 @@ use rdkafka::{
     ClientConfig, Message, Offset,
 };
 
-use self::events::VideoEvent;
+use events::VideoEvent;
 
 pub mod events;
+mod handler;
 
 // Publishes a VideoCreated event to videos
 pub async fn emit_video_event(id: &str, event: VideoEvent) -> OwnedDeliveryResult {
@@ -85,53 +86,8 @@ async fn process_message(m: &BorrowedMessage<'_>) {
 }
 
 async fn process_valid_message(m: &BorrowedMessage<'_>, header: &Header<'_, &[u8]>) {
-    let mut store = Store::new().await;
     let header =
         std::str::from_utf8(header.value.expect("Type header should have a value")).unwrap();
     let key = std::str::from_utf8(m.key().expect("Message should have a key")).unwrap();
-    match header {
-        "Deleted" => {
-            store.del_video(key);
-        }
-        "Processed" => {
-            let payload = stringify_payload(m);
-            update_status(&mut store, key, "Finished");
-            let event = VideoFinishedEvent {
-                id: key.to_string(),
-            };
-            info!(
-                "Emitting finished event: {:?}",
-                emit_video_event(key, VideoEvent::Finished(event)).await
-            );
-        }
-        "Uploaded" | "Finished" => update_status(&mut store, key, header),
-        "Created" | "TitleChanged" | "DescriptionChanged" | "VisibilityChanged" => {
-            // let payload = stringify_payload(m);
-            // let video: Video = Video::from(payload);
-            // store.set_video(&video);
-            todo!()
-        }
-        _ => {}
-    };
-}
-
-fn update_status(store: &mut Store, id: &str, status: &str) {
-    match store.get_video(id) {
-        Ok(mut video) => {
-            video.set_status(VideoStatus::from(status));
-            store.set_video(&video);
-        }
-        Err(e) => warn!("Unable to get {:?} because of {:?}", id, e),
-    }
-}
-
-fn stringify_payload<'a>(m: &'a BorrowedMessage) -> &'a str {
-    match m.payload_view::<str>() {
-        None => "",
-        Some(Ok(s)) => s,
-        Some(Err(_)) => {
-            warn!("Error while deserializing message payload");
-            ""
-        }
-    }
+    handler::handle_event(header, key, m).await;
 }
