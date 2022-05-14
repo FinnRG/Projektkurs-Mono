@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"log"
 	"mime/multipart"
@@ -15,9 +14,12 @@ import (
 	sarama "github.com/Shopify/sarama"
 	"github.com/gin-gonic/gin"
 	"github.com/minio/minio-go/v7"
+	"google.golang.org/protobuf/proto"
+
+	videosv1 "msostream/upload/gen/go/videos/v1"
 )
 
-var collectedVideos map[string]Video = make(map[string]Video)
+var collectedVideos map[string]videosv1.VideoCreatedEvent = make(map[string]videosv1.VideoCreatedEvent)
 var supportedFileTypes []string = []string{"video/mp4", "video/quicktime", "video/x-troff-msvideo", "video/avi", "video/msvideo", "video/x-msvideo", "video/x-flv", "video/x-ms-wmv", "video/x-matroska", "video/webm", "video/ogg"}
 var uploadedList []string
 
@@ -88,16 +90,12 @@ ConsumerLoop:
 	for {
 		select {
 		case msg := <-partitionConsumer.Messages():
-			var video Video
-			err := json.Unmarshal([]byte(msg.Value), &video)
-
-			if err != nil {
-				log.Fatal(err)
-			}
-
 			for _, s := range msg.Headers {
-				if createdVideoHeader(s) && notUploaded(video.Id) {
-					collectedVideos[string(msg.Key)] = video
+				if createdVideoHeader(s) {
+					err := collectVideo(msg)
+					if err != nil {
+						log.Fatalln(err)
+					}
 				}
 				if uploadedVideoHeader(s) {
 					log.Println("New Uploaded event with id: " + string(msg.Key))
@@ -116,6 +114,21 @@ ConsumerLoop:
 	}
 }
 
+func collectVideo(msg *sarama.ConsumerMessage) error {
+	var video videosv1.VideoCreatedEvent
+	err := proto.Unmarshal(msg.Value, &video)
+
+	if err != nil {
+		return err
+	}
+
+	if notUploaded(video.Id) {
+		collectedVideos[string(msg.Key)] = video
+	}
+
+	return nil
+}
+
 func run() error {
 	router := gin.Default()
 	router.POST("/upload/:id", upload)
@@ -127,11 +140,6 @@ func upload(c *gin.Context) {
 
 	// Check that the user is authorized
 	id := c.Param("id")
-	if !uploadAuthorized(id) {
-		c.AbortWithStatus(http.StatusUnauthorized)
-		return
-	}
-
 	if !notUploaded(id) {
 		c.AbortWithStatus(http.StatusConflict)
 		return
@@ -205,9 +213,4 @@ func supportedFileType(ferr *multipart.FileHeader) (bool, string) {
 		}
 	}
 	return false, ""
-}
-
-// Checks whether the video with this id has the DRAFT status
-func uploadAuthorized(id string) bool {
-	return collectedVideos[id].Status == "STATUS_DRAFT"
 }

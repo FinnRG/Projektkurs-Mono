@@ -1,14 +1,16 @@
 package kafka
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 	"os"
 	"os/signal"
 	"sync"
 
+	videosv1 "msostream/packager/gen/go/videos/v1"
+
 	"github.com/Shopify/sarama"
+	"google.golang.org/protobuf/proto"
 )
 
 type Video struct {
@@ -25,8 +27,8 @@ var KAFKA_URL = os.Getenv("KAFKA_URL")
 var sp sarama.SyncProducer
 var sperr error
 
-var collectedVideos map[string]Video = make(map[string]Video)
-var WorkChan chan Video = make(chan Video, 1000000)
+var collectedVideos map[string]videosv1.VideoUploadedEvent = make(map[string]videosv1.VideoUploadedEvent)
+var WorkChan chan *videosv1.VideoUploadedEvent = make(chan *videosv1.VideoUploadedEvent, 1000000)
 
 // List of videos that were already processed (Not necessarily by this instance)
 var processedList []string
@@ -111,13 +113,13 @@ func checkHeaders(msg *sarama.ConsumerMessage) {
 }
 
 func collectVideo(msg *sarama.ConsumerMessage) {
-	var video Video
-	err := json.Unmarshal(msg.Value, &video)
+	var event videosv1.VideoUploadedEvent
+	err := proto.Unmarshal(msg.Value, &event)
 	if err != nil {
 		log.Fatalln(err)
 	}
-	collectedVideos[video.Id] = video
-	WorkChan <- video
+	collectedVideos[event.Id] = event
+	WorkChan <- &event
 }
 
 func processedVideoHeader(header *sarama.RecordHeader) bool {
@@ -136,8 +138,11 @@ func uploadedVideoHeader(header *sarama.RecordHeader) bool {
 // Emits an event with the header type=Processed onto the video topic
 func EmitVideoProcessedEvent(id string) error {
 	log.Println("Started emitting VideoProcessed event")
+	var event = videosv1.VideoProcessedEvent{
+		Id: id,
+	}
 
-	m, err := json.Marshal(collectedVideos[id])
+	m, err := proto.Marshal(&event)
 	if err != nil {
 		return err
 	}

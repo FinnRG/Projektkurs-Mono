@@ -8,7 +8,7 @@ require (
 	github.com/minio/minio-go/v7 v7.0.24
 	google.golang.org/genproto v0.0.0-20200526211855-cb27e3aa2013
 	google.golang.org/grpc v1.45.0
-	google.golang.org/protobuf v1.26.0
+	google.golang.org/protobuf v1.28.0
 )
 
 require (

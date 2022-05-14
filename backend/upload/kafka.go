@@ -1,11 +1,13 @@
 package main
 
 import (
-	"encoding/json"
 	"log"
 	"sync"
 
+	videosv1 "msostream/upload/gen/go/videos/v1"
+
 	sarama "github.com/Shopify/sarama"
+	"google.golang.org/protobuf/proto"
 )
 
 var sp sarama.SyncProducer
@@ -26,9 +28,10 @@ func initSyncProducer(wg *sync.WaitGroup) {
 }
 
 func emitVideoUploadedEvent(id string) error {
-	video := collectedVideos[id]
-	video.Status = "STATUS_PROCESSED"
-	m, err := json.Marshal(video)
+	var event = videosv1.VideoUploadedEvent{
+		Id: id,
+	}
+	m, err := proto.Marshal(&event)
 	if err != nil {
 		return err
 	}

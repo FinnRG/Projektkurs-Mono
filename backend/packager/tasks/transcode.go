@@ -2,23 +2,23 @@ package tasks
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"log"
-	"msostream/packager/kafka"
+	videosv1 "msostream/packager/gen/go/videos/v1"
 	"msostream/packager/transcode"
 
 	"github.com/hibiken/asynq"
+	"google.golang.org/protobuf/proto"
 )
 
 const (
 	TypeVideoTranscode = "video:transcode"
 )
 
-type VideoTranscodePayload = kafka.Video
+type VideoTranscodePayload = videosv1.VideoUploadedEvent
 
-func NewVideoTranscodeTask(video VideoTranscodePayload) (*asynq.Task, error) {
-	payload, err := json.Marshal(video)
+func NewVideoTranscodeTask(video *VideoTranscodePayload) (*asynq.Task, error) {
+	payload, err := proto.Marshal(video)
 	if err != nil {
 		return nil, err
 	}
@@ -28,8 +28,8 @@ func NewVideoTranscodeTask(video VideoTranscodePayload) (*asynq.Task, error) {
 func HandleVideoTranscodeTask(ctx context.Context, t *asynq.Task) error {
 	log.Println("Starting to handle new VideoTranscodeTask")
 	var p VideoTranscodePayload
-	if err := json.Unmarshal(t.Payload(), &p); err != nil {
-		return fmt.Errorf("json.Unmarshal failed: %v: %w", err, asynq.SkipRetry)
+	if err := proto.Unmarshal(t.Payload(), &p); err != nil {
+		return fmt.Errorf("proto.Unmarshal failed: %v: %w", err, asynq.SkipRetry)
 	}
 	return transcode.TranscodeAndUpload(p.Id)
 }
