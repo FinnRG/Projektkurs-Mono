@@ -13,7 +13,7 @@ import { useQuery } from 'react-query';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Search } from 'tabler-icons-react';
 import { transport, Video } from '../client';
-import { SearchVideosRequest } from '../gen/search/v1/search';
+import { ExtendedVideo, SearchVideosRequest } from '../gen/search/v1/search';
 import { SearchServiceClient } from '../gen/search/v1/search.client';
 
 const useStyles = createStyles((theme) => ({
@@ -40,7 +40,7 @@ const useStyles = createStyles((theme) => ({
 }));
 
 interface VideoCardProps {
-  video?: Video;
+  video: ExtendedVideo;
 }
 
 // TODO: Add Avatar + Thumbnail + swap video.id to video.created_at
@@ -66,7 +66,7 @@ const VideoCard = ({ video }: VideoCardProps) => {
             {video.title}
           </Text>
           <Group noWrap spacing='xs'>
-            <Text size='xs'>{video.author}</Text>
+            <Text size='xs'>{video.authorName}</Text>
             <Text size='xs' color='dimmed'>
               •
             </Text>
@@ -108,7 +108,7 @@ const Videos = () => {
           placeholder='Search videos'
           rightSectionWidth={42}
         />
-        {data?.videos.map(({video}, index) => (
+        {data?.videos.map((video, index) => (
           <VideoCard video={video} key={index} />
         ))}
       </Stack>
