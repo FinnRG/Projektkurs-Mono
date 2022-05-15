@@ -1,0 +1,31 @@
+prometheus:
+  prometheusSpec:
+    remoteWrite:
+      - url: http://mimir-distributed-distributor.observability.svc.cluster.local:8080/api/v1/push
+
+grafana:
+  additionalDataSources:
+    - name: Loki
+      type: loki
+      url: http://loki.observability.svc.cluster.local:3100
+      access: proxy
+      jsonData:
+        derivedFields:
+          - datasourceUid: tempo
+            matcherRegex: ((\d+|[a-z]+)(\d+|[a-z]+)(\d+|[a-z]+)(\d+|[a-z]+)(\d+|[a-z]+)(\d+|[a-z]+)(\d+|[a-z]+)(\d+|[a-z]+)(\d+|[a-z]+)(\d+|[a-z]+)(\d+|[a-z]+))
+            name: TraceID
+            url: $${__value.raw}
+        maxLines: 1000
+      version: 1
+    - name: Tempo
+      type: tempo
+      uid: tempo
+      url: http://tempo.observability.svc.cluster.local:3100
+      access: proxy
+      version: 1
+    - name: Mimir
+      type: prometheus
+      uid: mimir
+      url: http://mimir-distributed-querier.observability.svc.cluster.local:8080/prometheus
+      access: proxy
+      version: 1
