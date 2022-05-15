@@ -10,25 +10,31 @@ name = "auth_service"
 path = "src/service.rs"
 
 [dependencies]
-log = "0.4.16"
+log = "0.4.17"
 chrono = { version = "0.4.19", default-features = false, features = [ "clock", "std" ] }
 rdkafka = { git = "https://github.com/fede1024/rust-rdkafka.git", features = ["cmake-build"] }
-jsonwebtoken = "8.0.1"
+jsonwebtoken = "8.1.0"
 lazy_static = "1.4.0"
-serde = "1.0.136"
-tokio = { version = "1.17.0", features = ["macros", "rt-multi-thread"] }
-uuid = { version = "0.8.2", features = ["v4"] }
+serde = "1.0.137"
+tokio = { version = "1.18.2", features = ["macros", "rt-multi-thread"] }
+uuid = { version = "1.0.0", features = ["v4"] }
 rs-auth = { git = "https://github.com/MSOStream/rs-auth" }
-prost = "0.10"
-tonic = { version = "0.7", features = ["compression"] }
+prost = "0.10.3"
+tonic = { version = "0.7.2", features = ["compression"] }
 redis = { version = "0.21.5", features = ["r2d2"] }
 r2d2 = "0.8.9"
-serde_json = "1.0.79"
-openssl = "0.10.38"
+serde_json = "1.0.81"
+openssl = "0.10.40"
 rust-argon2 = "1.0.0"
 strum = { version = "0.24", features = ["derive"] }
 pretty_env_logger = "0.4.0"
 strum_macros = "0.24"
 futures-util = "0.3.21"
-pbjson = "0.3"
-pbjson-types = "0.3"
+pbjson = "0.3.1"
+pbjson-types = "0.3.1"
+opentelemetry = { version = "0.17", features = ["rt-tokio"] }
+opentelemetry-jaeger = "0.16"
+tracing = "0.1"
+tracing-subscriber = "0.3.11"
+tracing-opentelemetry = "0.17.2"
+tracing-futures = "0.2"

@@ -12,7 +12,7 @@ use rdkafka::{
     consumer::StreamConsumer,
     message::{Header, Headers, OwnedHeaders},
     producer::{future_producer::OwnedDeliveryResult, FutureProducer, FutureRecord},
-    ClientConfig, Offset, Message
+    ClientConfig, Message, Offset,
 };
 use std::time::Duration;
 use strum::IntoStaticStr;
@@ -53,7 +53,7 @@ pub async fn emit_user(id: &str, event: &UserEvent) -> OwnedDeliveryResult {
             key: "type",
             value: Some(event_str),
         }));
-    
+
     let bytes = event.as_bytes();
 
     if bytes.is_some() {
@@ -93,7 +93,6 @@ pub async fn receive_events() {
     }
 }
 
-
 async fn process_event(msg: &BorrowedMessage<'_>) {
     let mut store = Store::new();
     let t = extract_event_type(msg);
@@ -130,7 +129,6 @@ fn handle_registered(store: &mut Store, payload: &[u8]) {
     };
 
     store.set_user(&user);
-
 }
 
 // TODO: Error logging here

@@ -1,7 +1,10 @@
 use crate::{
     construct_response,
     kafka::{self, emit_user},
-    users::v1::{register_response::Result as RegisterResult, RegisterRequest, RegisterResponse, UserRegisteredEvent},
+    users::v1::{
+        register_response::Result as RegisterResult, RegisterRequest, RegisterResponse,
+        UserRegisteredEvent,
+    },
 };
 use argon2::Config;
 use rdkafka::{message::ToBytes, producer::future_producer::OwnedDeliveryResult};
@@ -19,7 +22,10 @@ pub async fn handle_register_request(
 
     let hash = generate_hash(&req.password);
 
-    if emit_registered_event(req, &id.to_string(), hash).await.is_err() {
+    if emit_registered_event(req, &id.to_string(), hash)
+        .await
+        .is_err()
+    {
         return Err(Status::internal("Internal kafka error"));
     }
 
@@ -44,7 +50,11 @@ fn generate_hash(password: &str) -> String {
     argon2::hash_encoded(password.to_bytes(), &buf, &config).expect("Unable to hash password")
 }
 
-async fn emit_registered_event(user: RegisterRequest, id: &str, hash: String) -> OwnedDeliveryResult {
+async fn emit_registered_event(
+    user: RegisterRequest,
+    id: &str,
+    hash: String,
+) -> OwnedDeliveryResult {
     let event = UserRegisteredEvent {
         id: id.to_string(),
         email: user.email,
