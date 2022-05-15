@@ -1,9 +1,7 @@
 use crate::storage::Store;
 use crate::{
     kafka::{self, events::VideoEvent},
-    videos::v1::{
-        CreateVideoRequest, CreateVideoResponse, Status as VideoStatus, Video, VideoCreatedEvent,
-    },
+    videos::v1::{CreateVideoRequest, CreateVideoResponse, VideoCreatedEvent},
 };
 use tonic::{Response, Status};
 
@@ -11,8 +9,6 @@ pub async fn handle_create_request(
     req: CreateVideoRequest,
     author: &str,
 ) -> Result<Response<CreateVideoResponse>, Status> {
-    let store = Store::new();
-
     if req.title.is_empty() {
         return Err(Status::invalid_argument("Title can't be an empty string"));
     }

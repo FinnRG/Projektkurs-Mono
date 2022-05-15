@@ -1,5 +1,5 @@
 use crate::storage::Store;
-use diesel::PgConnection;
+
 use log::{info, warn};
 use std::env;
 use tonic::{transport::Server, Request, Response, Status};
@@ -31,8 +31,7 @@ lazy_static! {
             .build(client)
             .unwrap()
     };
-    static ref DATABASE_URL: String =
-        env::var("DATABASE_URL").unwrap();
+    static ref DATABASE_URL: String = env::var("DATABASE_URL").unwrap();
 }
 
 #[derive(Debug, Default)]
@@ -46,7 +45,7 @@ impl VideoService for Videos {
     ) -> Result<Response<GetVideoResponse>, Status> {
         let id = request.into_inner().id;
 
-        let mut store = Store::new();
+        let store = Store::new();
 
         let video = Video::from(store.get_video(&id));
         Ok(Response::new(GetVideoResponse { video: Some(video) }))
@@ -99,5 +98,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 fn init() {
     use diesel::prelude::*;
-    embedded_migrations::run(&PgConnection::establish(&DATABASE_URL).expect("Unable to establish DB connection")).expect("Unable to run DB migrations");
+    embedded_migrations::run(
+        &PgConnection::establish(&DATABASE_URL).expect("Unable to establish DB connection"),
+    )
+    .expect("Unable to run DB migrations");
 }

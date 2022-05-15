@@ -39,7 +39,7 @@ async fn handle_processed(store: Store, id: &str) {
     );
 }
 
-fn handle_created(store: Store, id: &str, m: &BorrowedMessage<'_>) {
+fn handle_created(store: Store, _id: &str, m: &BorrowedMessage<'_>) {
     if m.payload().is_none() {
         return;
     }

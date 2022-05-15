@@ -1,15 +1,13 @@
 pub mod models;
 pub mod schema;
 
-use crate::kafka::events::VideoEvent;
 use crate::storage::models::DBVideo;
 use crate::videos::v1::Video;
-use crate::{DATABASE_URL, POOL};
+use crate::DATABASE_URL;
 use diesel::prelude::*;
 use diesel::PgConnection;
-use log::{error, warn};
-use r2d2::PooledConnection;
-use redis::{Client, Commands, ErrorKind, RedisError};
+
+use redis::{ErrorKind, RedisError};
 use tonic::Status;
 
 pub struct Store {

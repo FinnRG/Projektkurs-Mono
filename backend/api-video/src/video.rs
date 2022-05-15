@@ -1,4 +1,4 @@
-use crate::videos::v1::{Status as VideoStatus, Video};
+use crate::videos::v1::Status as VideoStatus;
 
 impl From<&str> for VideoStatus {
     fn from(item: &str) -> VideoStatus {

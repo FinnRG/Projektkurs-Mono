@@ -1,8 +1,5 @@
 use std::time::Duration;
 
-use crate::{
-    storage::Store, videos::v1::Status as VideoStatus, videos::v1::VideoFinishedEvent, Video,
-};
 use log::{info, warn};
 use rdkafka::{
     config::RDKafkaLogLevel,
