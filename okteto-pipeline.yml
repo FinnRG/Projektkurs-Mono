@@ -1,8 +1,0 @@
-deploy:
-  - helm repo add bitnami https://charts.bitnami.com/bitnami
-  - helm repo update
-  - helm upgrade --install minio --set auth.rootPassword=strongPassword --set persistence.size=2Gi bitnami/minio
-  - helm upgrade --install postgres --set auth.postgresPassword=strongPassword,auth.database=projekt,primary.persistence.size=500Mi,readReplicas.persistence.size=200Mi bitnami/postgresql
-  - helm upgrade --install kafka bitnami/kafka
-  - helm upgrade --install redis --set auth.password=strongPassword,master.persistence.enabled=false,replicas.persistence.enabled=false bitnami/redis
-  - kubectl apply -f ./manifests/

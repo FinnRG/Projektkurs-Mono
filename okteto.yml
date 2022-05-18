@@ -1,9 +1,0 @@
-name: projektkurs-mono
-image: okteto/node:14
-command: "chmod +x ./okteto-install.sh && ./okteto-install.sh && bash"
-sync:
-- .:/usr/src/app
-forward:
-- 9229:9229
-- 3000:3000
-autocreate: true
