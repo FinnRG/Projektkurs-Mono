@@ -1,4 +1,8 @@
 auth/
 stream/
+search/
+packager/
+upload/
+api-video/
 monolith/target/
 lib/target/

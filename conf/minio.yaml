@@ -1,0 +1,12 @@
+podAnnotations:
+  prometheus.io/scrape: "true"
+  prometheus.io/path: "/minio/v2/metrics/cluster"
+  prometheus.io/port: "9000"
+auth:
+  rootPassword: "strongPassword"
+persistence:
+  size: 2Gi
+metrics:
+  serviceMonitor:
+    enabled: true
+    namespace: "observability"
