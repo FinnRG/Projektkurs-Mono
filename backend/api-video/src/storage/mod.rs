@@ -6,6 +6,7 @@ use crate::videos::v1::Video;
 use crate::DATABASE_URL;
 use diesel::prelude::*;
 use diesel::PgConnection;
+use diesel::pg::upsert::*;
 
 use redis::{ErrorKind, RedisError};
 use tonic::Status;
@@ -44,6 +45,8 @@ impl Store {
 
         diesel::insert_into(videos::table)
             .values(models::DBVideo::from(v))
+            .on_conflict(on_constraint("videos_pkey"))
+            .do_nothing()
             .execute(&self.conn)
             .expect("Failed to set new video");
     }

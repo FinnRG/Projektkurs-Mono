@@ -9,7 +9,7 @@ import { CreateVideoRequest } from './gen/videos/v1/videos';
 import { SearchServiceClient } from './gen/search/v1/search.client';
 import { SearchVideosRequest } from './gen/search/v1/search';
 
-const BASE = import.meta.env.VITE_API_URL || 'http://api.msostream.io/';
+const BASE = import.meta.env.VITE_API_URL || 'http://api.msostream.live/';
 
 const client = axios.create({
   withCredentials: true,

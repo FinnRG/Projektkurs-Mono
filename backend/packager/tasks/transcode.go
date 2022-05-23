@@ -31,5 +31,11 @@ func HandleVideoTranscodeTask(ctx context.Context, t *asynq.Task) error {
 	if err := proto.Unmarshal(t.Payload(), &p); err != nil {
 		return fmt.Errorf("proto.Unmarshal failed: %v: %w", err, asynq.SkipRetry)
 	}
-	return transcode.TranscodeAndUpload(p.Id)
+
+	transcodeErr := transcode.TranscodeAndUpload(p.Id)
+	if transcodeErr != nil {
+		log.Println(transcodeErr)
+	}
+
+	return transcodeErr
 }

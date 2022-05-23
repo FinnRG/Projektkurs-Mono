@@ -33,7 +33,7 @@ const Player = () => {
     <Container size={'md'}>
       <Stack>
         <ShakaPlayer
-          src={`http://api.msostream.io/stream/get/${params.videoId}/hls.m3u8`}
+          src={`http://api.msostream.live/stream/get/${params.videoId}/hls.m3u8`}
         />
         <Skeleton visible={isLoading}>
           <Title order={2}>{data?.video?.title}</Title>

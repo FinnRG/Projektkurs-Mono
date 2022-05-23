@@ -1,0 +1,4 @@
+ingester:
+  replicas: 1
+querier:
+  replicas: 1

@@ -2,6 +2,7 @@ prometheus:
   prometheusSpec:
     remoteWrite:
       - url: http://mimir-distributed-distributor.observability.svc.cluster.local:8080/api/v1/push
+    serviceMonitorSelectorNilUsesHelmValues: false
 
 grafana:
   additionalDataSources:
