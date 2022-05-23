@@ -3,9 +3,6 @@ import { useContext, useState } from 'react';
 import {
   Icon as TablerIcon,
   Video,
-  PlayerPlay,
-  Tags,
-  Playlist,
   Upload,
 } from 'tabler-icons-react';
 import { useNavigate } from 'react-router-dom';
@@ -69,11 +66,8 @@ const NavbarLink = ({ icon: Icon, label, onClick, route }: NavbarLinkProps) => {
 };
 
 const linkData = [
-  { icon: PlayerPlay, label: 'Player', route: '/player' },
   { icon: Video, label: 'Videos', route: '/videos' },
   { icon: Upload, label: 'Upload', route: '/create', restricted: true },
-  { icon: Playlist, label: 'Playlists', route: '/playlists' },
-  { icon: Tags, label: 'Tags', route: '/tags' },
 ];
 
 const NavBarLinks = () => {
