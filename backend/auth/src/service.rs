@@ -10,10 +10,10 @@ use opentelemetry::{
     trace::TraceError,
     KeyValue,
 };
-use tracing::Instrument;
 use std::env;
 use tonic::transport::Server;
 use tonic::{Request, Response, Status};
+use tracing::Instrument;
 use tracing_subscriber::{prelude::*, util::SubscriberInitExt};
 use users::v1::user_service_server::UserService;
 use users::v1::user_service_server::UserServiceServer;
@@ -87,7 +87,9 @@ impl UserService for Users {
 
         let handle_result = routes::register::handle_register_request(request);
 
-        handle_result.instrument(tracing::info_span!("register request")).await
+        handle_result
+            .instrument(tracing::info_span!("register request"))
+            .await
     }
     async fn login(
         &self,
@@ -97,7 +99,9 @@ impl UserService for Users {
 
         let handle_result = routes::login::handle_login_request(request);
 
-        handle_result.instrument(tracing::info_span!("login request")).await
+        handle_result
+            .instrument(tracing::info_span!("login request"))
+            .await
     }
 }
 
@@ -129,7 +133,6 @@ fn tracing_init() -> Result<(), TraceError> {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-
     init();
 
     let addr = "0.0.0.0:8080".parse()?;

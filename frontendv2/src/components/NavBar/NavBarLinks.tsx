@@ -1,10 +1,6 @@
 import { createStyles, Tooltip, UnstyledButton } from '@mantine/core';
 import { useContext, useState } from 'react';
-import {
-  Icon as TablerIcon,
-  Video,
-  Upload,
-} from 'tabler-icons-react';
+import { Icon as TablerIcon, Video, Upload } from 'tabler-icons-react';
 import { useNavigate } from 'react-router-dom';
 import UserContext from '../../context/userContext';
 

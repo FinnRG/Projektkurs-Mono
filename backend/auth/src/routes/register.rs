@@ -16,7 +16,11 @@ use tracing_opentelemetry::OpenTelemetrySpanExt;
 pub async fn handle_register_request(
     req: RegisterRequest,
 ) -> Result<Response<RegisterResponse>, Status> {
-    let id = tracing::Span::current().context().span().span_context().trace_id();
+    let id = tracing::Span::current()
+        .context()
+        .span()
+        .span_context()
+        .trace_id();
     tracing::info!("handling login request, TraceId: {}", id);
 
     if is_invalid_request(&req) {

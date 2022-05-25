@@ -4,9 +4,9 @@ pub mod schema;
 use crate::storage::models::DBVideo;
 use crate::videos::v1::Video;
 use crate::DATABASE_URL;
+use diesel::pg::upsert::*;
 use diesel::prelude::*;
 use diesel::PgConnection;
-use diesel::pg::upsert::*;
 
 use redis::{ErrorKind, RedisError};
 use tonic::Status;

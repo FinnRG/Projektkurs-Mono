@@ -43,7 +43,7 @@ const CreateVideo = () => {
     uploadVideo(id, files[0]).then((resp) => {
       if (resp.status == 200) {
         setLoaded(true);
-        setDisabled(false)
+        setDisabled(false);
       }
     });
   };
@@ -65,7 +65,7 @@ const CreateVideo = () => {
     if (form.validate()) {
       setDisabled(false);
     }
-    form.resetErrors()
+    form.resetErrors();
   }, [form.values]);
 
   return (
@@ -113,22 +113,28 @@ const CreateVideo = () => {
         )}
         {active == 2 && (
           <Center>
-              <Button
-      color={clipboard.copied ? 'teal' : 'blue'}
-      onClick={() => clipboard.copy(`${window.location.protocol}//${window.location.host}/player/${id}`)}
-    >
-      {clipboard.copied ? 'Copied' : 'Copy video link'}
-    </Button>
+            <Button
+              color={clipboard.copied ? 'teal' : 'blue'}
+              onClick={() =>
+                clipboard.copy(
+                  `${window.location.protocol}//${window.location.host}/player/${id}`
+                )
+              }
+            >
+              {clipboard.copied ? 'Copied' : 'Copy video link'}
+            </Button>
           </Center>
         )}
         <Space h={'xl'} />
         {active != 2 && (
-        <Group position='center' mt='xl'>
-          <Button variant='default' onClick={prevStep}>
-            Back
-          </Button>
-          <Button disabled={disabled} onClick={nextStep}>Submit</Button>
-        </Group>
+          <Group position='center' mt='xl'>
+            <Button variant='default' onClick={prevStep}>
+              Back
+            </Button>
+            <Button disabled={disabled} onClick={nextStep}>
+              Submit
+            </Button>
+          </Group>
         )}
       </Container>
     </>

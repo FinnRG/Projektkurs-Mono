@@ -48,7 +48,7 @@ const VideoCard = ({ video }: VideoCardProps) => {
   const { classes } = useStyles();
 
   if (video == undefined) {
-    return <></>
+    return <></>;
   }
 
   return (
@@ -87,8 +87,10 @@ const Videos = () => {
 
   const { data } = useQuery(['videos', debounced], () => {
     const searchService = new SearchServiceClient(transport());
-    return searchService.searchVideos(SearchVideosRequest.create({query: debounced})).response;
-  })
+    return searchService.searchVideos(
+      SearchVideosRequest.create({ query: debounced })
+    ).response;
+  });
 
   return (
     <>

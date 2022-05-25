@@ -1,12 +1,12 @@
-pub mod schema;
 pub mod models;
+pub mod schema;
 
-use crate::DATABASE_URL;
-use crate::storage::models::DBUser;
-use crate::{user::User};
-use diesel::pg::upsert::on_constraint;
-use diesel::{PgConnection, Connection, QueryDsl, RunQueryDsl};
 use crate::diesel::ExpressionMethods;
+use crate::storage::models::DBUser;
+use crate::user::User;
+use crate::DATABASE_URL;
+use diesel::pg::upsert::on_constraint;
+use diesel::{Connection, PgConnection, QueryDsl, RunQueryDsl};
 
 pub struct Store {
     conn: PgConnection,
@@ -15,9 +15,7 @@ pub struct Store {
 impl Store {
     pub fn new() -> Self {
         let conn = PgConnection::establish(&DATABASE_URL).expect("Unable to connect to PostgreSQL");
-        Store {
-            conn,
-        }
+        Store { conn }
     }
 
     pub fn get_user(&mut self, email: &str) -> DBUser {
