@@ -7,18 +7,26 @@ use crate::{
     },
 };
 use argon2::Config;
+use opentelemetry::trace::TraceContextExt;
 use rdkafka::{message::ToBytes, producer::future_producer::OwnedDeliveryResult};
 use tonic::{Response, Status};
+use tracing_opentelemetry::OpenTelemetrySpanExt;
 
+#[tracing::instrument]
 pub async fn handle_register_request(
     req: RegisterRequest,
 ) -> Result<Response<RegisterResponse>, Status> {
-    if validate_request(&req) {
+    let id = tracing::Span::current().context().span().span_context().trace_id();
+    tracing::info!("handling login request, TraceId: {}", id);
+
+    if is_invalid_request(&req) {
         return Err(Status::invalid_argument(
             "name, email and password must be specified",
         ));
     }
+
     let id = uuid::Uuid::new_v4();
+    tracing::debug!("Generated user id: {}", id.to_string());
 
     let hash = generate_hash(&req.password);
 
@@ -26,6 +34,7 @@ pub async fn handle_register_request(
         .await
         .is_err()
     {
+        tracing::error!("Failed to connet to kafka");
         return Err(Status::internal("Internal kafka error"));
     }
 
@@ -38,7 +47,8 @@ pub async fn handle_register_request(
     Ok(resp)
 }
 
-fn validate_request(req: &RegisterRequest) -> bool {
+#[tracing::instrument]
+fn is_invalid_request(req: &RegisterRequest) -> bool {
     req.name.is_empty() || req.email.is_empty() || req.password.is_empty()
 }
 
@@ -50,6 +60,7 @@ fn generate_hash(password: &str) -> String {
     argon2::hash_encoded(password.to_bytes(), &buf, &config).expect("Unable to hash password")
 }
 
+#[tracing::instrument]
 async fn emit_registered_event(
     user: RegisterRequest,
     id: &str,

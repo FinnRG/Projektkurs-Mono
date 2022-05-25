@@ -87,7 +87,9 @@ impl UserService for Users {
             ));
         }
 
-        return routes::register::handle_register_request(request).await;
+        let handle_result = routes::register::handle_register_request(request);
+
+        handle_result.instrument(tracing::info_span!("register request")).await
     }
     async fn login(
         &self,

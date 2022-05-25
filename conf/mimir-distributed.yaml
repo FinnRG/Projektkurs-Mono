@@ -1,4 +1,4 @@
 ingester:
-  replicas: 1
+  replicas: 3
 querier:
-  replicas: 1
+  replicas: 3

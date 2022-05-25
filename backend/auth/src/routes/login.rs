@@ -9,7 +9,7 @@ use tracing_opentelemetry::OpenTelemetrySpanExt;
 #[tracing::instrument]
 pub async fn handle_login_request(req: LoginRequest) -> Result<Response<LoginResponse>, Status> {
     let id = tracing::Span::current().context().span().span_context().trace_id();
-    tracing::debug!("handling login request, TraceId: {}", id);
+    tracing::info!("handling login request, TraceId: {}", id);
     let mut store = Store::new();
 
     match store.get_user(&req.email) {
