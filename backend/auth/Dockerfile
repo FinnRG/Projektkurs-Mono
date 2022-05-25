@@ -19,7 +19,9 @@ RUN rm src/*.rs
 COPY --from=buf /usr/local/bin/buf /usr/local/bin/buf
 COPY buf.work.yaml buf.work.yaml
 COPY buf.gen.yaml buf.gen.yaml
+COPY diesel.toml diesel.toml
 COPY ./build.rs ./build.rs
+COPY ./migrations ./migrations
 COPY ./proto ./proto
 COPY ./src ./src
 
@@ -28,9 +30,10 @@ RUN rm ./target/release/deps/auth_service*
 RUN cargo build --release
 
 # our final base
-FROM rust:1.60-slim-buster
+FROM debian:bullseye-slim
 
-# copy the build artifact from the build stage
+RUN apt-get update
+RUN apt-get install -y libpq-dev
 COPY --from=build /auth/target/release/auth_service .
 
 EXPOSE 8080

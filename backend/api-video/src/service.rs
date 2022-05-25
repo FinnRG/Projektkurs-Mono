@@ -24,13 +24,6 @@ mod video;
 
 lazy_static! {
     static ref JWTSECRET: String = env::var("JWTSECRET").unwrap();
-    static ref POOL: r2d2::Pool<redis::Client> = {
-        let client = redis::Client::open(env::var("REDIS_URL").unwrap()).unwrap();
-        r2d2::Pool::<redis::Client>::builder()
-            .max_size(15)
-            .build(client)
-            .unwrap()
-    };
     static ref DATABASE_URL: String = env::var("DATABASE_URL").unwrap();
 }
 
@@ -75,8 +68,6 @@ impl VideoService for Videos {
     }
 }
 
-embed_migrations!();
-
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     pretty_env_logger::init();
@@ -95,6 +86,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     Ok(())
 }
+
+embed_migrations!();
 
 fn init() {
     use diesel::prelude::*;

@@ -2,7 +2,7 @@ use super::schema::videos;
 use crate::Video;
 use diesel::Queryable;
 
-#[derive(Queryable, Insertable)]
+#[derive(Queryable, Insertable, AsChangeset)]
 #[table_name = "videos"]
 pub struct DBVideo {
     pub id: String,

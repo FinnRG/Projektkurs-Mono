@@ -128,7 +128,7 @@ fn handle_registered(store: &mut Store, payload: &[u8]) {
         password: event.password,
     };
 
-    store.set_user(&user);
+    store.set_user(user);
 }
 
 // TODO: Error logging here

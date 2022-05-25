@@ -21,6 +21,10 @@ use users::v1::{LoginRequest, LoginResponse};
 
 #[macro_use]
 extern crate lazy_static;
+#[macro_use]
+extern crate diesel;
+#[macro_use]
+extern crate diesel_migrations;
 
 include!("../gen/mod.rs");
 
@@ -31,13 +35,7 @@ mod user;
 
 lazy_static! {
     static ref JWTSECRET: String = env::var("JWTSECRET").unwrap();
-    static ref POOL: r2d2::Pool<redis::Client> = {
-        let client = redis::Client::open(env::var("REDIS_URL").unwrap()).unwrap();
-        r2d2::Pool::<redis::Client>::builder()
-            .max_size(15)
-            .build(client)
-            .unwrap()
-    };
+    static ref DATABASE_URL: String = env::var("DATABASE_URL").unwrap();
 }
 
 fn construct_response<'a, T>(resp: &'a mut Response<T>, id: &str) -> &'a Response<T> {
@@ -131,6 +129,9 @@ fn tracing_init() -> Result<(), TraceError> {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+
+    init();
+
     let addr = "0.0.0.0:8080".parse()?;
     let users = Users::default();
 
@@ -144,4 +145,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     opentelemetry::global::shutdown_tracer_provider();
     Ok(())
+}
+
+embed_migrations!();
+
+fn init() {
+    use diesel::prelude::*;
+    embedded_migrations::run(
+        &PgConnection::establish(&DATABASE_URL).expect("Unable to establish DB connection"),
+    )
+    .expect("Unable to run DB migrations");
 }

@@ -53,6 +53,7 @@ fn is_invalid_request(req: &RegisterRequest) -> bool {
 }
 
 // Generates the hash using Argon2 and a random salt using openssl
+#[tracing::instrument]
 fn generate_hash(password: &str) -> String {
     let mut buf = [0u8; 128];
     openssl::rand::rand_bytes(&mut buf).expect("Unable to generate random salt");

@@ -1,5 +1,5 @@
 use crate::construct_response;
-use crate::storage::{Store, StoreError};
+use crate::storage::Store;
 use crate::user::User;
 use crate::users::v1::{LoginRequest, LoginResponse};
 use opentelemetry::trace::TraceContextExt;
@@ -12,11 +12,9 @@ pub async fn handle_login_request(req: LoginRequest) -> Result<Response<LoginRes
     tracing::info!("handling login request, TraceId: {}", id);
     let mut store = Store::new();
 
-    match store.get_user(&req.email) {
-        Ok(user) => verify_password(&user, req.password.as_bytes()),
-        Err(StoreError::NotFound) => Err(Status::invalid_argument("Couldn't find email address")),
-        Err(StoreError::Internal(_)) => Err(Status::internal("Internal Redis error")),
-    }
+    let user = store.get_user(&req.email).into();
+
+    verify_password(&user, req.password.as_bytes())
 }
 
 #[tracing::instrument]

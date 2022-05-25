@@ -43,10 +43,13 @@ impl Store {
     pub fn set_video(&self, v: Video) {
         use schema::videos;
 
+        let dbvideo = models::DBVideo::from(v);
+
         diesel::insert_into(videos::table)
-            .values(models::DBVideo::from(v))
+            .values(&dbvideo)
             .on_conflict(on_constraint("videos_pkey"))
-            .do_nothing()
+            .do_update()
+            .set(&dbvideo)
             .execute(&self.conn)
             .expect("Failed to set new video");
     }
@@ -57,7 +60,7 @@ impl Store {
         videos::table
             .find(id)
             .first::<DBVideo>(&self.conn)
-            .expect("Error loading post")
+            .expect("Error loading video")
     }
 
     pub fn del_video(&self, id: &str) {
