@@ -6,9 +6,10 @@ import {
   Space,
   Select,
   Group,
+  Center,
 } from '@mantine/core';
-import { useForm } from '@mantine/hooks';
-import { useState } from 'react';
+import { useClipboard, useForm } from '@mantine/hooks';
+import { useEffect, useState } from 'react';
 import { createVideo, uploadVideo } from '../client';
 import DropzoneWithButton from '../components/Create/Dropzone';
 import { Visibility } from '../gen/videos/v1/videos';
@@ -18,6 +19,10 @@ const CreateVideo = () => {
   const [loaded, setLoaded] = useState(false);
 
   const [active, setActive] = useState(0);
+  const [disabled, setDisabled] = useState(true);
+
+  const clipboard = useClipboard({ timeout: 500 });
+
   const nextStep = () => {
     if (!form.validate()) {
       return;
@@ -25,8 +30,12 @@ const CreateVideo = () => {
     if (active == 0) {
       createVideo(form.values)?.then(({ response }) => setId(response.id));
     }
+    if (active != 2) {
+      setDisabled(true);
+    }
     setActive((current) => (current < 3 ? current + 1 : current));
   };
+
   const prevStep = () =>
     setActive((current) => (current > 0 ? current - 1 : current));
 
@@ -34,6 +43,7 @@ const CreateVideo = () => {
     uploadVideo(id, files[0]).then((resp) => {
       if (resp.status == 200) {
         setLoaded(true);
+        setDisabled(false)
       }
     });
   };
@@ -50,6 +60,13 @@ const CreateVideo = () => {
         [Visibility.PRIVATE, Visibility.PUBLIC].includes(value),
     },
   });
+
+  useEffect(() => {
+    if (form.validate()) {
+      setDisabled(false);
+    }
+    form.resetErrors()
+  }, [form.values]);
 
   return (
     <>
@@ -94,13 +111,25 @@ const CreateVideo = () => {
         {active == 1 && (
           <DropzoneWithButton onDrop={upload} loaded={loaded} progress={0} />
         )}
+        {active == 2 && (
+          <Center>
+              <Button
+      color={clipboard.copied ? 'teal' : 'blue'}
+      onClick={() => clipboard.copy(`${window.location.protocol}//${window.location.host}/player/${id}`)}
+    >
+      {clipboard.copied ? 'Copied' : 'Copy video link'}
+    </Button>
+          </Center>
+        )}
         <Space h={'xl'} />
+        {active != 2 && (
         <Group position='center' mt='xl'>
           <Button variant='default' onClick={prevStep}>
             Back
           </Button>
-          <Button onClick={nextStep}>Submit</Button>
+          <Button disabled={disabled} onClick={nextStep}>Submit</Button>
         </Group>
+        )}
       </Container>
     </>
   );
