@@ -13,6 +13,7 @@ interface RegisterFormProps {
 const RegisterForm = ({ setLoading, onSuccess }: RegisterFormProps) => {
   const [name, setName] = useInputState('');
   const [email, setEmail] = useInputState('');
+  const [emailErr, setEmailErr] = useState(false);
   const [password, setPassword] = useInputState('');
   const navigate = useNavigate();
 
@@ -22,7 +23,12 @@ const RegisterForm = ({ setLoading, onSuccess }: RegisterFormProps) => {
       setLoading(false);
       onSuccess(jwt);
       navigate('/videos');
-    });
+    })
+      .catch((res) => {
+        if (res.response && res.response.status == 503) {
+          setEmailErr(true);
+        }
+      });
 
     setLoading(false);
   };
@@ -39,6 +45,7 @@ const RegisterForm = ({ setLoading, onSuccess }: RegisterFormProps) => {
       <TextInput
         value={email}
         onChange={setEmail}
+        error={emailErr ? 'Email already exists' : ''}
         label='Email'
         placeholder='you@mantine.dev'
         mt='md'
