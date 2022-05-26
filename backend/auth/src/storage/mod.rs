@@ -29,11 +29,10 @@ impl Store {
     }
 
     // TODO: Get user email with id and THEN delete password with associated email
-    #[allow(dead_code)]
-    pub fn del_user(&mut self, email: &str) {
+    pub fn del_user(&mut self, id: &Uuid) {
         use schema::users;
 
-        diesel::delete(users::table.filter(users::email.eq(email)))
+        diesel::delete(users::table.filter(users::id.eq(id)))
             .execute(&self.conn)
             .expect("Unable to delete user");
     }

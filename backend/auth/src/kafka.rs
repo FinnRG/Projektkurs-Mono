@@ -56,4 +56,3 @@ pub async fn emit_user(id: &str, event: &UserEvent) -> OwnedDeliveryResult {
     let res = producer.send(record, Duration::from_secs(0)).await;
     res
 }
-

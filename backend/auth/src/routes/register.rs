@@ -1,16 +1,14 @@
 use crate::{
     construct_response,
     kafka::{self, emit_user},
-    storage::{
-        models::NewDBUser,
-        Store,
-    },
+    storage::{models::NewDBUser, Store},
     users::v1::{
         register_response::Result as RegisterResult, RegisterRequest, RegisterResponse,
         UserRegisteredEvent,
     },
 };
 use argon2::Config;
+use diesel::result::{DatabaseErrorKind, Error};
 use opentelemetry::trace::TraceContextExt;
 use rdkafka::{message::ToBytes, producer::future_producer::OwnedDeliveryResult};
 use tonic::{Response, Status};
@@ -40,15 +38,18 @@ pub async fn handle_register_request(
     let hash = generate_hash(&req.password);
 
     let mut store = Store::new();
-    let id = store
-        .create_user(&NewDBUser::from(&req))
-        .expect("Unable to save user");
+    let id = match store.create_user(&NewDBUser::from(&req)) {
+        Ok(id) => id,
+        Err(e) => return Err(err_to_status(e)),
+    };
 
     if emit_registered_event(req, &id.to_string(), hash)
         .await
         .is_err()
     {
         tracing::error!("Failed to connet to kafka");
+        // Revert Database transaction
+        store.del_user(&id);
         return Err(Status::internal("Internal kafka error"));
     }
 
@@ -101,4 +102,14 @@ async fn emit_registered_event(
         name: user.name,
     };
     emit_user(id, &kafka::UserEvent::Registered(event)).await
+}
+
+fn err_to_status(e: Error) -> Status {
+    match e {
+        // This is safe, because the id is automatically generated and collisions are unlikely
+        Error::DatabaseError(DatabaseErrorKind::UniqueViolation, _) => {
+            Status::already_exists("User with this email already exists")
+        }
+        _ => Status::internal("Internal database error"),
+    }
 }
