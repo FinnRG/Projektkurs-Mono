@@ -14,6 +14,7 @@ import Login from './routes/Login';
 import Player from './routes/Player';
 import Videos from './routes/Videos';
 import { ReactQueryDevtools } from 'react-query/devtools';
+import { NotificationsProvider } from '@mantine/notifications';
 
 const WrappedContext = () => {
   const preferredColorScheme = useColorScheme();
@@ -34,21 +35,23 @@ const WrappedContext = () => {
         toggleColorScheme={toggleColorScheme}
       >
         <MantineProvider theme={{ colorScheme }} withGlobalStyles>
-          <QueryClientProvider client={queryClient}>
-            <BrowserRouter>
-              <Routes>
-                <Route path='/' element={<Context />}>
-                  <Route path='player' element={<Player />}>
-                    <Route path=':videoId' element={<Player />} />
+          <NotificationsProvider>
+            <QueryClientProvider client={queryClient}>
+              <BrowserRouter>
+                <Routes>
+                  <Route path='/' element={<Context />}>
+                    <Route path='player' element={<Player />}>
+                      <Route path=':videoId' element={<Player />} />
+                    </Route>
+                    <Route path='videos' element={<Videos />} />
+                    <Route path='login' element={<Login />} />
+                    <Route path='create' element={<CreateVideo />} />
                   </Route>
-                  <Route path='videos' element={<Videos />} />
-                  <Route path='login' element={<Login />} />
-                  <Route path='create' element={<CreateVideo />} />
-                </Route>
-              </Routes>
-            </BrowserRouter>
-            <ReactQueryDevtools initialIsOpen={false} />
-          </QueryClientProvider>
+                </Routes>
+              </BrowserRouter>
+              <ReactQueryDevtools initialIsOpen={false} />
+            </QueryClientProvider>
+          </NotificationsProvider>
         </MantineProvider>
       </ColorSchemeProvider>
     </UserContext.Provider>
