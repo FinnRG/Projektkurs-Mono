@@ -7,12 +7,12 @@ import {
   TextInput,
 } from '@mantine/core';
 import { useInputState } from '@mantine/hooks';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { login } from '../../client';
 
 interface LoginFormProps {
-  setLoading: (arg0: boolean) => void;
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>;
   onSuccess: (arg0: string) => unknown;
 }
 
