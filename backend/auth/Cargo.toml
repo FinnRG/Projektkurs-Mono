@@ -17,7 +17,6 @@ jsonwebtoken = "8.1.0"
 lazy_static = "1.4.0"
 serde = "1.0.137"
 tokio = { version = "1.18.2", features = ["macros", "rt-multi-thread"] }
-uuid = { version = "1.0.0", features = ["v4"] }
 rs-auth = { git = "https://github.com/MSOStream/rs-auth" }
 prost = "0.10.3"
 tonic = { version = "0.7.2", features = ["compression"] }
@@ -37,6 +36,7 @@ tracing = "0.1.34"
 tracing-subscriber = { version = "0.3.11", features = [ "json" ]  }
 tracing-opentelemetry = "0.17.2"
 tracing-futures = "0.2.5"
-diesel = { version = "1.4.8", features = ["postgres"] }
+diesel = { version = "1.4.8", features = ["postgres", "uuidv07"] }
+uuid = { version = "=0.8.1", features = ["serde", "v4"] }
 diesel_migrations = { version = "1.4.0", features = ["postgres"] }
 

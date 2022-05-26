@@ -3,10 +3,11 @@ pub mod schema;
 
 use crate::diesel::ExpressionMethods;
 use crate::storage::models::DBUser;
-use crate::user::User;
 use crate::DATABASE_URL;
-use diesel::pg::upsert::on_constraint;
 use diesel::{Connection, PgConnection, QueryDsl, RunQueryDsl};
+use uuid::Uuid;
+
+use self::models::NewDBUser;
 
 pub struct Store {
     conn: PgConnection,
@@ -28,6 +29,7 @@ impl Store {
     }
 
     // TODO: Get user email with id and THEN delete password with associated email
+    #[allow(dead_code)]
     pub fn del_user(&mut self, email: &str) {
         use schema::users;
 
@@ -36,17 +38,12 @@ impl Store {
             .expect("Unable to delete user");
     }
 
-    pub fn set_user(&mut self, user: User) {
+    pub fn create_user(&mut self, user: &NewDBUser) -> Result<Uuid, diesel::result::Error> {
         use schema::users;
 
-        let dbuser = models::DBUser::from(user);
-
         diesel::insert_into(users::table)
-            .values(&dbuser)
-            .on_conflict(on_constraint("users_pkey"))
-            .do_update()
-            .set(&dbuser)
-            .execute(&self.conn)
-            .expect("Failed to set new user");
+            .values(user)
+            .returning(users::id)
+            .get_result::<Uuid>(&self.conn)
     }
 }

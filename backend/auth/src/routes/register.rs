@@ -1,6 +1,10 @@
 use crate::{
     construct_response,
     kafka::{self, emit_user},
+    storage::{
+        models::NewDBUser,
+        Store,
+    },
     users::v1::{
         register_response::Result as RegisterResult, RegisterRequest, RegisterResponse,
         UserRegisteredEvent,
@@ -11,6 +15,7 @@ use opentelemetry::trace::TraceContextExt;
 use rdkafka::{message::ToBytes, producer::future_producer::OwnedDeliveryResult};
 use tonic::{Response, Status};
 use tracing_opentelemetry::OpenTelemetrySpanExt;
+use uuid::Uuid;
 
 #[tracing::instrument]
 pub async fn handle_register_request(
@@ -34,6 +39,11 @@ pub async fn handle_register_request(
 
     let hash = generate_hash(&req.password);
 
+    let mut store = Store::new();
+    let id = store
+        .create_user(&NewDBUser::from(&req))
+        .expect("Unable to save user");
+
     if emit_registered_event(req, &id.to_string(), hash)
         .await
         .is_err()
@@ -42,16 +52,19 @@ pub async fn handle_register_request(
         return Err(Status::internal("Internal kafka error"));
     }
 
+    Ok(construct_register_response(id))
+}
+
+fn construct_register_response(id: Uuid) -> Response<RegisterResponse> {
     let mut resp = Response::new(RegisterResponse {
         res: RegisterResult::Accepted as i32,
     });
 
     construct_response(&mut resp, &id.to_string());
 
-    Ok(resp)
+    resp
 }
 
-#[tracing::instrument]
 fn is_invalid_request(req: &RegisterRequest) -> bool {
     req.name.is_empty() || req.email.is_empty() || req.password.is_empty()
 }
@@ -63,6 +76,16 @@ fn generate_hash(password: &str) -> String {
     openssl::rand::rand_bytes(&mut buf).expect("Unable to generate random salt");
     let config = Config::default();
     argon2::hash_encoded(password.to_bytes(), &buf, &config).expect("Unable to hash password")
+}
+
+impl<'a> From<&'a RegisterRequest> for NewDBUser<'a> {
+    fn from(item: &'a RegisterRequest) -> Self {
+        NewDBUser {
+            name: &item.name,
+            email: &item.email,
+            password: &item.password,
+        }
+    }
 }
 
 #[tracing::instrument]

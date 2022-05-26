@@ -138,7 +138,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let addr = "0.0.0.0:8080".parse()?;
     let users = Users::default();
 
-    let _handle = tokio::spawn(kafka::receive_events());
     let _tracer = tracing_init()?;
 
     Server::builder()
