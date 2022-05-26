@@ -7,18 +7,18 @@ import {
   TextInput,
 } from '@mantine/core';
 import { useInputState } from '@mantine/hooks';
-import React from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { login } from '../../client';
 
 interface LoginFormProps {
   setLoading: (arg0: boolean) => void;
-  onError: () => void;
   onSuccess: (arg0: string) => unknown;
 }
 
-const LoginForm = ({ setLoading, onError, onSuccess }: LoginFormProps) => {
+const LoginForm = ({ setLoading, onSuccess }: LoginFormProps) => {
   const [email, setEmail] = useInputState('');
+  const [loginErr, setLoginErr] = useState(false);
   const [password, setPassword] = useInputState('');
   const navigate = useNavigate();
 
@@ -26,11 +26,17 @@ const LoginForm = ({ setLoading, onError, onSuccess }: LoginFormProps) => {
     setLoading(true);
     login(email, password)
       .then((jwt) => {
-        setLoading(false);
+        setLoginErr(false);
         onSuccess(jwt);
         navigate('/videos');
       })
-      .catch(() => onError());
+      .catch((res) => {
+        if (res.response && res.response.status == 503) {
+          setLoginErr(true);
+        }
+      });
+
+    setLoading(false);
   };
 
   return (
@@ -38,6 +44,7 @@ const LoginForm = ({ setLoading, onError, onSuccess }: LoginFormProps) => {
       <TextInput
         value={email}
         onChange={setEmail}
+        error={loginErr}
         label='Email'
         placeholder='you@mantine.dev'
         required
@@ -45,6 +52,7 @@ const LoginForm = ({ setLoading, onError, onSuccess }: LoginFormProps) => {
       <PasswordInput
         value={password}
         onChange={setPassword}
+        error={loginErr}
         label='Password'
         placeholder='Your password'
         required

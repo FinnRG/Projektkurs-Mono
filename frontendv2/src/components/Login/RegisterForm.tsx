@@ -1,21 +1,16 @@
 import { Anchor, Button, Checkbox, Group, TextInput } from '@mantine/core';
 import { useInputState } from '@mantine/hooks';
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { register } from '../../client';
 import PasswordStrength from './PasswordStrength';
 
 interface RegisterFormProps {
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
-  onError: () => unknown;
   onSuccess: (arg0: string) => unknown;
 }
 
-const RegisterForm = ({
-  setLoading,
-  onSuccess,
-  onError,
-}: RegisterFormProps) => {
+const RegisterForm = ({ setLoading, onSuccess }: RegisterFormProps) => {
   const [name, setName] = useInputState('');
   const [email, setEmail] = useInputState('');
   const [password, setPassword] = useInputState('');
@@ -23,13 +18,13 @@ const RegisterForm = ({
 
   const onSubmit = () => {
     setLoading(true);
-    register(name, email, password)
-      .then((jwt) => {
-        setLoading(false);
-        onSuccess(jwt);
-        navigate('/videos');
-      })
-      .catch(() => onError());
+    register(name, email, password).then((jwt) => {
+      setLoading(false);
+      onSuccess(jwt);
+      navigate('/videos');
+    });
+
+    setLoading(false);
   };
 
   return (

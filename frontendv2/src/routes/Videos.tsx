@@ -12,7 +12,7 @@ import { useState } from 'react';
 import { useQuery } from 'react-query';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Search } from 'tabler-icons-react';
-import { transport, Video } from '../client';
+import { transport } from '../client';
 import { ExtendedVideo, SearchVideosRequest } from '../gen/search/v1/search';
 import { SearchServiceClient } from '../gen/search/v1/search.client';
 

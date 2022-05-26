@@ -21,9 +21,6 @@ const Login = () => {
     event.preventDefault();
   };
 
-  // TODO: Error fetching
-  const onError = () => {};
-
   return (
     <Container size={420} my={40}>
       <LoadingOverlay visible={loading} />
@@ -54,12 +51,10 @@ const Login = () => {
           <LoginForm
             onSuccess={(jwt) => setUser && setUser(jwt)}
             setLoading={setLoading}
-            onError={onError}
           />
         ) : (
           <RegisterForm
             setLoading={setLoading}
-            onError={onError}
             onSuccess={(jwt) => setUser && setUser(jwt)}
           />
         )}
