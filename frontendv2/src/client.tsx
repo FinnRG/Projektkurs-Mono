@@ -71,4 +71,4 @@ const uploadVideo = (id: string, file: File) => {
 };
 
 export default client;
-export { login, register, createVideo, uploadVideo, transport };
+export { login, register, createVideo, uploadVideo, transport, BASE };

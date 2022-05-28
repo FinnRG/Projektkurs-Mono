@@ -4,7 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Container, Skeleton, Stack, Title, Text } from '@mantine/core';
 import { useQuery } from 'react-query';
 import { VideoServiceClient } from '../gen/videos/v1/videos.client';
-import { transport } from '../client';
+import { BASE, transport } from '../client';
 import { useDocumentTitle } from '@mantine/hooks';
 import dayjs from 'dayjs';
 
@@ -33,7 +33,7 @@ const Player = () => {
     <Container size={'md'}>
       <Stack>
         <ShakaPlayer
-          src={`http://api.msostream.live/stream/get/${params.videoId}/hls.m3u8`}
+          src={`${BASE}/stream/get/${params.videoId}/hls.m3u8`}
         />
         <Skeleton visible={isLoading}>
           <Title order={2}>{data?.video?.title}</Title>
