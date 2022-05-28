@@ -4,7 +4,6 @@ import (
 	"msostream/search/collectors"
 	"os"
 	"os/signal"
-	"sync"
 
 	"github.com/meilisearch/meilisearch-go"
 )
@@ -16,10 +15,7 @@ func main() {
 	client := InitMeilisearch()
 	initResult := collectors.InitCollectors(client)
 
-	var wg sync.WaitGroup
-	wg.Add(len(initResult.Topics))
-	collectors.CollectTopics(&wg, initResult.Topics)
-	wg.Wait()
+	collectors.CollectTopics(initResult.Topics)
 	InitGrpc()
 
 	signals := make(chan os.Signal, 1)

@@ -13,11 +13,11 @@ import (
 var KAFKA_URL = os.Getenv("KAFKA_URL")
 var CLIENT *meilisearch.Client
 var TOPICS []TopicCallbackTuple = []TopicCallbackTuple{{
-	topic:    "videos",
-	callback: CollectVideos,
-}, {
 	topic:    "users",
 	callback: CollectUsers,
+}, {
+	topic:    "videos",
+	callback: CollectVideos,
 }}
 
 type TopicCallbackTuple struct {
@@ -43,7 +43,8 @@ func InitCollectors(client *meilisearch.Client) InitResult {
 	}
 }
 
-func CollectTopics(wg *sync.WaitGroup, topics []TopicCallbackTuple) {
+func CollectTopics(topics []TopicCallbackTuple) {
+
 	config := sarama.NewConfig()
 	consumer, err := sarama.NewConsumer([]string{KAFKA_URL}, config)
 	if err != nil {
@@ -55,7 +56,10 @@ func CollectTopics(wg *sync.WaitGroup, topics []TopicCallbackTuple) {
 
 	log.Println("Creating PartitionConsumer")
 	for _, t := range topics {
+		var wg sync.WaitGroup
+		wg.Add(1)
 		log.Printf("Starting consumer for %v", t)
-		go t.callback(consumer, t.topic, signals, wg)
+		go t.callback(consumer, t.topic, signals, &wg)
+		wg.Wait()
 	}
 }
