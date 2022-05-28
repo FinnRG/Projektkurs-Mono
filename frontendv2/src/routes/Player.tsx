@@ -33,7 +33,7 @@ const Player = () => {
     <Container size={'md'}>
       <Stack>
         <ShakaPlayer
-          src={`${BASE}/stream/get/${params.videoId}/hls.m3u8`}
+          src={`${BASE}stream/get/${params.videoId}/hls.m3u8`}
         />
         <Skeleton visible={isLoading}>
           <Title order={2}>{data?.video?.title}</Title>
